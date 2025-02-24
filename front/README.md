@@ -79,7 +79,9 @@ Server Componentは使い方によってはむしろ速度が遅くなったり�
 大前提として、**Client ComponentからServer Componentを呼び出すことはできません**。
 ここで使うのが以下のような形式。
 
-```tsx:side-menu.tsx
+side-menu.tsx
+
+```tsx
 "use client";
 
 import { useState } from "react";
@@ -102,7 +104,9 @@ export function SideMenu({ children }: { children: React.ReactNode }) {
 }
 ```
 
-```tsx:page.tsx
+page.tsx
+
+```tsx
 import { UserInfo } from "./user-info"; // Server Components
 import { SideMenu } from "./side-menu"; // Client Components
 
