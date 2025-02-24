@@ -1,6 +1,5 @@
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
-import { Provider } from "@/components/ui/provider";
 
 
 const notoSansJP = Noto_Sans_JP({
@@ -15,12 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body
-        className={`${notoSansJP.variable} antialiased bg-background`}
-      >
-        <Provider>
+      <body className={`${notoSansJP.variable} antialiased bg-background`}>
           {children}
-        </Provider>
       </body>
     </html>
   );
