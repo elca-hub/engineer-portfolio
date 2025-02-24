@@ -62,7 +62,7 @@ const HomeSection = ({ title, contents, imagePath, imageAlt, imageWidth, imageHe
         viewport={{ once: true }}
         className='md:max-w-[50%]'
       >
-        <Image src={imagePath} alt={imageAlt ?? ''} width={imageWidth} height={imageHeight} />
+        <Image src={imagePath} alt={imageAlt ?? ''} width={imageWidth} height={imageHeight} loading='lazy' />
       </motion.div>
     </section>
   );
