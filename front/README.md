@@ -68,7 +68,7 @@ Server Componentは使い方によってはむしろ速度が遅くなったり�
 
 ディレクトリ構成について語る前に注意したいのが、`use client`の存在です。
 通常は`use client`を利用することでClient Componentになりますが、もし`use client`を記述したモジュールをimportした場合、それ以降のモジュールは全て暗黙的にClient Componentと化します。
-これを`Client Boundary`と呼びます。
+これを**Client Boundary**と呼びます。
 例えば`layout.tsx`に`use client`を書くと、全てのモジュールがClient Componentになります。
 これを防ぐためにも、**`use client`をなるべく末端に寄せる**必要があります。
 
