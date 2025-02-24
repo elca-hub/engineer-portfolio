@@ -46,12 +46,14 @@ Next.jsの最大の強みである「SSR（サーバサイドレンダリング�
 >
 > 1. React renders Server Components into a special data format called the React Server Component Payload (RSC Payload).
 > 2. Next.js uses the RSC Payload and Client Component JavaScript instructions to render HTML on the server.
+>
 > Then, on the client:
 >
 > 1. The HTML is used to immediately show a fast non-interactive preview of the route - this is for the initial page load only.
 > 2. The React Server Components Payload is used to reconcile the Client and Server Component trees, and update the DOM.
 > 3. The JavaScript instructions are used to hydrate Client Components and make the application interactive.
-引用元：[How are Server Components rendered?](https://nextjs.org/docs/app/building-your-application/rendering/server-components#how-are-server-components-rendered)
+>
+> 引用元：[How are Server Components rendered?](https://nextjs.org/docs/app/building-your-application/rendering/server-components#how-are-server-components-rendered)
 
 翻訳は各自で行ってもらいたいのですが、ここで言いたいのは、Server Componentを使用するとRSC Payloadが生成されるということです。
 webブラウザはRSC Payloadを使用してDOMを更新します。
