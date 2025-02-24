@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
-import { setMetadata } from './utils/setMetadata';
-import HomeClient from './clients/home';
+import { setMetadata } from '@/utils/setMetadata';
+import HomeClient from '@/clients/home';
 
 
 const Home = () => {
