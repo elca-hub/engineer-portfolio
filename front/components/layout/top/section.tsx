@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BudouXText } from '@/components/bundouxText';
+import { BudouXText } from '@/components/ui/text/bundouxText';
 
 export interface ButtonProps {
   title: string;

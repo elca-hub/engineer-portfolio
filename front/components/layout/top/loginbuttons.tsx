@@ -2,7 +2,7 @@
 
 import { RiAddLine, RiLoginBoxLine } from 'react-icons/ri';
 import { motion } from 'framer-motion';
-import ButtonIcon from '@/components/buttonIcon';
+import ButtonIcon from '@/components/ui/button/buttonIcon';
 
 const LoginButtons = () => {
   return (
