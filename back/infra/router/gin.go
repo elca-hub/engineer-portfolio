@@ -3,7 +3,6 @@ package router
 import (
 	"context"
 	"devport/adapter/api/action"
-	"devport/adapter/api/middleware"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/domain/repository"
@@ -88,12 +87,12 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 	{
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
-
-		userRouterGroup := apiRouterGroup.Group("/user")
-		{
-			userRouterGroup.GET("/", e.getUserInfoAction())
-		}
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
+
+		//userRouterGroup := apiRouterGroup.Group("/user")
+		//{
+		//	userRouterGroup.GET("/", e.getUserInfoAction())
+		//}
 	}
 }
 
@@ -138,87 +137,16 @@ func (e *GinEngine) loginUserAction() gin.HandlerFunc {
 
 func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uc := user.NewVerificationEmailInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewVerificationEmailPresenter(),
+		var (
+			uc = user.NewVerificationEmailInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewVerificationEmailPresenter(),
+			)
+
+			act = action.NewVerifyEmailAction(uc, e.validator, e.log)
 		)
 
-		token, err := uc.Execute(user.VerificationEmailInput{
-			Token: c.DefaultQuery("token", ""),
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
-		}
-
-		middleware.SetToken(c.Writer, token.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code": http.StatusOK,
-		})
-	}
-}
-
-func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		uc := user.NewGetUserInfoInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewGetUserInfoPresenter(),
-		)
-
-		userOutput, err := uc.Execute(user.GetUserInfoInput{
-			Token: middleware.GetToken(c.Request),
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
-		}
-
-		middleware.SetToken(c.Writer, userOutput.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code":  http.StatusOK,
-			"email": userOutput.Email,
-		})
-	}
-}
-
-func (e *GinEngine) loginAction() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		uc := user.NewLoginUserInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewLoginUserPresenter(),
-		)
-
-		userOutput, err := uc.Execute(user.LoginUserInput{
-			Email:    c.PostForm("email"),
-			Password: c.PostForm("password"),
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
-		}
-
-		middleware.SetToken(c.Writer, userOutput.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code":           http.StatusOK,
-			"user_presenter": userOutput,
-		})
+		act.Execute(c.Writer, c.Request)
 	}
 }
