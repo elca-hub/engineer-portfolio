@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"gorm.io/gorm"
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
+	"gorm.io/gorm"
 )
 
 type GormUserRepository struct {
@@ -64,14 +64,20 @@ func (r GormUserRepository) FindByEmail(email *model.Email) (*model.User, error)
 		return nil, err
 	}
 
-	user := model.NewUser(
+	user, err := model.NewUser(
 		model.NewUUID(gormUser.ID),
+		gormUser.Name,
+		gormUser.Age,
 		userEmail,
 		gormUser.Password,
 		gormUser.CreatedAt,
 		gormUser.UpdatedAt,
 		gormUser.EmailVerification,
 	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
@@ -92,14 +98,20 @@ func (r GormUserRepository) FetchInConfirmationUsers() ([]*model.User, error) {
 			return nil, err
 		}
 
-		user := model.NewUser(
+		user, err := model.NewUser(
 			model.NewUUID(gormUser.ID),
+			gormUser.Name,
+			gormUser.Age,
 			userEmail,
 			gormUser.Password,
 			gormUser.CreatedAt,
 			gormUser.UpdatedAt,
 			gormUser.EmailVerification,
 		)
+
+		if err != nil {
+			return nil, err
+		}
 
 		users = append(users, user)
 	}

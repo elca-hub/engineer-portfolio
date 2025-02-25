@@ -81,10 +81,10 @@ func (e *GinEngine) Listen() {
 }
 
 func (e *GinEngine) setupRouter(router *gin.Engine) {
-	router.GET("/ping", e.healthCheckAction())
-
 	apiRouterGroup := router.Group("/api/v1")
 	{
+		apiRouterGroup.GET("/ping", e.healthCheckAction())
+
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
