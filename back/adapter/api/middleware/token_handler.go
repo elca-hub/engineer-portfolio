@@ -1,4 +1,4 @@
-package token_auth
+package middleware
 
 import (
 	"net/http"

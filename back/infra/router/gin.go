@@ -3,10 +3,10 @@ package router
 import (
 	"context"
 	"devport/adapter/api/action"
+	"devport/adapter/api/middleware"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/domain/repository"
-	"devport/infra/token_auth"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
@@ -156,7 +156,7 @@ func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
 			return
 		}
 
-		token_auth.SetToken(c.Writer, token.Token)
+		middleware.SetToken(c.Writer, token.Token)
 
 		c.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
@@ -173,7 +173,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 		)
 
 		userOutput, err := uc.Execute(user.GetUserInfoInput{
-			Token: token_auth.GetToken(c.Request),
+			Token: middleware.GetToken(c.Request),
 		})
 
 		if err != nil {
@@ -184,7 +184,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 			return
 		}
 
-		token_auth.SetToken(c.Writer, userOutput.Token)
+		middleware.SetToken(c.Writer, userOutput.Token)
 
 		c.JSON(http.StatusOK, gin.H{
 			"code":  http.StatusOK,
@@ -214,7 +214,7 @@ func (e *GinEngine) loginAction() gin.HandlerFunc {
 			return
 		}
 
-		token_auth.SetToken(c.Writer, userOutput.Token)
+		middleware.SetToken(c.Writer, userOutput.Token)
 
 		c.JSON(http.StatusOK, gin.H{
 			"code":           http.StatusOK,

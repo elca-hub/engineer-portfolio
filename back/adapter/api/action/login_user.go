@@ -1,6 +1,7 @@
 package action
 
 import (
+	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
@@ -49,6 +50,8 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
+
+	middleware.SetToken(w, output.Token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
 }
