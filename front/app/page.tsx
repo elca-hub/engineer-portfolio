@@ -5,8 +5,8 @@ import { Pacifico } from 'next/font/google';
 import { RiArrowDownSLine } from "react-icons/ri";
 import { motion, useAnimate } from "motion/react"
 import { useEffect, useRef, useState } from 'react';
-import HomeSection, { ButtonProps } from '@/components/layout/top/section';
-import LoginButtons from '@/components/layout/top/loginbuttons';
+import HomeSection, { ButtonProps } from '@/app/parts/section';
+import LoginButtons from '@/app/parts/loginbuttons';
 import HeadContent from '@/components/layout/headContent';
 
 const pacifico = Pacifico({
