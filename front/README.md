@@ -4,6 +4,7 @@
 
 1. [Next.jsの考え方 | Zenn](https://zenn.dev/akfm/books/nextjs-basic-principle/viewer/intro)
 2. [Next.jsのディレクトリ構成 | Zenn](https://zenn.dev/yutabeee/articles/0f7e8e2fa03946)
+3. [Container/Presentationalパターン再入門 | Zenn](https://zenn.dev/buyselltech/articles/9460c75b7cd8d1)
 
 ※ ほとんど1.の要約になります。
 
@@ -132,20 +133,59 @@ export function Page() {
 
 しかしこのパターンを導入する際には、**Server Component**を先に設計しないと後戻りや修正が増える可能性がある**という点には留意が必要です。
 
+### Container/Presentationalパターン
+
+Next.jsでは、Server Componentに対するテストは現状未対応もしくはexperimentalとなっています。
+Server ComponentとClient Componentをしっかりと分けて、それぞれにテストを行えるようにする必要があります。
+そこで出てくるのが、**Container/Presentationalパターン**です。
+
+このパターンでは、Container ComponentとPresentational Componentの2種類が登場します。
+それぞれの責務は以下のとおりです。
+
+| Component | 責務 |
+| :---: | :---: |
+| Container Component | アプリケーションのロジックに対して責務がある |
+| Presentational Component | UIに対して責務がある |
+
+Presentational ComponentはUIにしか関心がないため、原則として**状態を持ちません**。
+データの受け取り方法はあくまでPropsで行います。
+
+このことから、依存関係は「**Presentational Component -> Container Component**」となります。
+
+このパターン自体はFlux全盛期に登場したようですが、Next.jsにおいてはどうなるのでしょうか？
+
+まずContainer Componentはサーバサイドの処理のみを行います。
+
+Presentational ComponentはClient Componentもしくは**Shared Component**にあたります。
+
+Shared Componentとは、サーバモジュールに依存せず、`use client`の記載もないコンポーネントのことを指します。
+Client Boundary内ではClient Componentとして、そうでない場合はServer Componentとして扱われます。
+
 ## ディレクトリ構成について
 
-###
+今回はContainer/Presentationalパターンを採用します。
 
-今回の開発では以下のディレクトリ構成をとっています。
+### 設計手法
+
+1. Container Componentを実装する
+2. Presentational Componentを実装する
+
+具体例は[こちら](https://zenn.dev/akfm/books/nextjs-basic-principle/viewer/part_2_container_1st_design#%E5%AE%9F%E8%A3%85%E4%BE%8B)を参照してください。
+
+### 今回のディレクトリ構成
+
+以下のようなディレクトリ構成を採用しました。
 
 ```text
 front/
 ├── app/
+│   ├── parts
+│   │   └── [このページでしか利用しないコンポーネント]
 │   ├── page.tsx
 │   ├── layout.tsx
 │   ├── globals.css
 │   ├── favicon.ico
-│   └── user
+│   └── portfolio
 │       └── page.tsx
 ├── public/
 │   ├── logo.webp
@@ -154,9 +194,8 @@ front/
 │   ├── layout
 │   │   ├── footer
 │   │   │   └── footer.tsx
-│   │   ├── header
-│   │   │   └── header.tsx
-│   │   └ [pageのフォルダ名]
+│   │   └── header
+│   │       └── header.tsx
 │   └── ui
 │       ├── button
 │       │   ├── button.tsx
@@ -164,8 +203,46 @@ front/
 │       └── text
 │           ├── budouxText.tsx
 │           └── heading.tsx
+├── containers/
+│   └── [containerの名称(Ex. userProfile)]
+│       ├── index.tsx
+│       ├── container.tsx
+│       └── presentational.tsx
 ├── next.config.js
 ├── package.json
 ├── tsconfig.json
-└── [その他自動生成されたファイル達]
+└── ...
 ```
+
+### 注意点
+
+まず1つ目に、appフォルダの扱い方です。
+
+基本的にappフォルダ内に様々なフォルダを展開するのがポピュラーかもしれません。
+しかしNext.jsはappフォルダをそのままルーティングとして取り扱います。
+例えばcomponentsフォルダをappフォルダ内に入れてしまうと、`[ドメイン]/components/...`となってしまいます。
+それを解決するために、`_components`とすることで無効化することもできます。
+しかし、**ルールは極力少ない方が良い**という個人的なポリシー[^1]によって、特に`_`を気にしなくても大丈夫なようにappフォルダ外に出しました。
+
+2つ目は、partsディレクトリの扱い方です。
+
+partsディレクトリは、そのディレクトリと同じ階層にある`page.tsx`でしか利用されないコンポーネントをまとめます。
+もちろん`page.tsx`内に定義することもできますが、そうすると1つのファイルに対するコード量が肥大になり、可読性が低下します。
+ファイル単位で明確にコンポーネント化していることを示すためにも、ファイル単位でまとめました。
+
+3つ目は、componentsの中身についてです。
+
+Atomicデザインを適用しても良いのですが、正直あそこまで細かく分けるのはむしろ開発速度が遅くなってしまう可能性があるため、不採用としました。
+`ui`ディレクトリには、`button`や`text`など、基本的なコンポーネントをまとめます。
+このコンポーネントは**ドメインに一切関与しません（=どこでも利用できる）**。
+また、`button`や`text`にも複数のコンポーネントが存在する場合があるため、更にフォルダを分けて細分化しています。
+
+`layout`ディレクトリには、横断的なレイアウトをまとめます。
+このコンポーネントも**ドメインに一切関与しません**。
+DevPortではheader内にページごとに異なる操作（「ポートフォリオを編集する」、「公開設定」など）があります。
+これらの操作とその処理はheader内には記載しません。
+
+`pages`ディレクトリは私独自につけたディレクトリです。
+このディレクトリには1つのコンポーネントにしか利用されないコンポーネントを格納します。
+
+[^1]: ルールが多すぎると開発する際に気にすることが増えてストレスになったり、チーム開発においてはメンバーへの共有事項が増えてしまうというデメリットが存在するためです。
