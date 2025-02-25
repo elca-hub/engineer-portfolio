@@ -1,9 +1,8 @@
 package user_presenter
 
 import (
-	"devport/presenter"
+	"devport/domain/model"
 	"devport/usecase/user"
-	"net/http"
 )
 
 type LoginUserResponse struct {
@@ -12,25 +11,13 @@ type LoginUserResponse struct {
 
 type LoginUserPresenter struct{}
 
-func NewLoginUserPresenter() *LoginUserPresenter {
-	return &LoginUserPresenter{}
+func NewLoginUserPresenter() user.LoginUserPresenter {
+	return LoginUserPresenter{}
 }
 
-func (p *LoginUserPresenter) Success(output user.LoginUserOutput) *presenter.OriginalResponse {
-	return &presenter.OriginalResponse{
-		Error:      nil,
-		Data:       LoginUserResponse{Email: output.Email},
-		StatusCode: http.StatusOK,
-	}
-}
-
-func (p *LoginUserPresenter) Error(err error, message string) *presenter.OriginalResponse {
-	return &presenter.OriginalResponse{
-		Error: &presenter.OriginalErrorResponseObj{
-			Error:        err,
-			ErrorMessage: message,
-		},
-		Data:       nil,
-		StatusCode: http.StatusInternalServerError,
+func (p LoginUserPresenter) Output(account model.User, token string) user.LoginUserOutput {
+	return user.LoginUserOutput{
+		Email: account.Email().Email(),
+		Token: token,
 	}
 }

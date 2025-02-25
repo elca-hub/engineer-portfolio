@@ -2,13 +2,15 @@ package router
 
 import (
 	"context"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"devport/controller"
+	"devport/adapter/api/action"
+	"devport/adapter/logger"
+	"devport/adapter/validator"
 	"devport/domain/repository"
 	"devport/infra/token_auth"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -18,18 +20,21 @@ import (
 )
 
 type GinEngine struct {
-	router         *gin.Engine
-	port           Port
-	ctxTimeout     time.Duration
-	sql            repository.SQL
-	noSQL          repository.NoSQL
-	userController controller.UserController
+	router     *gin.Engine
+	port       Port
+	ctxTimeout time.Duration
+	sql        repository.SQL
+	noSQL      repository.NoSQL
+	validator  validator.Validator
+	log        logger.Logger
 }
 
 func NewGinServer(
 	port Port,
 	t time.Duration,
 	db repository.SQL,
+	validator validator.Validator,
+	log logger.Logger,
 	session repository.NoSQL,
 ) *GinEngine {
 	return &GinEngine{
@@ -38,6 +43,8 @@ func NewGinServer(
 		ctxTimeout: t,
 		sql:        db,
 		noSQL:      session,
+		validator:  validator,
+		log:        log,
 	}
 }
 
@@ -79,18 +86,8 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 
 	apiRouterGroup := router.Group("/api/v1")
 	{
-		apiRouterGroup.POST("/signup", func(c *gin.Context) {
-			res := e.userController.CreateUser(c.PostForm("name"), c.PostForm("email"), c.PostForm("password"))
-
-			c.JSON(res.StatusCode, res)
-		})
-		apiRouterGroup.POST("/login", func(c *gin.Context) {
-			res := e.userController.LoginUser(c.PostForm("email"), c.PostForm("password"))
-
-			token_auth.SetToken(c.Writer, res.Data["Email"].(string))
-
-			c.JSON(res.StatusCode, res)
-		})
+		apiRouterGroup.POST("/signup", e.createUserAction())
+		apiRouterGroup.POST("/login", e.loginUserAction())
 
 		userRouterGroup := apiRouterGroup.Group("/user")
 		{
@@ -105,6 +102,37 @@ func (e *GinEngine) healthCheckAction() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
 		})
+	}
+}
+
+func (e *GinEngine) createUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewCreateUserInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+			)
+
+			act = action.NewCreateUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
+	}
+}
+
+func (e *GinEngine) loginUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewLoginUserInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewLoginUserPresenter(),
+			)
+
+			act = action.NewLoginUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
 	}
 }
 

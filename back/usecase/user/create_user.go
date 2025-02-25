@@ -1,14 +1,14 @@
 package user
 
 import (
-	"errors"
-	"fmt"
-	"github.com/go-playground/validator/v10"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
 	"devport/infra/password"
+	"errors"
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	"time"
 )
 
@@ -18,9 +18,10 @@ type (
 	}
 
 	CreateUserInput struct {
-		Name     string `json:"name" validate:"required"`
+		Age      int    `json:"age" validate:"required"`
+		Name     string `json:"name" validate:"required,max=50"`
 		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,min=8,max=32"`
+		Password string `json:"password" validate:"required,min=8,max=64"`
 	}
 
 	CreateUserOutput struct {
@@ -67,7 +68,11 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, errors.New("user_presenter already exists")
 	}
 
-	user := model.NewUser(model.NewUUID(""), userEmail, hashedPw, time.Now(), time.Now(), model.InConfirmation)
+	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, hashedPw, time.Now(), time.Now(), model.InConfirmation)
+
+	if err != nil {
+		return CreateUserOutput{""}, err
+	}
 
 	if err := i.sqlRepository.Create(user); err != nil {
 		return CreateUserOutput{""}, err

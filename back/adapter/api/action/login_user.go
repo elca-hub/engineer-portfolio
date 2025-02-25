@@ -1,7 +1,6 @@
 package action
 
 import (
-	"devport/adapter/api/logging"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
@@ -11,31 +10,24 @@ import (
 	"net/http"
 )
 
-type CreateUserAction struct {
-	uc user.CreateUserUseCase
+type LoginUserAction struct {
+	uc user.LoginUserUseCase
 	v  validator.Validator
 	l  logger.Logger
 }
 
-func NewCreateUserAction(uc user.CreateUserUseCase, v validator.Validator, l logger.Logger) *CreateUserAction {
-	return &CreateUserAction{
+func NewLoginUserAction(uc user.LoginUserUseCase, v validator.Validator, l logger.Logger) *LoginUserAction {
+	return &LoginUserAction{
 		uc: uc,
 		v:  v,
 		l:  l,
 	}
 }
 
-func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
-	var input user.CreateUserInput
-	const logKey = "create_user"
+func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
+	var input user.LoginUserInput
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		logging.NewError(
-			a.l,
-			err,
-			logKey,
-			http.StatusBadRequest,
-		)
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
@@ -54,8 +46,6 @@ func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 
 	output, err := a.uc.Execute(input)
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError)
-
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}

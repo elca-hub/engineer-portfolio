@@ -1,8 +1,10 @@
 package router
 
 import (
-	"fmt"
+	"devport/adapter/logger"
+	"devport/adapter/validator"
 	"devport/domain/repository"
+	"fmt"
 	"time"
 )
 
@@ -22,10 +24,12 @@ func NewWebServerFactory(
 	ctxTimeout time.Duration,
 	db repository.SQL,
 	nosqlDb repository.NoSQL,
+	validator validator.Validator,
+	logger logger.Logger,
 ) (Server, error) {
 	switch instance {
 	case InstanceGin:
-		return NewGinServer(port, ctxTimeout, db, nosqlDb), nil
+		return NewGinServer(port, ctxTimeout, db, validator, logger, nosqlDb), nil
 	default:
 		return nil, fmt.Errorf("instance not exist")
 	}
