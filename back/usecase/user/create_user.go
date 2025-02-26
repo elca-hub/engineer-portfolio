@@ -48,7 +48,6 @@ func NewCreateUserInterator(
 }
 
 func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
-	hashedPw := security.HashPassword(input.Password)
 
 	validate := validator.New()
 
@@ -71,7 +70,7 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, errors.New("user_presenter already exists")
 	}
 
-	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, hashedPw, time.Now(), time.Now(), model.InConfirmation)
+	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, input.Password, time.Now(), time.Now(), model.InConfirmation)
 
 	if err != nil {
 		return CreateUserOutput{""}, err

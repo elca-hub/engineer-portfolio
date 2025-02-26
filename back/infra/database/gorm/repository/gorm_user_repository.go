@@ -3,6 +3,7 @@ package repository
 import (
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
+	"devport/infra/security"
 	"gorm.io/gorm"
 )
 
