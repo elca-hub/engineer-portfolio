@@ -53,5 +53,88 @@ func TestCreateUser(t *testing.T) {
 		assert.Equal(t, i.Email, res.Email)
 	})
 
+	t.Run("failures", func(t *testing.T) {
+		t.Run("Email", func(t *testing.T) {
+			cases := map[string]struct {
+				email   string
+				isExist bool
+			}{
+				"empty": {
+					email:   "",
+					isExist: false,
+				},
+				"invalid": {
+					email:   "test",
+					isExist: false,
+				},
+				"already exists": {
+					email:   "test@example.com",
+					isExist: true,
+				},
+			}
+
+			for name, c := range cases {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+					i := CreateUserInput{
+						Age:      18,
+						Name:     "test",
+						Email:    c.email,
+						Password: "security",
+					}
+
+					testEmail, _ := usermodel.NewEmail(i.Email)
+
+					uc, sqlMock, _, _ := beforeAction(t, i)
+
+					sqlMock.EXPECT().Exists(testEmail).Return(c.isExist, nil)
+
+					_, err := uc.Execute(i)
+
+					assert.Error(t, err)
+				})
+			}
+		})
+
+		t.Run("UserName", func(t *testing.T) {
+			tooLongName := "a"
+			for i := 0; i < usermodel.MaxNameLen; i++ {
+				tooLongName += "a"
+			}
+
+			cases := map[string]struct {
+				name string
+			}{
+				"empty": {
+					name: "",
+				},
+				"too long": {
+					name: tooLongName,
+				},
+				"special characters": {
+					name: "test@",
+				},
+			}
+
+			for name, c := range cases {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+					i := CreateUserInput{
+						Age:      18,
+						Name:     c.name,
+						Email:    "test@example.com",
+						Password: "security",
+					}
+
+					uc, sqlMock, _, _ := beforeAction(t, i)
+
+					sqlMock.EXPECT().Exists(gomock.Any()).Return(false, nil)
+
+					_, err := uc.Execute(i)
+
+					assert.Error(t, err)
+				})
+			}
+		})
 	})
 }
