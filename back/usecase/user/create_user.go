@@ -58,7 +58,7 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, err
 	}
 	if isExists {
-		return CreateUserOutput{""}, errors.New("user_presenter already exists")
+		return CreateUserOutput{""}, errors.New("email already exists")
 	}
 
 	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, input.Password, time.Now(), time.Now(), model.InConfirmation)
