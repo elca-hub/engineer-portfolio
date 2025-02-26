@@ -18,86 +18,88 @@ const (
 	password = "security"
 )
 
-func TestTrueUser(t *testing.T) {
-	_, err := NewUser(
-		NewUUID(""),
-		"test",
-		0,
-		fetchEmail(),
-		"security",
-		time.Now(),
-		time.Now(),
-		Unconfirmed,
-	)
+func TestUser(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		_, err := NewUser(
+			NewUUID(""),
+			"test",
+			0,
+			fetchEmail(),
+			"security",
+			time.Now(),
+			time.Now(),
+			Unconfirmed,
+		)
 
-	assert.NoError(t, err)
-}
+		assert.NoError(t, err)
+	})
 
-func TestFalseUser(t *testing.T) {
-	t.Run("Name", func(t *testing.T) {
-		t.Run("empty", func(t *testing.T) {
-			_, err := NewUser(
-				NewUUID(""),
-				"",
-				0,
-				fetchEmail(),
-				"security",
-				time.Now(),
-				time.Now(),
-				Unconfirmed,
-			)
+	t.Run("failures", func(t *testing.T) {
+		t.Run("Name", func(t *testing.T) {
+			t.Run("empty", func(t *testing.T) {
+				_, err := NewUser(
+					NewUUID(""),
+					"",
+					0,
+					fetchEmail(),
+					"security",
+					time.Now(),
+					time.Now(),
+					Unconfirmed,
+				)
 
-			assert.Error(t, err)
-		})
+				assert.Error(t, err)
+			})
 
-		t.Run("too long", func(t *testing.T) {
-			longName := ""
+			t.Run("too long", func(t *testing.T) {
+				longName := ""
 
-			for i := 0; i < MaxNameLen; i++ {
-				longName += "a"
-			}
-			_, err := NewUser(
-				NewUUID(""),
-				longName,
-				0,
-				fetchEmail(),
-				"security",
-				time.Now(),
-				time.Now(),
-				Unconfirmed,
-			)
+				for i := 0; i < MaxNameLen; i++ {
+					longName += "a"
+				}
+				_, err := NewUser(
+					NewUUID(""),
+					longName,
+					0,
+					fetchEmail(),
+					"security",
+					time.Now(),
+					time.Now(),
+					Unconfirmed,
+				)
 
-			assert.Error(t, err)
-		})
+				assert.Error(t, err)
+			})
 
-		t.Run("use space", func(t *testing.T) {
-			_, err := NewUser(
-				NewUUID(""),
-				"test test",
-				0,
-				fetchEmail(),
-				"security",
-				time.Now(),
-				time.Now(),
-				Unconfirmed,
-			)
+			t.Run("use space", func(t *testing.T) {
+				_, err := NewUser(
+					NewUUID(""),
+					"test test",
+					0,
+					fetchEmail(),
+					"security",
+					time.Now(),
+					time.Now(),
+					Unconfirmed,
+				)
 
-			assert.Error(t, err)
-		})
+				assert.Error(t, err)
+			})
 
-		t.Run("use special characters", func(t *testing.T) {
-			_, err := NewUser(
-				NewUUID(""),
-				"\"test\n@.,'",
-				0,
-				fetchEmail(),
-				"security",
-				time.Now(),
-				time.Now(),
-				Unconfirmed,
-			)
+			t.Run("use special characters", func(t *testing.T) {
+				_, err := NewUser(
+					NewUUID(""),
+					"\"test\n@.,'",
+					0,
+					fetchEmail(),
+					"security",
+					time.Now(),
+					time.Now(),
+					Unconfirmed,
+				)
 
-			assert.Error(t, err)
+				assert.Error(t, err)
+			})
 		})
 	})
 }
