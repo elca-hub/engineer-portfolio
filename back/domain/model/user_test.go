@@ -15,7 +15,7 @@ func fetchEmail() *Email {
 const (
 	name     = "test"
 	age      = 18
-	password = "password"
+	password = "security"
 )
 
 func TestTrueUser(t *testing.T) {
@@ -24,7 +24,7 @@ func TestTrueUser(t *testing.T) {
 		"test",
 		0,
 		fetchEmail(),
-		"password",
+		"security",
 		time.Now(),
 		time.Now(),
 		Unconfirmed,
@@ -41,7 +41,7 @@ func TestFalseUser(t *testing.T) {
 				"",
 				0,
 				fetchEmail(),
-				"password",
+				"security",
 				time.Now(),
 				time.Now(),
 				Unconfirmed,
@@ -61,7 +61,7 @@ func TestFalseUser(t *testing.T) {
 				longName,
 				0,
 				fetchEmail(),
-				"password",
+				"security",
 				time.Now(),
 				time.Now(),
 				Unconfirmed,
@@ -76,7 +76,7 @@ func TestFalseUser(t *testing.T) {
 				"test test",
 				0,
 				fetchEmail(),
-				"password",
+				"security",
 				time.Now(),
 				time.Now(),
 				Unconfirmed,
@@ -91,7 +91,7 @@ func TestFalseUser(t *testing.T) {
 				"\"test\n@.,'",
 				0,
 				fetchEmail(),
-				"password",
+				"security",
 				time.Now(),
 				time.Now(),
 				Unconfirmed,

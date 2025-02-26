@@ -4,6 +4,7 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/domain/repository"
+	"devport/infra/email"
 	"fmt"
 	"time"
 )
@@ -26,10 +27,11 @@ func NewWebServerFactory(
 	nosqlDb repository.NoSQL,
 	validator validator.Validator,
 	logger logger.Logger,
+	email email.Email,
 ) (Server, error) {
 	switch instance {
 	case InstanceGin:
-		return NewGinServer(port, ctxTimeout, db, validator, logger, nosqlDb), nil
+		return NewGinServer(port, ctxTimeout, db, validator, logger, nosqlDb, email), nil
 	default:
 		return nil, fmt.Errorf("instance not exist")
 	}

@@ -6,6 +6,7 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/domain/repository"
+	"devport/infra/email"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
@@ -26,6 +27,7 @@ type GinEngine struct {
 	noSQL      repository.NoSQL
 	validator  validator.Validator
 	log        logger.Logger
+	email      email.Email
 }
 
 func NewGinServer(
@@ -35,6 +37,7 @@ func NewGinServer(
 	validator validator.Validator,
 	log logger.Logger,
 	session repository.NoSQL,
+	email email.Email,
 ) *GinEngine {
 	return &GinEngine{
 		router:     gin.New(),
@@ -44,6 +47,7 @@ func NewGinServer(
 		noSQL:      session,
 		validator:  validator,
 		log:        log,
+		email:      email,
 	}
 }
 
@@ -110,6 +114,7 @@ func (e *GinEngine) createUserAction() gin.HandlerFunc {
 			uc = user.NewCreateUserInterator(
 				e.sql.UserRepository(),
 				e.noSQL.UserRepository(),
+				e.email,
 			)
 
 			act = action.NewCreateUserAction(uc, e.validator, e.log)

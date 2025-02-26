@@ -1,11 +1,11 @@
 package user
 
 import (
-	"github.com/go-playground/validator/v10"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
-	"devport/infra/password"
+	"devport/infra/security"
+	"github.com/go-playground/validator/v10"
 )
 
 type (
@@ -65,7 +65,7 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 		return i.presenter.Output(model.User{}, ""), err
 	}
 
-	if !password.CheckPasswordHash(input.Password, userModel.Password()) {
+	if !security.CheckPasswordHash(input.Password, userModel.Password()) {
 		return i.presenter.Output(*userModel, ""), nil
 	}
 

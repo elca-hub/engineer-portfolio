@@ -5,7 +5,7 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
-	"devport/infra/password"
+	"devport/infra/security"
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
@@ -21,7 +21,7 @@ type (
 		Age      int    `json:"age" validate:"required"`
 		Name     string `json:"name" validate:"required,max=50"`
 		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,min=8,max=64"`
+		Password string `json:"security" validate:"required,min=8,max=64"`
 	}
 
 	CreateUserOutput struct {
@@ -31,21 +31,24 @@ type (
 	createUserInterator struct {
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
+		email           email.Email
 	}
 )
 
 func NewCreateUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
+	email email.Email,
 ) CreateUserUseCase {
 	return createUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
+		email:           email,
 	}
 }
 
 func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
-	hashedPw := password.HashPassword(input.Password)
+	hashedPw := security.HashPassword(input.Password)
 
 	validate := validator.New()
 
@@ -88,7 +91,7 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 
 	mailContent := fmt.Sprintf("以下のリンクをクリックしてメールアドレスを確認してください。\nhttp://localhost:8080/verification/email?token=%s", token)
 
-	if err := email.SmtpSendMail([]string{input.Email}, mailSubject, mailContent); err != nil {
+	if err := i.email.SendEmail([]string{input.Email}, mailSubject, mailContent); err != nil {
 		return CreateUserOutput{""}, err
 	}
 

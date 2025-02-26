@@ -1,3 +1,4 @@
+//go:generate mockgen -source=$GOFILE -package=mock_$GOPACKAGE -destination=../mock/$GOPACKAGE/$GOFILE
 package model
 
 import (
@@ -60,14 +61,6 @@ func NewUser(
 
 	if email == nil {
 		return nil, errors.New("the email must not be nil")
-	}
-
-	if len(password) < MinPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at least %d characters long.", MinPasswordLen))
-	}
-
-	if len(password) > MaxPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at most %d characters long.", MaxPasswordLen))
 	}
 
 	return &User{

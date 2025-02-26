@@ -5,6 +5,7 @@ import (
 	"devport/adapter/validator"
 	"devport/domain/repository"
 	"devport/infra/database"
+	"devport/infra/email"
 	"devport/infra/log"
 	"devport/infra/router"
 	"devport/infra/validation"
@@ -21,6 +22,7 @@ type HttpServerConfig struct {
 	dbNoSql       repository.NoSQL
 	webServer     router.Server
 	webServerPort router.Port
+	email         email.Email
 }
 
 func NewHttpServerConfig() *HttpServerConfig {
@@ -91,6 +93,12 @@ func (c *HttpServerConfig) Logger(instance int) *HttpServerConfig {
 	return c
 }
 
+func (c *HttpServerConfig) Email() *HttpServerConfig {
+	c.email = email.NewSmtp()
+
+	return c
+}
+
 func (c *HttpServerConfig) WebServer(instance int) *HttpServerConfig {
 	s, err := router.NewWebServerFactory(
 		instance,
@@ -100,6 +108,7 @@ func (c *HttpServerConfig) WebServer(instance int) *HttpServerConfig {
 		c.dbNoSql,
 		c.validator,
 		c.logger,
+		c.email,
 	)
 
 	if err != nil {

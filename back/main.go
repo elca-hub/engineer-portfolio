@@ -19,7 +19,8 @@ func main() {
 		WebServerPort(os.Getenv("APP_PORT")).
 		WebServer(router.InstanceGin).
 		Logger(log.InstanceSlog).
-		Validator(validation.InstanceGoPlayground)
+		Validator(validation.InstanceGoPlayground).
+		Email()
 
 	app.Start()
 }
