@@ -12,12 +12,6 @@ func fetchEmail() *Email {
 	return email
 }
 
-const (
-	name     = "test"
-	age      = 18
-	password = "security"
-)
-
 func TestUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		_, err := NewUser(
@@ -25,7 +19,7 @@ func TestUser(t *testing.T) {
 			"test",
 			0,
 			fetchEmail(),
-			"security",
+			"Security_3939",
 			time.Now(),
 			time.Now(),
 			Unconfirmed,
@@ -100,6 +94,89 @@ func TestUser(t *testing.T) {
 
 				assert.Error(t, err)
 			})
+
+		t.Run("Age", func(t *testing.T) {
+			cases := map[string]struct {
+				age int
+			}{
+				"negative": {
+					age: -1,
+				},
+			}
+
+			for name, c := range cases {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+					_, err := NewUser(
+						NewUUID(""),
+						"test",
+						c.age,
+						fetchEmail(),
+						"Security_3939",
+						time.Now(),
+						time.Now(),
+						Unconfirmed,
+					)
+
+					assert.Error(t, err)
+				})
+			}
+		})
+
+		t.Run("Password", func(t *testing.T) {
+			tooShortPassword := ""
+			for i := 0; i < MinPasswordLen-1; i++ {
+				tooShortPassword += "a"
+			}
+
+			tooLongPassword := ""
+			for i := 0; i < MaxPasswordLen+1; i++ {
+				tooLongPassword += "a"
+			}
+
+			cases := map[string]struct {
+				password string
+			}{
+				"empty": {
+					password: "",
+				},
+				"too short": {
+					password: tooShortPassword,
+				},
+				"too long": {
+					password: tooLongPassword,
+				},
+				"not using special characters": {
+					password: "security3939",
+				},
+				"not using numbers": {
+					password: "security_",
+				},
+				"not using lowercase letters": {
+					password: "SECURITY_3939",
+				},
+				"not using uppercase letters": {
+					password: "security_3939",
+				},
+			}
+
+			for name, c := range cases {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+					_, err := NewUser(
+						NewUUID(""),
+						"test",
+						0,
+						fetchEmail(),
+						c.password,
+						time.Now(),
+						time.Now(),
+						Unconfirmed,
+					)
+
+					assert.Error(t, err)
+				})
+			}
 		})
 	})
 }
