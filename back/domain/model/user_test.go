@@ -30,70 +30,47 @@ func TestUser(t *testing.T) {
 
 	t.Run("failures", func(t *testing.T) {
 		t.Run("Name", func(t *testing.T) {
-			t.Run("empty", func(t *testing.T) {
-				_, err := NewUser(
-					NewUUID(""),
-					"",
-					0,
-					fetchEmail(),
-					"security",
-					time.Now(),
-					time.Now(),
-					Unconfirmed,
-				)
+			tooLongName := ""
 
-				assert.Error(t, err)
-			})
+			for i := 0; i < MaxNameLen+1; i++ {
+				tooLongName += "a"
+			}
 
-			t.Run("too long", func(t *testing.T) {
-				longName := ""
+			cases := map[string]struct {
+				name string
+			}{
+				"empty": {
+					name: "",
+				},
+				"too long": {
+					name: tooLongName,
+				},
+				"special characters": {
+					name: "test@",
+				},
+				"space": {
+					name: "test test",
+				},
+			}
 
-				for i := 0; i < MaxNameLen; i++ {
-					longName += "a"
-				}
-				_, err := NewUser(
-					NewUUID(""),
-					longName,
-					0,
-					fetchEmail(),
-					"security",
-					time.Now(),
-					time.Now(),
-					Unconfirmed,
-				)
+			for name, c := range cases {
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+					_, err := NewUser(
+						NewUUID(""),
+						c.name,
+						0,
+						fetchEmail(),
+						"Security_3939",
+						time.Now(),
+						time.Now(),
+						Unconfirmed,
+					)
 
-				assert.Error(t, err)
-			})
-
-			t.Run("use space", func(t *testing.T) {
-				_, err := NewUser(
-					NewUUID(""),
-					"test test",
-					0,
-					fetchEmail(),
-					"security",
-					time.Now(),
-					time.Now(),
-					Unconfirmed,
-				)
-
-				assert.Error(t, err)
-			})
-
-			t.Run("use special characters", func(t *testing.T) {
-				_, err := NewUser(
-					NewUUID(""),
-					"\"test\n@.,'",
-					0,
-					fetchEmail(),
-					"security",
-					time.Now(),
-					time.Now(),
-					Unconfirmed,
-				)
-
-				assert.Error(t, err)
-			})
+					assert.Error(t, err)
+				})
+			}
+		})
 
 		t.Run("Age", func(t *testing.T) {
 			cases := map[string]struct {
