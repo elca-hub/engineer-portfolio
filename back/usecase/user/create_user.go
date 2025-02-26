@@ -5,10 +5,8 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
-	"devport/infra/security"
 	"errors"
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"time"
 )
 
@@ -48,13 +46,6 @@ func NewCreateUserInterator(
 }
 
 func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
-
-	validate := validator.New()
-
-	if err := validate.Struct(input); err != nil {
-		return CreateUserOutput{""}, err
-	}
-
 	userEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {

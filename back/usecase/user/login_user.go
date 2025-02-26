@@ -5,7 +5,6 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/security"
-	"github.com/go-playground/validator/v10"
 )
 
 type (
@@ -47,12 +46,6 @@ func NewLoginUserInterator(
 }
 
 func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, error) {
-	validate := validator.New()
-
-	if err := validate.Struct(input); err != nil {
-		return i.presenter.Output(model.User{}, ""), err
-	}
-
 	inputEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {

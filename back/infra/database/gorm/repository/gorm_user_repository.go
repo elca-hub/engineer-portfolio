@@ -23,7 +23,7 @@ func (r GormUserRepository) Create(user *model.User) error {
 	gormUser := gorm_model.User{
 		ID:                user.ID().ID(),
 		Email:             email.Email(),
-		Password:          user.Password(),
+		Password:          security.HashPassword(user.Password()),
 		EmailVerification: user.EmailVerification(),
 	}
 

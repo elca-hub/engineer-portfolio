@@ -1,10 +1,10 @@
 package user
 
 import (
-	"errors"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
+	"errors"
 )
 
 type (
