@@ -5,6 +5,7 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/security"
+	"errors"
 )
 
 type (
@@ -65,7 +66,7 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 	}
 
 	if !security.CheckPasswordHash(rawPassword, userModel.Password()) {
-		return i.presenter.Output(*userModel, ""), nil
+		return i.presenter.Output(*userModel, ""), errors.New("invalid password")
 	}
 
 	session, err := i.noSqlRepository.StartSession(inputEmail)
