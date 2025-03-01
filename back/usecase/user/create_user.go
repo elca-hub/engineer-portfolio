@@ -19,7 +19,7 @@ type (
 		Age      int    `json:"age" validate:"required"`
 		Name     string `json:"name" validate:"required,max=50"`
 		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"security" validate:"required,min=8,max=64"`
+		Password string `json:"password" validate:"required,min=8,max=64"`
 	}
 
 	CreateUserOutput struct {
