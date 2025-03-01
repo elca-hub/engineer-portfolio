@@ -58,7 +58,13 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 		return i.presenter.Output(model.User{}, ""), err
 	}
 
-	if !security.CheckPasswordHash(input.Password, userModel.Password()) {
+	rawPassword, err := model.NewRawPassword(input.Password)
+
+	if err != nil {
+		return i.presenter.Output(*userModel, ""), err
+	}
+
+	if !security.CheckPasswordHash(rawPassword, userModel.Password()) {
 		return i.presenter.Output(*userModel, ""), nil
 	}
 

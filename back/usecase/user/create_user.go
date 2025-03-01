@@ -6,6 +6,7 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
+	"devport/infra/security"
 	"errors"
 	"fmt"
 	"math/big"
@@ -63,7 +64,15 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, errors.New("email already exists")
 	}
 
-	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, input.Password, time.Now(), time.Now(), model.InConfirmation)
+	rawPassword, err := model.NewRawPassword(input.Password)
+
+	if err != nil {
+		return CreateUserOutput{""}, err
+	}
+
+	hashedPassword := security.HashPassword(rawPassword)
+
+	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, hashedPassword, time.Now(), time.Now(), model.InConfirmation)
 
 	if err != nil {
 		return CreateUserOutput{""}, err

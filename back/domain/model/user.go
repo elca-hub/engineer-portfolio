@@ -4,7 +4,6 @@ package model
 import (
 	"errors"
 	"fmt"
-	"regexp"
 	"time"
 )
 
@@ -12,9 +11,7 @@ const (
 	Unconfirmed int = iota
 	InConfirmation
 	Confirmed
-	MaxNameLen     = 50
-	MinPasswordLen = 8
-	MaxPasswordLen = 64
+	MaxNameLen = 50
 )
 
 type User struct {
@@ -22,7 +19,7 @@ type User struct {
 	name              string
 	age               int
 	email             *Email
-	password          string
+	password          *HashedPassword
 	createdAt         time.Time
 	updatedAt         time.Time
 	emailVerification int
@@ -33,7 +30,7 @@ func NewUser(
 	name string,
 	age int,
 	email *Email,
-	password string,
+	password *HashedPassword,
 	createdAt time.Time,
 	updatedAt time.Time,
 	emailVerification int,
@@ -64,23 +61,8 @@ func NewUser(
 		return nil, errors.New("the email must not be nil")
 	}
 
-	if len(password) < MinPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at least %d characters long.", MinPasswordLen))
-	}
-
-	if len(password) > MaxPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at most %d characters long.", MaxPasswordLen))
-	}
-
-	// パスワードの正規表現
-	// 8文字以上の半角英数字と. + - [ ] * ~ _ # : ?を必ず含む
-	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
-	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
-	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
-	hasSymbol := regexp.MustCompile(`[.+\-[\]*~_#:?]`).MatchString(password)
-
-	if !hasLower || !hasUpper || !hasNumber || !hasSymbol {
-		return nil, errors.New("the password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol")
+	if password == nil {
+		return nil, errors.New("the password must not be nil")
 	}
 
 	return &User{
@@ -111,7 +93,7 @@ func (u *User) Email() *Email {
 	return u.email
 }
 
-func (u *User) Password() string {
+func (u *User) Password() *HashedPassword {
 	return u.password
 }
 

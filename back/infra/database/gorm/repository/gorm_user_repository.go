@@ -3,7 +3,6 @@ package repository
 import (
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
-	"devport/infra/security"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +24,7 @@ func (r GormUserRepository) Create(user *model.User) error {
 		Name:              user.Name(),
 		Age:               user.Age(),
 		Email:             email.Email(),
-		Password:          security.HashPassword(user.Password()),
+		Password:          user.Password().HashedPassword(),
 		EmailVerification: user.EmailVerification(),
 	}
 
@@ -46,7 +45,7 @@ func (r GormUserRepository) Update(user *model.User) error {
 	gormUser := gorm_model.User{
 		ID:                user.ID().ID(),
 		Email:             email.Email(),
-		Password:          user.Password(),
+		Password:          user.Password().HashedPassword(),
 		EmailVerification: user.EmailVerification(),
 		CreatedAt:         user.CreatedAt(),
 	}
@@ -72,7 +71,7 @@ func (r GormUserRepository) FindByEmail(email *model.Email) (*model.User, error)
 		gormUser.Name,
 		gormUser.Age,
 		userEmail,
-		gormUser.Password,
+		model.NewHashedPassword(gormUser.Password),
 		gormUser.CreatedAt,
 		gormUser.UpdatedAt,
 		gormUser.EmailVerification,
@@ -106,7 +105,7 @@ func (r GormUserRepository) FetchInConfirmationUsers() ([]*model.User, error) {
 			gormUser.Name,
 			gormUser.Age,
 			userEmail,
-			gormUser.Password,
+			model.NewHashedPassword(gormUser.Password),
 			gormUser.CreatedAt,
 			gormUser.UpdatedAt,
 			gormUser.EmailVerification,
