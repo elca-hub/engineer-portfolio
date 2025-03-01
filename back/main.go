@@ -18,9 +18,9 @@ func main() {
 		DbNoSql(database.InstanceRedis).
 		Logger(log.InstanceSlog).
 		Validator(validation.InstanceGoPlayground).
+		Email().
 		WebServerPort(os.Getenv("APP_PORT")).
-		WebServer(router.InstanceGin).
-		Email()
+		WebServer(router.InstanceGin)
 
 	app.Start()
 }
