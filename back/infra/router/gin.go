@@ -92,6 +92,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
+		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
 		userRouterGroup := apiRouterGroup.Group("/user")
 		{
@@ -166,6 +167,21 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 			)
 
 			act = action.NewGetUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
+	}
+}
+
+func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewLogoutUserInterator(
+				e.noSQL.UserRepository(),
+				user_presenter.NewLogoutUserPresenter(),
+			)
+
+			act = action.NewLogoutUserAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request)

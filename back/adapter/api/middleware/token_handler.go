@@ -53,3 +53,14 @@ func SetToken(res http.ResponseWriter, token *CookieToken) {
 		Path:     "/api/v1",
 	})
 }
+
+func DeleteToken(res http.ResponseWriter) {
+	http.SetCookie(res, &http.Cookie{
+		Name:     tokenName,
+		Value:    "",
+		HttpOnly: true,
+		Secure:   os.Getenv("GO_ENVIRONMENT") == "production",
+		MaxAge:   -1,
+		Domain:   os.Getenv("DOMAIN_NAME"),
+	})
+}
