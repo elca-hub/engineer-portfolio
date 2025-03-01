@@ -21,8 +21,10 @@ type (
 	}
 
 	GetUserInfoOutput struct {
-		Email string
-		Token string
+		Email string `json:"email"`
+		Name  string `json:"name"`
+		Age   int    `json:"age"`
+		Token string `json:"-"`
 	}
 
 	getUserInfoInterator struct {
@@ -51,9 +53,15 @@ func (i getUserInfoInterator) Execute(input GetUserInfoInput) (GetUserInfoOutput
 		return i.presenter.Output(model.User{}, ""), errors.New("invalid token_auth")
 	}
 
+	if userEmail == nil {
+		return i.presenter.Output(model.User{}, ""), errors.New("invalid token_auth")
+	}
+
 	userModel, err := i.sqlRepository.FindByEmail(userEmail)
 
 	if err != nil {
+		println(err)
+		println(userEmail.Email())
 		return i.presenter.Output(model.User{}, ""), err
 	}
 

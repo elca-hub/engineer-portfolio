@@ -93,10 +93,10 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
 
-		//userRouterGroup := apiRouterGroup.Group("/user")
-		//{
-		//	userRouterGroup.GET("/", e.getUserInfoAction())
-		//}
+		userRouterGroup := apiRouterGroup.Group("/user")
+		{
+			userRouterGroup.GET("/", e.getUserInfoAction())
+		}
 	}
 }
 
@@ -150,6 +150,22 @@ func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
 			)
 
 			act = action.NewVerifyEmailAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
+	}
+}
+
+func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewGetUserInfoInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewGetUserInfoPresenter(),
+			)
+
+			act = action.NewGetUserAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request)

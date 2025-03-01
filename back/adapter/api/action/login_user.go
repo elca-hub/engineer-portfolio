@@ -45,7 +45,8 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			// TODO: ログの追加
+			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
+			response.NewError(err, http.StatusInternalServerError).Send(w)
 			return
 		}
 	}(r.Body)
@@ -53,6 +54,8 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	if err := a.v.Validate(input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
+
+		return
 	}
 
 	output, err := a.uc.Execute(input)
@@ -62,7 +65,15 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	middleware.SetToken(w, output.Token)
+	token, err := middleware.NewCookieToken(output.Token)
+
+	if err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when create cookie token")
+		response.NewError(err, http.StatusInternalServerError).Send(w)
+		return
+	}
+
+	middleware.SetToken(w, token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
 

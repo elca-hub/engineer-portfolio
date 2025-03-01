@@ -1,13 +1,13 @@
 package database
 
 import (
-	"fmt"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"devport/domain/repository"
 	"devport/domain/repository/sql"
 	"devport/infra/database/gorm/gorm_model"
 	gormrepository "devport/infra/database/gorm/repository"
+	"fmt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type RepositoryConfig struct {
@@ -37,7 +37,8 @@ func NewMysqlHandler(c *MysqlConfig) (repository.SQL, error) {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-	} // TODO: Logger
+		return nil, err
+	}
 
 	err = db.AutoMigrate(&gorm_model.User{})
 	if err != nil {

@@ -7,60 +7,53 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
-	"encoding/json"
 	"io"
 	"net/http"
 )
 
-type VerifyEmailAction struct {
-	uc user.VerificationEmailUseCase
+type GetUserInfoAction struct {
+	uc user.GetUserInfoUseCase
 	v  validator.Validator
 	l  logger.Logger
 }
 
-func NewVerifyEmailAction(uc user.VerificationEmailUseCase, v validator.Validator, l logger.Logger) *VerifyEmailAction {
-	return &VerifyEmailAction{
+func NewGetUserAction(uc user.GetUserInfoUseCase, v validator.Validator, l logger.Logger) *GetUserInfoAction {
+	return &GetUserInfoAction{
 		uc: uc,
 		v:  v,
 		l:  l,
 	}
 }
 
-func (a *VerifyEmailAction) Execute(w http.ResponseWriter, r *http.Request) {
-	var input user.VerificationEmailInput
-	const logKey = "create_user"
+func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request) {
+	var input user.GetUserInfoInput
 
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		logging.NewError(
-			a.l,
-			err,
-			logKey,
-			http.StatusBadRequest,
-		).Log("error while decoding request body")
+	userToken, err := middleware.GetToken(r)
+
+	if err != nil {
+		logging.NewError(a.l, err, "get_token", http.StatusBadRequest).Log("error when get token")
 		response.NewError(err, http.StatusBadRequest).Send(w)
+
 		return
 	}
+
+	input.Token = userToken.Token()
+
+	const logKey = "get_user_info"
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
 			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
 			response.NewError(err, http.StatusInternalServerError).Send(w)
-
 			return
 		}
 	}(r.Body)
 
-	if err := a.v.Validate(input); err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
-		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
-
-		return
-	}
-
 	output, err := a.uc.Execute(input)
+
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when verify email")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get user info")
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
@@ -76,5 +69,6 @@ func (a *VerifyEmailAction) Execute(w http.ResponseWriter, r *http.Request) {
 	middleware.SetToken(w, token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
-	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success verify email")
+
+	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success get user info")
 }
