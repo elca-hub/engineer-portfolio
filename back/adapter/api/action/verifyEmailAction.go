@@ -36,7 +36,7 @@ func (a *VerifyEmailAction) Execute(w http.ResponseWriter, r *http.Request) {
 			err,
 			logKey,
 			http.StatusBadRequest,
-		)
+		).Log("error while decoding request body")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
@@ -50,12 +50,14 @@ func (a *VerifyEmailAction) Execute(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	if err := a.v.Validate(input); err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
+
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
 	}
 
 	output, err := a.uc.Execute(input)
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError)
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when verify email")
 
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return

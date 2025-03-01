@@ -1,6 +1,7 @@
 package action
 
 import (
+	"devport/adapter/api/logging"
 	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
@@ -28,7 +29,15 @@ func NewLoginUserAction(uc user.LoginUserUseCase, v validator.Validator, l logge
 func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	var input user.LoginUserInput
 
+	const logKey = "login_user"
+
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		logging.NewError(
+			a.l,
+			err,
+			logKey,
+			http.StatusBadRequest,
+		).Log("error while decoding request body")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
@@ -42,11 +51,13 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	}(r.Body)
 
 	if err := a.v.Validate(input); err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
 	}
 
 	output, err := a.uc.Execute(input)
 	if err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when login user")
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}

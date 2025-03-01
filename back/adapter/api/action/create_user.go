@@ -48,7 +48,7 @@ func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 
 	output, err := a.uc.Execute(input)
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError)
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when create user")
 
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
