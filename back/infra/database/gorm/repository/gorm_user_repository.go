@@ -22,6 +22,8 @@ func (r GormUserRepository) Create(user *model.User) error {
 
 	gormUser := gorm_model.User{
 		ID:                user.ID().ID(),
+		Name:              user.Name(),
+		Age:               user.Age(),
 		Email:             email.Email(),
 		Password:          security.HashPassword(user.Password()),
 		EmailVerification: user.EmailVerification(),
