@@ -38,7 +38,7 @@ func (a *LogoutUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	input.Token = userToken.Token()
-	
+
 	defer r.Body.Close()
 
 	if err := a.v.Validate(input); err != nil {
