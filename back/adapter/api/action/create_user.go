@@ -7,7 +7,6 @@ import (
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"encoding/json"
-	"io"
 	"net/http"
 )
 
@@ -35,20 +34,15 @@ func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 			err,
 			logKey,
 			http.StatusBadRequest,
-		)
+		).Log("error while decoding request body")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			// TODO: ログの追加
-			return
-		}
-	}(r.Body)
+	defer r.Body.Close()
 
 	if err := a.v.Validate(input); err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
 	}
 
