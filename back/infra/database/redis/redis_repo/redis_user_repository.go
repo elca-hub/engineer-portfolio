@@ -2,8 +2,8 @@ package redis_repo
 
 import (
 	"context"
-	"github.com/redis/go-redis/v9"
 	"devport/domain/model"
+	"github.com/redis/go-redis/v9"
 	"time"
 )
 
@@ -49,4 +49,22 @@ func (r *RedisUserRepository) DeleteSession(token string) error {
 	}
 
 	return nil
+}
+
+func (r *RedisUserRepository) AddConfirmationCode(email *model.Email, code int64) error {
+	if err := r.client.Set(context.Background(), email.Email(), code, time.Hour).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *RedisUserRepository) GetConfirmationCode(email *model.Email) (int64, error) {
+	code, err := r.client.Get(context.Background(), email.Email()).Int64()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return code, nil
 }

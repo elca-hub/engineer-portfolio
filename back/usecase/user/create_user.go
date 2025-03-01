@@ -1,12 +1,14 @@
 package user
 
 import (
+	"crypto/rand"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
 	"errors"
 	"fmt"
+	"math/big"
 	"time"
 )
 
@@ -71,15 +73,20 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, err
 	}
 
-	token, err := i.noSqlRepository.StartSession(userEmail)
+	// 6桁の確認コードを生成
+	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
 
 	if err != nil {
 		return CreateUserOutput{""}, err
 	}
 
-	mailSubject := "【メール確認のお願い】"
+	if err := i.noSqlRepository.AddConfirmationCode(userEmail, n.Int64()); err != nil {
+		return CreateUserOutput{""}, err
+	}
 
-	mailContent := fmt.Sprintf("以下のリンクをクリックしてメールアドレスを確認してください。\nhttp://localhost:8080/verification/email?token=%s", token)
+	mailSubject := "【ユーザ登録の認証コード送信のお知らせ】"
+
+	mailContent := fmt.Sprintf("初回に登録されるすべてのユーザーに認証コードによるメール確認を行なっています。\n以下の数字を入力して認証を完了してください。\n認証コード:%d", n)
 
 	if err := i.email.SendEmail([]string{input.Email}, mailSubject, mailContent); err != nil {
 		return CreateUserOutput{""}, err
