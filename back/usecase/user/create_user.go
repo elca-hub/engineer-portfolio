@@ -17,7 +17,7 @@ type (
 
 	CreateUserInput struct {
 		Age      int    `json:"age" validate:"required"`
-		Name     string `json:"name" validate:"required,max=50"`
+		Name     string `json:"name" validate:"required,max=50,min=1"`
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required,min=8,max=64"`
 	}
