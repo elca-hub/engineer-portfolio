@@ -27,19 +27,18 @@ func NewGetUserAction(uc user.GetUserInfoUseCase, v validator.Validator, l logge
 
 func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request) {
 	var input user.GetUserInfoInput
+	const logKey = "get_user_info"
 
 	userToken, err := middleware.GetToken(r)
 
 	if err != nil {
-		logging.NewError(a.l, err, "get_token", http.StatusBadRequest).Log("error when get token")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get token")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 
 		return
 	}
 
 	input.Token = userToken.Token()
-
-	const logKey = "get_user_info"
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
