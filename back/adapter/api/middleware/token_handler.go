@@ -50,5 +50,6 @@ func SetToken(res http.ResponseWriter, token *CookieToken) {
 		Secure:   os.Getenv("GO_ENVIRONMENT") == "production",
 		MaxAge:   3600,
 		Domain:   os.Getenv("DOMAIN_NAME"),
+		Path:     "/",
 	})
 }

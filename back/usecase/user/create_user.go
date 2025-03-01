@@ -71,7 +71,7 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 	}
 
 	hashedPassword := security.HashPassword(rawPassword)
-
+	
 	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, hashedPassword, time.Now(), time.Now(), model.InConfirmation)
 
 	if err != nil {
