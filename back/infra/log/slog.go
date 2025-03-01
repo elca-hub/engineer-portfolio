@@ -28,15 +28,11 @@ func (l *slogLogger) Errorf(format string, args ...interface{}) {
 }
 
 func (l *slogLogger) WithFields(keyValues logger.Fields) logger.Logger {
-	var f = make([]interface{}, 0)
-	for index, field := range keyValues {
-		f = append(f, index)
-		f = append(f, field)
+	for k, v := range keyValues {
+		l.logger = l.logger.With(k, v)
 	}
 
-	log := l.logger.With(f...)
-
-	return &slogLogger{logger: log}
+	return &slogLogger{logger: l.logger}
 }
 
 func (l *slogLogger) WithError(err error) logger.Logger {
