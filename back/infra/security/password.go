@@ -2,7 +2,6 @@ package security
 
 import (
 	"devport/domain/model"
-	"encoding/hex"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -13,7 +12,7 @@ func HashPassword(password *model.RawPassword) *model.HashedPassword {
 		panic(err)
 	}
 
-	return model.NewHashedPassword(hex.EncodeToString(res))
+	return model.NewHashedPassword(string(res))
 }
 
 func CheckPasswordHash(password *model.RawPassword, hash *model.HashedPassword) bool {
