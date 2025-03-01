@@ -7,6 +7,7 @@ import (
 
 const (
 	InstanceSlog int = iota
+	InstanceZap
 )
 
 var (
@@ -17,6 +18,8 @@ func NewLoggerFactory(instance int) (logger.Logger, error) {
 	switch instance {
 	case InstanceSlog:
 		return NewSlogLogger()
+	case InstanceZap:
+		return NewZapLogger()
 	default:
 		return nil, errInvalidLoggerInstance
 	}

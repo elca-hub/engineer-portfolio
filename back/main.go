@@ -16,7 +16,7 @@ func main() {
 		ContextTimeout(10 * time.Second).
 		DbSql(database.InstanceMySQL).
 		DbNoSql(database.InstanceRedis).
-		Logger(log.InstanceSlog).
+		Logger(log.InstanceZap).
 		Validator(validation.InstanceGoPlayground).
 		Email().
 		WebServerPort(os.Getenv("APP_PORT")).
