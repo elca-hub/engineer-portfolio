@@ -55,4 +55,6 @@ func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
+
+	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success create user")
 }

@@ -54,4 +54,6 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	middleware.SetToken(w, output.Token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
+
+	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success login user")
 }
