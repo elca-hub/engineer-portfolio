@@ -34,7 +34,7 @@ func TestCreateUser(t *testing.T) {
 			Age:      18,
 			Name:     "test",
 			Email:    "test@example.com",
-			Password: "security",
+			Password: "Security_1234",
 		}
 
 		testEmail, _ := usermodel.NewEmail(i.Email)
@@ -43,7 +43,7 @@ func TestCreateUser(t *testing.T) {
 
 		sqlMock.EXPECT().Create(gomock.Any()).Return(nil)
 		sqlMock.EXPECT().Exists(testEmail).Return(false, nil)
-		noSqlMock.EXPECT().StartSession(testEmail)
+		noSqlMock.EXPECT().AddConfirmationCode(gomock.Any(), gomock.Any()).Return(nil)
 		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any())
 
 		res, err := uc.Execute(i)
