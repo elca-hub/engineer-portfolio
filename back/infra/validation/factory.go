@@ -1,8 +1,8 @@
 package validation
 
 import (
-	"errors"
 	"devport/adapter/validator"
+	"errors"
 )
 
 var (
@@ -13,8 +13,8 @@ const (
 	InstanceGoPlayground int = iota
 )
 
-func NewValidationFactory() (validator.Validator, error) {
-	switch InstanceGoPlayground {
+func NewValidationFactory(instance int) (validator.Validator, error) {
+	switch instance {
 	case InstanceGoPlayground:
 		return NewGoPlayground()
 	default:

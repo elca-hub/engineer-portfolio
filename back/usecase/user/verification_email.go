@@ -1,10 +1,10 @@
 package user
 
 import (
-	"errors"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
+	"errors"
 )
 
 type (
@@ -13,7 +13,8 @@ type (
 	}
 
 	VerificationEmailInput struct {
-		Token string `validate:"required"`
+		AccessCode int64  `validate:"required" json:"access_code"`
+		Email      string `validate:"required,email" json:"email"`
 	}
 
 	VerificationEmailPresenter interface {
@@ -44,10 +45,20 @@ func NewVerificationEmailInterator(
 }
 
 func (i verificationEmailInterator) Execute(input VerificationEmailInput) (VerificationEmailOutput, error) {
-	userEmail, err := i.noSqlRepository.GetSession(input.Token)
+	userEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {
-		return i.presenter.Output(""), errors.New("invalid token_auth")
+		return i.presenter.Output(""), err
+	}
+
+	code, err := i.noSqlRepository.GetConfirmationCode(userEmail)
+
+	if err != nil {
+		return i.presenter.Output(""), err
+	}
+
+	if code != input.AccessCode {
+		return i.presenter.Output(""), errors.New("invalid access code")
 	}
 
 	userModel, err := i.sqlRepository.FindByEmail(userEmail)

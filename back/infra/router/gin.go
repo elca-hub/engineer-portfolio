@@ -2,13 +2,15 @@ package router
 
 import (
 	"context"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"devport/controller"
+	"devport/adapter/api/action"
+	"devport/adapter/logger"
+	"devport/adapter/validator"
 	"devport/domain/repository"
-	"devport/infra/token_auth"
+	"devport/infra/email"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -18,19 +20,24 @@ import (
 )
 
 type GinEngine struct {
-	router         *gin.Engine
-	port           Port
-	ctxTimeout     time.Duration
-	sql            repository.SQL
-	noSQL          repository.NoSQL
-	userController controller.UserController
+	router     *gin.Engine
+	port       Port
+	ctxTimeout time.Duration
+	sql        repository.SQL
+	noSQL      repository.NoSQL
+	validator  validator.Validator
+	log        logger.Logger
+	email      email.Email
 }
 
 func NewGinServer(
 	port Port,
 	t time.Duration,
 	db repository.SQL,
+	validator validator.Validator,
+	log logger.Logger,
 	session repository.NoSQL,
+	email email.Email,
 ) *GinEngine {
 	return &GinEngine{
 		router:     gin.New(),
@@ -38,6 +45,9 @@ func NewGinServer(
 		ctxTimeout: t,
 		sql:        db,
 		noSQL:      session,
+		validator:  validator,
+		log:        log,
+		email:      email,
 	}
 }
 
@@ -75,28 +85,23 @@ func (e *GinEngine) Listen() {
 }
 
 func (e *GinEngine) setupRouter(router *gin.Engine) {
-	router.GET("/ping", e.healthCheckAction())
-
 	apiRouterGroup := router.Group("/api/v1")
 	{
-		apiRouterGroup.POST("/signup", func(c *gin.Context) {
-			res := e.userController.CreateUser(c.PostForm("name"), c.PostForm("email"), c.PostForm("password"))
+		apiRouterGroup.GET("/ping", e.healthCheckAction())
 
-			c.JSON(res.StatusCode, res)
-		})
-		apiRouterGroup.POST("/login", func(c *gin.Context) {
-			res := e.userController.LoginUser(c.PostForm("email"), c.PostForm("password"))
-
-			token_auth.SetToken(c.Writer, res.Data["Email"].(string))
-
-			c.JSON(res.StatusCode, res)
-		})
-
-		userRouterGroup := apiRouterGroup.Group("/user")
-		{
-			userRouterGroup.GET("/", e.getUserInfoAction())
-		}
+		apiRouterGroup.POST("/signup", e.createUserAction())
+		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
+		apiRouterGroup.POST("/logout", e.logoutUserAction())
+
+		authRouterGroup := apiRouterGroup.Group("/auth")
+		{
+			authRouterGroup.Use(e.verifyCookieTokenAction())
+			userRouterGroup := authRouterGroup.Group("/user")
+			{
+				userRouterGroup.GET("/", e.getUserInfoAction())
+			}
+		}
 	}
 }
 
@@ -108,89 +113,101 @@ func (e *GinEngine) healthCheckAction() gin.HandlerFunc {
 	}
 }
 
-func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
+func (e *GinEngine) createUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uc := user.NewVerificationEmailInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewVerificationEmailPresenter(),
+		var (
+			uc = user.NewCreateUserInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				e.email,
+			)
+
+			act = action.NewCreateUserAction(uc, e.validator, e.log)
 		)
 
-		token, err := uc.Execute(user.VerificationEmailInput{
-			Token: c.DefaultQuery("token", ""),
-		})
+		act.Execute(c.Writer, c.Request)
+	}
+}
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
+func (e *GinEngine) loginUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewLoginUserInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewLoginUserPresenter(),
+			)
+
+			act = action.NewLoginUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
+	}
+}
+
+func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewVerificationEmailInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewVerificationEmailPresenter(),
+			)
+
+			act = action.NewVerifyEmailAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request)
+	}
+}
+
+func (e *GinEngine) verifyCookieTokenAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewVerifyCookieTokenInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewVerifyCookieTokenPresenter(),
+			)
+
+			act = action.NewVerifyCookieTokenAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+
+		if c.Writer.Status() != http.StatusOK {
+			c.Abort()
 		}
-
-		token_auth.SetToken(c.Writer, token.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code": http.StatusOK,
-		})
 	}
 }
 
 func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uc := user.NewGetUserInfoInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewGetUserInfoPresenter(),
+		var (
+			uc = user.NewGetUserInfoInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewGetUserInfoPresenter(),
+			)
+
+			act = action.NewGetUserAction(uc, e.validator, e.log)
 		)
 
-		userOutput, err := uc.Execute(user.GetUserInfoInput{
-			Token: token_auth.GetToken(c.Request),
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
-		}
-
-		token_auth.SetToken(c.Writer, userOutput.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code":  http.StatusOK,
-			"email": userOutput.Email,
-		})
+		act.Execute(c.Writer, c.Request, c)
 	}
 }
 
-func (e *GinEngine) loginAction() gin.HandlerFunc {
+func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		uc := user.NewLoginUserInterator(
-			e.sql.UserRepository(),
-			e.noSQL.UserRepository(),
-			user_presenter.NewLoginUserPresenter(),
+		var (
+			uc = user.NewLogoutUserInterator(
+				e.noSQL.UserRepository(),
+				user_presenter.NewLogoutUserPresenter(),
+			)
+
+			act = action.NewLogoutUserAction(uc, e.validator, e.log)
 		)
 
-		userOutput, err := uc.Execute(user.LoginUserInput{
-			Email:    c.PostForm("email"),
-			Password: c.PostForm("password"),
-		})
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code": http.StatusInternalServerError,
-				"err":  err.Error(),
-			})
-			return
-		}
-
-		token_auth.SetToken(c.Writer, userOutput.Token)
-
-		c.JSON(http.StatusOK, gin.H{
-			"code":           http.StatusOK,
-			"user_presenter": userOutput,
-		})
+		act.Execute(c.Writer, c.Request)
 	}
 }

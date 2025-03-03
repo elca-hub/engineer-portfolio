@@ -6,7 +6,13 @@ import (
 	"strings"
 )
 
-func SmtpSendMail(to []string, subject string, body string) error {
+type Smtp struct{}
+
+func NewSmtp() *Smtp {
+	return &Smtp{}
+}
+
+func (s *Smtp) SendEmail(to []string, subject string, body string) error {
 	config := NewSMTPConfig()
 
 	smtpServer := fmt.Sprintf("%s:%s", config.smtpServer, config.smtpPort)

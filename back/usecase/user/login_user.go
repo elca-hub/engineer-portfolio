@@ -1,11 +1,11 @@
 package user
 
 import (
-	"github.com/go-playground/validator/v10"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
-	"devport/infra/password"
+	"devport/infra/security"
+	"errors"
 )
 
 type (
@@ -47,12 +47,6 @@ func NewLoginUserInterator(
 }
 
 func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, error) {
-	validate := validator.New()
-
-	if err := validate.Struct(input); err != nil {
-		return i.presenter.Output(model.User{}, ""), err
-	}
-
 	inputEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {
@@ -65,8 +59,14 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 		return i.presenter.Output(model.User{}, ""), err
 	}
 
-	if !password.CheckPasswordHash(input.Password, userModel.Password()) {
-		return i.presenter.Output(*userModel, ""), nil
+	rawPassword, err := model.NewRawPassword(input.Password)
+
+	if err != nil {
+		return i.presenter.Output(*userModel, ""), err
+	}
+
+	if !security.CheckPasswordHash(rawPassword, userModel.Password()) {
+		return i.presenter.Output(*userModel, ""), errors.New("invalid password")
 	}
 
 	session, err := i.noSqlRepository.StartSession(inputEmail)
