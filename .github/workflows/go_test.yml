@@ -30,4 +30,4 @@ jobs:
       run: go test -v ./domain/model
 
     - name: Usecase Test
-      run: go test -v ./usecase
+      run: go test -v ./usecase/...
