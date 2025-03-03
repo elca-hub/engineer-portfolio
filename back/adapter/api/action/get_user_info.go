@@ -7,6 +7,7 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
+	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 )
@@ -25,7 +26,7 @@ func NewGetUserAction(uc user.GetUserInfoUseCase, v validator.Validator, l logge
 	}
 }
 
-func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request) {
+func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
 	var input user.GetUserInfoInput
 	const logKey = "get_user_info"
 
@@ -38,7 +39,17 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	keysEmail, isExist := c.Get("email")
+
+	if !isExist {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get email")
+		response.NewError(err, http.StatusBadRequest).Send(w)
+
+		return
+	}
+
 	input.Token = userToken.Token()
+	input.Email = keysEmail.(string)
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -57,17 +68,6 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := middleware.NewCookieToken(output.Token)
-
-	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when set token")
-		response.NewError(err, http.StatusInternalServerError).Send(w)
-		return
-	}
-
-	middleware.SetToken(w, token)
-
 	response.NewSuccess(output, http.StatusOK).Send(w)
-
 	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success get user info")
 }

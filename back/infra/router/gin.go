@@ -94,9 +94,13 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
 		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
-		userRouterGroup := apiRouterGroup.Group("/user")
+		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
-			userRouterGroup.GET("/", e.getUserInfoAction())
+			authRouterGroup.Use(e.verifyCookieTokenAction())
+			userRouterGroup := authRouterGroup.Group("/user")
+			{
+				userRouterGroup.GET("/", e.getUserInfoAction())
+			}
 		}
 	}
 }
@@ -157,6 +161,26 @@ func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
 	}
 }
 
+func (e *GinEngine) verifyCookieTokenAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewVerifyCookieTokenInterator(
+				e.sql.UserRepository(),
+				e.noSQL.UserRepository(),
+				user_presenter.NewVerifyCookieTokenPresenter(),
+			)
+
+			act = action.NewVerifyCookieTokenAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+
+		if c.Writer.Status() != http.StatusOK {
+			c.Abort()
+		}
+	}
+}
+
 func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
@@ -169,7 +193,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 			act = action.NewGetUserAction(uc, e.validator, e.log)
 		)
 
-		act.Execute(c.Writer, c.Request)
+		act.Execute(c.Writer, c.Request, c)
 	}
 }
 

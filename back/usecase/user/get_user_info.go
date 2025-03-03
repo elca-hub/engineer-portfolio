@@ -4,7 +4,6 @@ import (
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
-	"errors"
 )
 
 type (
@@ -14,6 +13,7 @@ type (
 
 	GetUserInfoInput struct {
 		Token string `validate:"required"`
+		Email string `validate:"required"`
 	}
 
 	GetUserInfoPresenter interface {
@@ -47,23 +47,14 @@ func NewGetUserInfoInterator(
 }
 
 func (i getUserInfoInterator) Execute(input GetUserInfoInput) (GetUserInfoOutput, error) {
-	userEmail, err := i.noSqlRepository.GetSession(input.Token)
-
-	if err != nil {
-		return i.presenter.Output(model.User{}, ""), errors.New("invalid token_auth")
-	}
-
-	if userEmail == nil {
-		return i.presenter.Output(model.User{}, ""), errors.New("invalid token_auth")
-	}
-
-	userModel, err := i.sqlRepository.FindByEmail(userEmail)
+	email, err := model.NewEmail(input.Email)
+	userModel, err := i.sqlRepository.FindByEmail(email)
 
 	if err != nil {
 		return i.presenter.Output(model.User{}, ""), err
 	}
 
-	session, err := i.noSqlRepository.StartSession(userEmail)
+	session, err := i.noSqlRepository.StartSession(email)
 	if err != nil {
 		return i.presenter.Output(model.User{}, ""), err
 	}
