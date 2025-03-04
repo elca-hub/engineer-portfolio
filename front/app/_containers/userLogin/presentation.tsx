@@ -10,6 +10,9 @@ import InputField from "@/components/ui/input/inputField";
 import {loginApi} from "@/app/_containers/userLogin/action";
 import { CalloutContext, calloutItemType } from "@/app/state";
 import { useRouter } from "next/navigation";
+import TextWithIcon from "@/components/ui/text/textWithIcon";
+import { ButtonStyle, LinkStyle } from "@/constants/tailwindConstant";
+import Link from "next/link";
 
 type FormContent = {
   email: string;
@@ -56,7 +59,9 @@ export default function UserLoginPresentation(){
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <header className="mb-6">
-        <h1 className="text-4xl font-bold tracking-widest text-foreground">ログイン</h1>
+        <TextWithIcon icon={<RiLockLine />} size="text-4xl">
+          <h1 className="text-4xl font-bold tracking-widest text-foreground">ログイン</h1>
+        </TextWithIcon>
       </header>
 
       <main className="flex flex-col gap-4 w-1/3">
@@ -72,6 +77,7 @@ export default function UserLoginPresentation(){
                 field={field}
                 fieldState={fieldState}
                 isRequired
+                autoFocus
               ></InputField>
             )}
           ></Controller>
@@ -86,14 +92,29 @@ export default function UserLoginPresentation(){
                 field={field}
                 fieldState={fieldState}
                 isRequired
+                helperText="英数字をそれぞれ1文字以上含む8文字以上で入力してください"
               ></InputField>
             )}
           ></Controller>
 
-          <button type="submit" className="bg-primary text-white p-2 rounded">
-            ログイン
-          </button>
+          <div className="flex justify-center mt-6">
+            <button type="submit" className={ButtonStyle("primary")}>
+              <TextWithIcon icon={<RiLockLine />}>
+                <span>ログイン</span>
+              </TextWithIcon>
+            </button>
+          </div>
         </form>
+
+        <div className="flex justify-center">
+          <span>
+          アカウントをお持ちでない方は
+          <Link href="/register" className={LinkStyle}>
+            新規登録
+          </Link>
+          から！
+          </span>
+        </div>
       </main>
     </div>
   )
