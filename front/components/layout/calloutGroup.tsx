@@ -47,7 +47,7 @@ export default function CalloutGroup() {
   }, [callout]);
 
   return (
-    <div className="absolute top-0 right-0 p-4 z-50">
+    <div className="fixed top-0 right-0 p-4 z-50">
       <AnimatePresence>
         {callout.map((item, index) => (
           <motion.div
