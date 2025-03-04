@@ -5,7 +5,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 type ErrorResponse = {
-  errors: string[];
+  status: number;
+  errors?: string[];
 }
 
 export const loginApi = async (email: string, password: string): Promise<ErrorResponse> => {
@@ -28,10 +29,13 @@ export const loginApi = async (email: string, password: string): Promise<ErrorRe
     const data = await res.json();
     cookie.set("devport_api_token", data.Token);
 
-    redirect("/user/");
+    return { status: res.status };
   } else {
     const error = await res.json();
 
-    return error as ErrorResponse;
+    return {
+      status: res.status,
+      errors: error.errors,
+    }
   }
 }

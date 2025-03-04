@@ -9,6 +9,7 @@ import { Controller, useForm, ValidationRule } from "react-hook-form";
 import InputField from "@/components/ui/input/inputField";
 import {loginApi} from "@/app/_containers/userLogin/action";
 import { CalloutContext, calloutItemType } from "@/app/state";
+import { useRouter } from "next/navigation";
 
 type FormContent = {
   email: string;
@@ -17,6 +18,7 @@ type FormContent = {
 
 export default function UserLoginPresentation(){
   const {callout, setCallout} = useContext(CalloutContext);
+  const router = useRouter();
 
   const { control, handleSubmit, reset, watch,  } = useForm<FormContent>({
     defaultValues: {
@@ -32,8 +34,13 @@ export default function UserLoginPresentation(){
       const loginFlow = async () => {
         const res = await loginApi(watch().email, watch().password);
 
-        if (res.errors) setCallout([...callout, {content: res.errors[0], type: 'error'}]);
-        else setCallout([...callout, {content: "ログインに成功しました", type: 'success'}]);
+        if (res.errors) {
+          setCallout([...callout, {content: res.errors[0], type: 'error'}]);
+        }
+        else {
+          setCallout([...callout, {content: "ログインに成功しました", type: 'success'}]);
+          router.push("/");
+        }
       }
       loginFlow();
       reset();
