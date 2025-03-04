@@ -58,7 +58,7 @@ func (i verifyCookieTokenInterator) Execute(input VerifyCookieTokenInput) (Verif
 	}
 
 	if !isExist {
-		return i.presenter.Output(model.Email{}, ""), errors.New("user not found")
+		return i.presenter.Output(model.Email{}, ""), errors.New("ユーザが存在しません")
 	}
 
 	token, err := i.noSqlRepository.StartSession(email)

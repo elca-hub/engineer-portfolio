@@ -17,11 +17,11 @@ type RawPassword struct {
 
 func NewRawPassword(rawPassword string) (*RawPassword, error) {
 	if len(rawPassword) < MinPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at least %d characters long.", MinPasswordLen))
+		return nil, fmt.Errorf("パスワードは%d字以上です", MinPasswordLen)
 	}
 
 	if len(rawPassword) > MaxPasswordLen {
-		return nil, errors.New(fmt.Sprintf("The password must be at most %d characters long.", MaxPasswordLen))
+		return nil, fmt.Errorf("パスワードは%d字以下です", MaxPasswordLen)
 	}
 
 	// パスワードの正規表現
@@ -32,7 +32,7 @@ func NewRawPassword(rawPassword string) (*RawPassword, error) {
 	hasSymbol := regexp.MustCompile(`[.+\-[\]*~_#:?]`).MatchString(rawPassword)
 
 	if !hasLower || !hasUpper || !hasNumber || !hasSymbol {
-		return nil, errors.New("the password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol")
+		return nil, errors.New("パスワードに小文字、大文字、数字、記号をそれぞれ1文字以上含めてください")
 	}
 
 	return &RawPassword{rawPassword: rawPassword}, nil

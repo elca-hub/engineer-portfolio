@@ -1,0 +1,1 @@
+export const cookieTokenName = 'devport_api_token';
