@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ControllerFieldState, ControllerRenderProps, UseFormRegisterReturn } from 'react-hook-form';
-import TextWithIcon from '../text/textWithIcon';
+import TextWithIcon from '../../ui/text/textWithIcon';
 import { RiQuestionLine } from 'react-icons/ri';
 
 interface InputFieldProps {

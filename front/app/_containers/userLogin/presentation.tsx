@@ -6,7 +6,7 @@
 import { RiLockLine, RiMailLine } from "react-icons/ri";
 import { useActionState, useContext, useEffect, useRef, useState } from "react";
 import { Controller, useForm, ValidationRule } from "react-hook-form";
-import InputField from "@/components/ui/input/inputField";
+import InputField from "@/components/layout/input/inputField";
 import {loginApi} from "@/app/_containers/userLogin/action";
 import { CalloutContext, calloutItemType } from "@/app/state";
 import { useRouter } from "next/navigation";
