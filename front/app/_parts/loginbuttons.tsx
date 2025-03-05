@@ -3,7 +3,6 @@
 import { RiAddLine, RiLoginBoxLine } from 'react-icons/ri';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ButtonStyle } from '@/constants/tailwindConstant';
 import TextWithIcon from '@/components/ui/text/textWithIcon';
 import DPButton from '@/components/ui/button/button';
 
