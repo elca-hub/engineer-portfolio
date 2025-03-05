@@ -13,12 +13,15 @@ import TextWithIcon from "@/components/ui/text/textWithIcon";
 import { ButtonStyle, LinkStyle } from "@/constants/tailwindConstant";
 import Link from "next/link";
 import { registerApi } from "./action";
+import { CalendarDate, JapaneseCalendar, today, getLocalTimeZone } from "@internationalized/date";
+import DatePickerField from "@/components/layout/input/datePickerField";
 
 type FormContent = {
   email: string;
   password: string;
   name: string;
-  birthday: string;
+  birthday: CalendarDate;
+  passwordConfirmation: string;
 }
 
 export default function UserRegisterPresentation(){
@@ -30,8 +33,9 @@ export default function UserRegisterPresentation(){
       email: "",
       password: "",
       name: "",
-      birthday: "",
-    }
+      birthday: today(getLocalTimeZone()),
+      passwordConfirmation: ""
+    } 
   });
 
   const [isSubmit, setIsSubmit] = useState(false);
@@ -39,7 +43,7 @@ export default function UserRegisterPresentation(){
   useEffect(() => {
     if (isSubmit) {
       const loginFlow = async () => {
-        const res = await registerApi(watch().email, watch().password, watch().birthday, watch().name);
+        const res = await registerApi(watch().email, watch().password, watch().birthday.toString(), watch().name, watch().passwordConfirmation);
 
         if (res.errors) {
           setCallout([...callout, {content: res.errors[0], type: 'error'}]);
@@ -86,6 +90,7 @@ export default function UserRegisterPresentation(){
               ></InputField>
             )}
           ></Controller>
+
           <Controller
             name="name"
             control={control}
@@ -105,21 +110,22 @@ export default function UserRegisterPresentation(){
               ></InputField>
             )}
           ></Controller>
+
           <Controller
             name="birthday"
             control={control}
-            rules={{ required: "生年月日が未入力です",  }}
+            rules={{ required: "生年月日が未入力です", validate: (value) => value.compare(today(getLocalTimeZone())) < 0 || "未来の日付は指定できません" }}
             render={({ field, fieldState }) => (
-              <InputField
+              <DatePickerField
                 title="生年月日"
-                type="date"
                 field={field}
                 fieldState={fieldState}
                 isRequired
                 icon={<RiCake2Line />}
-              ></InputField>
+              ></DatePickerField>
             )}
           ></Controller>
+
           <Controller
             name="password"
             control={control}
@@ -136,6 +142,25 @@ export default function UserRegisterPresentation(){
               ></InputField>
             )}
           ></Controller>
+
+          <Controller
+            name="passwordConfirmation"
+            control={control}
+            rules={{ required: "確認用のパスワードが未入力です", pattern: passwordValidationRule, validate: (value) => value === watch().password || "パスワードが一致しません" }}
+            render={({ field, fieldState }) => (
+              <InputField
+                title="パスワードの確認"
+                type="password"
+                field={field}
+                fieldState={fieldState}
+                isRequired
+                helperText="パスワードをもう一度入力してください"
+                icon={<RiLockLine />}
+              ></InputField>
+            )}
+          ></Controller>
+
+          <hr className="border-subtext" />
 
           <div className="flex justify-center mt-6">
             <button type="submit" className={ButtonStyle("secondary")}>

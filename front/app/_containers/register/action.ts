@@ -7,7 +7,7 @@ type ErrorResponse = {
   errors?: string[];
 }
 
-export const registerApi = async (email: string, password: string, birthday: string, name: string): Promise<ErrorResponse> => {
+export const registerApi = async (email: string, password: string, birthday: string, name: string, passwordConfirmation: string): Promise<ErrorResponse> => {
   const res = await fetch(`${apiPrefix}/signup`, {
     method: "POST",
     headers: {
@@ -18,6 +18,7 @@ export const registerApi = async (email: string, password: string, birthday: str
       password,
       birthday,
       name,
+      passwordConfirmation
     }),
     credentials: "include",
     cache: "no-cache",
