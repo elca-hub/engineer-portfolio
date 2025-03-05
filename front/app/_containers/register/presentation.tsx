@@ -33,7 +33,7 @@ export default function UserRegisterPresentation(){
       email: "",
       password: "",
       name: "",
-      birthday: today(getLocalTimeZone()),
+      birthday: today("Asia/Tokyo"),
       passwordConfirmation: ""
     } 
   });
