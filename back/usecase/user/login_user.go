@@ -69,6 +69,10 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 		return i.presenter.Output(*inputEmail, ""), errors.New("パスワードが間違っています")
 	}
 
+	if userModel.EmailVerification() == model.InConfirmation {
+		return i.presenter.Output(*inputEmail, ""), errors.New("メールアドレスの認証が完了していません")
+	}
+
 	session, err := i.noSqlRepository.StartSession(inputEmail)
 
 	if err != nil {

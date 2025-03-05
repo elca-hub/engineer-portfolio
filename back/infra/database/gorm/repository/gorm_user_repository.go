@@ -48,7 +48,7 @@ func (r GormUserRepository) Update(user *model.User) error {
 func (r GormUserRepository) FindByEmail(email *model.Email) (*model.User, error) {
 	var gormUser gorm_model.User
 
-	if err := r.db.Where("email = ? AND email_verification = ?", email.Email(), model.Confirmed).First(&gormUser).Error; err != nil {
+	if err := r.db.Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
 		return nil, err
 	}
 

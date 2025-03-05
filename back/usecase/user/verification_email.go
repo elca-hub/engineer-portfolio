@@ -58,7 +58,7 @@ func (i verificationEmailInterator) Execute(input VerificationEmailInput) (Verif
 	}
 
 	if code != input.AccessCode {
-		return i.presenter.Output(""), errors.New("invalid access code")
+		return i.presenter.Output(""), errors.New("アクセスコードが違います。再度ログインしてください")
 	}
 
 	userModel, err := i.sqlRepository.FindByEmail(userEmail)
@@ -67,8 +67,8 @@ func (i verificationEmailInterator) Execute(input VerificationEmailInput) (Verif
 		return i.presenter.Output(""), err
 	}
 
-	if userModel.EmailVerification() != model.InConfirmation {
-		return i.presenter.Output(""), errors.New("already confirmed")
+	if userModel.EmailVerification() != model.Confirmed {
+		return i.presenter.Output(""), errors.New("メールアドレスが認証されていません")
 	}
 
 	userModel.UpdateEmailVerification(model.Confirmed)
