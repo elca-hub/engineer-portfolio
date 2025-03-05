@@ -17,6 +17,7 @@ const (
 type User struct {
 	id                UUID
 	name              string
+	birthday          time.Time
 	age               int
 	email             *Email
 	password          *HashedPassword
@@ -28,7 +29,7 @@ type User struct {
 func NewUser(
 	id UUID,
 	name string,
-	age int,
+	birthDay time.Time,
 	email *Email,
 	password *HashedPassword,
 	createdAt time.Time,
@@ -53,6 +54,19 @@ func NewUser(
 		}
 	}
 
+	nowDate := time.Now()
+
+	if birthDay.After(nowDate) {
+		return nil, errors.New("the birthday must be less than the current date")
+	}
+
+	// ageは満何歳かを計算する
+	age := nowDate.Year() - birthDay.Year()
+
+	if nowDate.Month() < birthDay.Month() || (nowDate.Month() == birthDay.Month() && nowDate.Day() < birthDay.Day()) {
+		age--
+	}
+
 	if age < 0 {
 		return nil, errors.New("the age must be greater than or equal to 0")
 	}
@@ -68,6 +82,7 @@ func NewUser(
 	return &User{
 		id,
 		name,
+		birthDay,
 		age,
 		email,
 		password,
