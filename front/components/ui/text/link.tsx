@@ -5,6 +5,7 @@ type DPLinkProps = {
   href: string;
 };
 
+
 export default function DPLink(props: DPLinkProps) {
   return (
     <Link href={props.href} className="text-secondary underline mx-1 hover:text-primary cursor-pointer transition-colors duration-300">

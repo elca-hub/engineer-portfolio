@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import TextWithIcon from "@/components/ui/text/textWithIcon";
 import { ButtonStyle } from "@/constants/tailwindConstant";
 import DPLink from "@/components/ui/text/link";
+import DPButton from "@/components/ui/button/button";
 
 type FormContent = {
   email: string;
@@ -100,11 +101,9 @@ export default function UserLoginPresentation(){
           ></Controller>
 
           <div className="flex justify-center mt-6">
-            <button type="submit" className={ButtonStyle("primary")}>
-              <TextWithIcon icon={<RiLockLine />}>
-                <span>ログイン</span>
-              </TextWithIcon>
-            </button>
+            <DPButton colormode="primary" type="submit">
+              <TextWithIcon icon={<RiLockLine />}>ログイン</TextWithIcon>
+            </DPButton>
           </div>
         </form>
 

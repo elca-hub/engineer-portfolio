@@ -15,6 +15,7 @@ import { registerApi } from "./action";
 import { CalendarDate, JapaneseCalendar, today, getLocalTimeZone } from "@internationalized/date";
 import DatePickerField from "@/components/layout/input/datePickerField";
 import DPLink from "@/components/ui/text/link";
+import DPButton from "@/components/ui/button/button";
 
 type FormContent = {
   email: string;
@@ -162,11 +163,9 @@ export default function UserRegisterPresentation(){
           <hr className="border-subtext" />
 
           <div className="flex justify-center mt-6">
-            <button type="submit" className={ButtonStyle("secondary")}>
-              <TextWithIcon icon={<RiAddLine />}>
-                <span>新規登録</span>
-              </TextWithIcon>
-            </button>
+            <DPButton colormode="secondary" type="submit">
+              <TextWithIcon icon={<RiAddLine />}>新規登録</TextWithIcon>
+            </DPButton>
           </div>
         </form>
 
