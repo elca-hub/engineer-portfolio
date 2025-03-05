@@ -14,7 +14,7 @@ type User struct {
 	Email             string    `gorm:"size:255;unique;not null"`
 	Password          string    `gorm:"size:255;not null"`
 	EmailVerification int       `gorm:"not null"`
-	Birthday          time.Time `gorm:"not null"`
+	Birthday          time.Time `gorm:"not null,default:CURRENT_TIMESTAMP"`
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
 }

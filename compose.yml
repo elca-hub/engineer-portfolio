@@ -30,6 +30,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: devport
+      TZ: "Asia/Tokyo"
     volumes:
       - db_data:/var/lib/mysql
       - ./mysql:/docker-entrypoint-initdb.d
