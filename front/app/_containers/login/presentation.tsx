@@ -38,7 +38,12 @@ export default function UserLoginPresentation(){
         const res = await loginApi(watch().email, watch().password);
 
         if (res.errors) {
-          setCallout([...callout, {content: res.errors[0], type: 'error'}]);
+          if (res.errors[0] === "メールアドレスの認証が完了していません") {
+            setCallout([...callout, {content: res.errors[0], type: 'info'}]);
+            router.push("/confirm-email");
+          } else {
+            setCallout([...callout, {content: res.errors[0], type: 'error'}]);
+          }
         }
         else {
           setCallout([...callout, {content: "ログインに成功しました", type: 'success'}]);
