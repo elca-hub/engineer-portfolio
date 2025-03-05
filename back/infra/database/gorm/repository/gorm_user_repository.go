@@ -31,6 +31,14 @@ func (r GormUserRepository) Exists(email *model.Email) (bool, error) {
 	return counter > 0, nil
 }
 
+func (r GormUserRepository) ExistsByName(name string) (bool, error) {
+	var counter int64
+
+	r.db.Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
+
+	return counter > 0, nil
+}
+
 func (r GormUserRepository) Update(user *model.User) error {
 	gormUser := convertToGormModel(*user)
 
@@ -40,7 +48,7 @@ func (r GormUserRepository) Update(user *model.User) error {
 func (r GormUserRepository) FindByEmail(email *model.Email) (*model.User, error) {
 	var gormUser gorm_model.User
 
-	if err := r.db.Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
+	if err := r.db.Where("email = ? AND email_verification = ?", email.Email(), model.Confirmed).First(&gormUser).Error; err != nil {
 		return nil, err
 	}
 

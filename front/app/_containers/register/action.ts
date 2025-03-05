@@ -18,7 +18,7 @@ export const registerApi = async (email: string, password: string, birthday: str
       password,
       birthday,
       name,
-      passwordConfirmation
+      "password_confirmation": passwordConfirmation,
     }),
     credentials: "include",
     cache: "no-cache",

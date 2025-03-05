@@ -49,8 +49,8 @@ export default function UserRegisterPresentation(){
           setCallout([...callout, {content: res.errors[0], type: 'error'}]);
         }
         else {
-          setCallout([...callout, {content: "新規登録に成功しました", type: 'success'}]);
-          router.push("/");
+          setCallout([...callout, {content: "登録したメールアドレス宛に確認コードを送信しました", type: 'info'}]);
+          router.push("/confirm-email");
         }
       }
       loginFlow();

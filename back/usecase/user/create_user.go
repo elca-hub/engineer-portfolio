@@ -66,7 +66,16 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, err
 	}
 	if isExists {
-		return CreateUserOutput{""}, errors.New("email already exists")
+		return CreateUserOutput{""}, errors.New("メールアドレスは既に存在します")
+	}
+
+	isUserNameExists, err := i.sqlRepository.ExistsByName(input.Name) // ユーザ名が存在するか確認
+
+	if err != nil {
+		return CreateUserOutput{""}, err
+	}
+	if isUserNameExists {
+		return CreateUserOutput{""}, errors.New("ユーザ名は既に存在します")
 	}
 
 	jst, _ := time.LoadLocation("Asia/Tokyo")
