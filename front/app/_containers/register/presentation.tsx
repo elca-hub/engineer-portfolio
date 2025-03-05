@@ -10,11 +10,11 @@ import InputField from "@/components/layout/input/inputField";
 import { CalloutContext } from "@/app/state";
 import { useRouter } from "next/navigation";
 import TextWithIcon from "@/components/ui/text/textWithIcon";
-import { ButtonStyle, LinkStyle } from "@/constants/tailwindConstant";
-import Link from "next/link";
+import { ButtonStyle } from "@/constants/tailwindConstant";
 import { registerApi } from "./action";
 import { CalendarDate, JapaneseCalendar, today, getLocalTimeZone } from "@internationalized/date";
 import DatePickerField from "@/components/layout/input/datePickerField";
+import DPLink from "@/components/ui/text/link";
 
 type FormContent = {
   email: string;
@@ -173,9 +173,9 @@ export default function UserRegisterPresentation(){
         <div className="flex justify-center">
           <span>
           アカウントをお持ちの方は
-          <Link href="/login" className={LinkStyle}>
+          <DPLink href="/login">
             ログイン
-          </Link>
+          </DPLink>
           から！
           </span>
         </div>

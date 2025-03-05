@@ -3,5 +3,3 @@ export function ButtonStyle (mode: 'primary' | 'secondary') {
 
   return `${baseStyle} ${mode === 'primary' ? 'bg-primary text-foreground' : 'bg-secondary text-white'}`;
 }
-
-export const LinkStyle = 'text-secondary underline mx-1 hover:text-primary cursor-pointer transition-colors duration-300';

@@ -11,8 +11,8 @@ import {loginApi} from "@/app/_containers/login/action";
 import { CalloutContext } from "@/app/state";
 import { useRouter } from "next/navigation";
 import TextWithIcon from "@/components/ui/text/textWithIcon";
-import { ButtonStyle, LinkStyle } from "@/constants/tailwindConstant";
-import Link from "next/link";
+import { ButtonStyle } from "@/constants/tailwindConstant";
+import DPLink from "@/components/ui/text/link";
 
 type FormContent = {
   email: string;
@@ -111,9 +111,7 @@ export default function UserLoginPresentation(){
         <div className="flex justify-center">
           <span>
           アカウントをお持ちでない方は
-          <Link href="/register" className={LinkStyle}>
-            新規登録
-          </Link>
+          <DPLink href="/register">新規登録</DPLink>
           から！
           </span>
         </div>
