@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 
 export type calloutItemType = {
@@ -10,6 +10,7 @@ export type calloutItemType = {
 
 export const CalloutContext = React.createContext({
   callout: [] as calloutItemType[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setCallout: (callout: calloutItemType[]) => {}
 })
 

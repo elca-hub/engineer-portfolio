@@ -1,6 +1,5 @@
 import { Noto_Sans_JP } from "next/font/google";
 import "@radix-ui/themes/styles.css";
-import { Theme } from "@radix-ui/themes";
 import "./globals.css";
 import CalloutGroup from "@/components/layout/calloutGroup";
 import { MainProvider } from "./state";
@@ -20,10 +19,8 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <body className={`${notoSansJP.variable} antialiased bg-background`}>
         <MainProvider>
-          <Theme hasBackground={false}>
-            {children}
-            <CalloutGroup />
-          </Theme>
+          {children}
+          <CalloutGroup />
         </MainProvider>
       </body>
     </html>

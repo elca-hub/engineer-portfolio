@@ -2,9 +2,9 @@
 
 import { isLogin } from '@/lib/auth/verifySession'
 import { redirect } from 'next/navigation';
-import UserLoginPresentation from './presentation';
+import UserRegisterPresentation from './presentation';
 
-export default async function UserLoginContainer() {
+export default async function UserRegisterContainer() {
   const isAlreadyLogin = await isLogin();
 
   if (isAlreadyLogin) {
@@ -12,6 +12,6 @@ export default async function UserLoginContainer() {
   }
 
   return (
-    <UserLoginPresentation></UserLoginPresentation>
+    <UserRegisterPresentation></UserRegisterPresentation>
   )
 }

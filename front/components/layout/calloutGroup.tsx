@@ -1,37 +1,43 @@
 "use client";
 
-import { CalloutContext, calloutItemType } from "@/app/state";
-import { Callout, Flex } from "@radix-ui/themes";
+import { CalloutContext } from "@/app/state";
 import { AnimatePresence, motion } from "motion/react";
-import { useContext, useEffect, useState } from "react";
-import { RiAlarmWarningLine, RiErrorWarningLine, RiInfoCardLine, RiInfoI, RiThumbUpLine } from "react-icons/ri";
+import { JSX, useContext, useEffect } from "react";
+import { RiAlarmWarningLine, RiErrorWarningLine, RiInfoI, RiThumbUpLine } from "react-icons/ri";
 
 export default function CalloutGroup() {
   const {callout, setCallout} = useContext(CalloutContext);
 
-  const convertType = (type: 'info' | 'warn' | 'error' | 'success') => {
+  const convertType = (type: 'info' | 'warn' | 'error' | 'success'): {
+    bgColor: string;
+    textColor: string;
+    icon: JSX.Element;
+  } => {
     switch (type) {
       case 'info':
-        return 'blue';
+        return {
+          bgColor: 'bg-blue-100',
+          textColor: 'text-blue-500',
+          icon: <RiInfoI />
+        }
       case 'warn':
-        return 'yellow';
+        return {
+          bgColor: 'bg-yellow-100',
+          textColor: 'text-yellow-500',
+          icon: <RiAlarmWarningLine />
+        }
       case 'error':
-        return 'red';
+        return {
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-500',
+          icon: <RiErrorWarningLine />
+        }
       case 'success':
-        return 'green';
-    }
-  }
-
-  const convertIcon = (type: 'info' | 'warn' | 'error' | 'success') => {
-    switch (type) {
-      case 'info':
-        return <RiInfoI />;
-      case 'warn':
-        return <RiAlarmWarningLine />;
-      case 'error':
-        return <RiErrorWarningLine />;
-      case 'success':
-        return <RiThumbUpLine />;
+        return {
+          bgColor: 'bg-green-100',
+          textColor: 'text-green-700',
+          icon: <RiThumbUpLine />
+        }
     }
   }
 
@@ -40,11 +46,11 @@ export default function CalloutGroup() {
       const timer = setTimeout(() => {
         const remove = callout.slice(1);
         setCallout(remove);
-      }, 5000)
+      }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [callout]);
+  }, [callout, setCallout]);
 
   return (
     <div className="fixed top-0 right-0 p-4 z-50">
@@ -58,14 +64,10 @@ export default function CalloutGroup() {
             exit={{ opacity: 0, y: 20 }}
             key={index}
           >
-            <Callout.Root color={convertType(item.type)}>
-              <Callout.Icon>
-                {convertIcon(item.type)}
-              </Callout.Icon>
-              <Callout.Text>
-                {item.content}
-              </Callout.Text>
-            </Callout.Root>
+            <div className={`${convertType(item.type).bgColor} ${convertType(item.type).textColor} p-3 rounded-md flex items-center gap-2`}>
+              {convertType(item.type).icon}
+              <p>{item.content}</p>
+            </div>
           </motion.div>
         ))}
       </AnimatePresence>

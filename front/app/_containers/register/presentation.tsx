@@ -3,30 +3,34 @@
  */
 'use client';
 
-import { RiLockLine, RiMailLine } from "react-icons/ri";
+import { RiAddLine, RiCake2Line, RiIdCardLine, RiLockLine, RiMailLine, } from "react-icons/ri";
 import { useContext, useEffect, useState } from "react";
 import { Controller, useForm, ValidationRule } from "react-hook-form";
 import InputField from "@/components/layout/input/inputField";
-import {loginApi} from "@/app/_containers/login/action";
 import { CalloutContext } from "@/app/state";
 import { useRouter } from "next/navigation";
 import TextWithIcon from "@/components/ui/text/textWithIcon";
 import { ButtonStyle, LinkStyle } from "@/constants/tailwindConstant";
 import Link from "next/link";
+import { registerApi } from "./action";
 
 type FormContent = {
   email: string;
   password: string;
+  name: string;
+  birthday: string;
 }
 
-export default function UserLoginPresentation(){
+export default function UserRegisterPresentation(){
   const {callout, setCallout} = useContext(CalloutContext);
   const router = useRouter();
 
-  const { control, handleSubmit, reset, watch,  } = useForm<FormContent>({
+  const { control, handleSubmit, reset, watch } = useForm<FormContent>({
     defaultValues: {
       email: "",
       password: "",
+      name: "",
+      birthday: "",
     }
   });
 
@@ -35,13 +39,13 @@ export default function UserLoginPresentation(){
   useEffect(() => {
     if (isSubmit) {
       const loginFlow = async () => {
-        const res = await loginApi(watch().email, watch().password);
+        const res = await registerApi(watch().email, watch().password, watch().birthday, watch().name);
 
         if (res.errors) {
           setCallout([...callout, {content: res.errors[0], type: 'error'}]);
         }
         else {
-          setCallout([...callout, {content: "ログインに成功しました", type: 'success'}]);
+          setCallout([...callout, {content: "新規登録に成功しました", type: 'success'}]);
           router.push("/");
         }
       }
@@ -59,8 +63,8 @@ export default function UserLoginPresentation(){
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <header className="mb-6">
-        <TextWithIcon icon={<RiLockLine />} size="text-4xl">
-          <h1 className="text-4xl font-bold tracking-widest text-foreground">ログイン</h1>
+        <TextWithIcon icon={<RiAddLine />} size="text-4xl">
+          <h1 className="text-4xl font-bold tracking-widest text-foreground">新規登録</h1>
         </TextWithIcon>
       </header>
 
@@ -83,6 +87,40 @@ export default function UserLoginPresentation(){
             )}
           ></Controller>
           <Controller
+            name="name"
+            control={control}
+            rules={{ required: "ユーザ名が未入力です", max: {
+              value: 50,
+              message: "ユーザ名は50文字以下で入力してください"
+            } }}
+            render={({ field, fieldState }) => (
+              <InputField
+                title="ユーザ名"
+                type="text"
+                field={field}
+                fieldState={fieldState}
+                isRequired
+                helperText="特殊記号は使用できません"
+                icon={<RiIdCardLine />}
+              ></InputField>
+            )}
+          ></Controller>
+          <Controller
+            name="birthday"
+            control={control}
+            rules={{ required: "生年月日が未入力です",  }}
+            render={({ field, fieldState }) => (
+              <InputField
+                title="生年月日"
+                type="date"
+                field={field}
+                fieldState={fieldState}
+                isRequired
+                icon={<RiCake2Line />}
+              ></InputField>
+            )}
+          ></Controller>
+          <Controller
             name="password"
             control={control}
             rules={{ required: "パスワードが未入力です", pattern: passwordValidationRule }}
@@ -100,9 +138,9 @@ export default function UserLoginPresentation(){
           ></Controller>
 
           <div className="flex justify-center mt-6">
-            <button type="submit" className={ButtonStyle("primary")}>
-              <TextWithIcon icon={<RiLockLine />}>
-                <span>ログイン</span>
+            <button type="submit" className={ButtonStyle("secondary")}>
+              <TextWithIcon icon={<RiAddLine />}>
+                <span>新規登録</span>
               </TextWithIcon>
             </button>
           </div>
@@ -110,9 +148,9 @@ export default function UserLoginPresentation(){
 
         <div className="flex justify-center">
           <span>
-          アカウントをお持ちでない方は
-          <Link href="/register" className={LinkStyle}>
-            新規登録
+          アカウントをお持ちの方は
+          <Link href="/login" className={LinkStyle}>
+            ログイン
           </Link>
           から！
           </span>
