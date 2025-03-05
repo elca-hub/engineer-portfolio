@@ -81,7 +81,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 	return gorm_model.User{
 		ID:                user.ID().ID(),
 		Name:              user.Name(),
-		Age:               user.Age(),
+		Birthday:          user.Birthday(),
 		Email:             email.Email(),
 		Password:          user.Password().HashedPassword(),
 		EmailVerification: user.EmailVerification(),
@@ -100,7 +100,7 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 	user, err := model.NewUser(
 		model.NewUUID(gormUser.ID),
 		gormUser.Name,
-		gormUser.Age,
+		gormUser.Birthday,
 		userEmail,
 		model.NewHashedPassword(gormUser.Password),
 		gormUser.CreatedAt,

@@ -1,9 +1,10 @@
 package model
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func fetchEmail() *Email {
@@ -19,11 +20,14 @@ func fetchPassword() *HashedPassword {
 }
 
 func TestUser(t *testing.T) {
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	birthday, _ := time.ParseInLocation("2006-01-02", "1990-01-01", jst)
 	t.Run("success", func(t *testing.T) {
+
 		_, err := NewUser(
 			NewUUID(""),
 			"test",
-			0,
+			birthday,
 			fetchEmail(),
 			fetchPassword(),
 			time.Now(),
@@ -65,7 +69,7 @@ func TestUser(t *testing.T) {
 					_, err := NewUser(
 						NewUUID(""),
 						c.name,
-						0,
+						birthday,
 						fetchEmail(),
 						fetchPassword(),
 						time.Now(),
@@ -78,12 +82,12 @@ func TestUser(t *testing.T) {
 			}
 		})
 
-		t.Run("Age", func(t *testing.T) {
+		t.Run("Birthday", func(t *testing.T) {
 			cases := map[string]struct {
-				age int
+				birthdayCase time.Time
 			}{
 				"negative": {
-					age: -1,
+					birthdayCase: time.Now().AddDate(0, 0, 1),
 				},
 			}
 
@@ -93,7 +97,7 @@ func TestUser(t *testing.T) {
 					_, err := NewUser(
 						NewUUID(""),
 						"test",
-						c.age,
+						c.birthdayCase,
 						fetchEmail(),
 						fetchPassword(),
 						time.Now(),

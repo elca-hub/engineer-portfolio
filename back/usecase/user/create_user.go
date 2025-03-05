@@ -19,10 +19,11 @@ type (
 	}
 
 	CreateUserInput struct {
-		Age      int    `json:"age" validate:"required"`
-		Name     string `json:"name" validate:"required,max=50,min=1"`
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,min=8,max=64"`
+		Birthday             string `json:"birthday" validate:"required"`
+		Name                 string `json:"name" validate:"required,max=50,min=1"`
+		Email                string `json:"email" validate:"required,email"`
+		Password             string `json:"password" validate:"required,min=8,max=64"`
+		PasswordConfirmation string `json:"password_confirmation" validate:"required,eqfield=Password"`
 	}
 
 	CreateUserOutput struct {
@@ -49,6 +50,10 @@ func NewCreateUserInterator(
 }
 
 func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
+	if input.Password != input.PasswordConfirmation {
+		return CreateUserOutput{""}, errors.New("確認用パスワードが一致しません")
+	}
+
 	userEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {
@@ -64,6 +69,13 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, errors.New("email already exists")
 	}
 
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	birthDay, err := time.ParseInLocation("2006-01-02", input.Birthday, jst)
+
+	if err != nil {
+		return CreateUserOutput{""}, err
+	}
+
 	rawPassword, err := model.NewRawPassword(input.Password)
 
 	if err != nil {
@@ -71,8 +83,8 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 	}
 
 	hashedPassword := security.HashPassword(rawPassword)
-	
-	user, err := model.NewUser(model.NewUUID(""), input.Name, input.Age, userEmail, hashedPassword, time.Now(), time.Now(), model.InConfirmation)
+
+	user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, userEmail, hashedPassword, time.Now(), time.Now(), model.InConfirmation)
 
 	if err != nil {
 		return CreateUserOutput{""}, err
