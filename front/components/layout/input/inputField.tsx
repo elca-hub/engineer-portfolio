@@ -1,43 +1,37 @@
 import React from 'react';
 import { ControllerFieldState, ControllerRenderProps, FieldPath, FieldValue, FieldValues } from 'react-hook-form';
 import TextWithIcon from '../../ui/text/textWithIcon';
-import {Button, Calendar, CalendarCell, CalendarGrid, CalendarGridBody, CalendarGridHeader, CalendarHeaderCell, DateField, DateInput, DatePicker, DateSegment, Dialog, FieldError, Group, Heading, Input, Label, Popover, Text, TextField} from 'react-aria-components';
-import { RiArrowDownFill, RiArrowDownSFill, RiArrowLeftSFill, RiArrowRightSFill, RiExpandUpDownFill } from 'react-icons/ri';
+import { FieldError, Input, Label, Text, TextField, TextFieldProps} from 'react-aria-components';
 
-interface InputFieldProps {
+interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivElement> {
   title: string;
-  type: string;
   field: ControllerRenderProps<FieldValue<FieldValues>, FieldPath<FieldValues>>;
   fieldState: ControllerFieldState;
   isRequired?: boolean;
   helperText?: string;
-  autoFocus?: boolean;
   icon?: React.ReactNode;
 }
 
-const InputField = ({title, type, field, fieldState, isRequired, helperText, autoFocus, icon}: InputFieldProps) => {
-  const titleNode = isRequired ?
+const InputField = ({...props}: InputFieldProps) => {
+  const titleNode = props.isDisabled ?
   (
-    <>{title}<span className='text-red-500'>*</span></>
-  ) : title;
+    <>{props.title}<span className='text-red-500'>*</span></>
+  ) : props.title;
 
-  const labelNode = icon ? (
-    <TextWithIcon icon={icon}>{titleNode}</TextWithIcon>
+  const labelNode = props.icon ? (
+    <TextWithIcon icon={props.icon}>{titleNode}</TextWithIcon>
   ) : titleNode;
 
   return (
     <TextField
-      isInvalid={fieldState.error ? true : false}
-      {...field}
-      isRequired={isRequired}
-      type={type}
-      autoFocus={autoFocus}
+      {...props.field}
+      {...props}
       className='flex flex-col gap-2 my-4'
     >
       <Label className="text-gray-700">{labelNode}</Label>
       <Input className='border border-subtext p-2 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition duration-200 ease-in-out' />
-      <Text slot="description" className='text-subtext text-sm'>{helperText}</Text>
-      <FieldError className="text-red-500">{fieldState.error?.message}</FieldError>
+      <Text slot="description" className='text-subtext text-sm'>{props.helperText}</Text>
+      <FieldError className="text-red-500">{props.fieldState.error?.message}</FieldError>
     </TextField>
   )
 };

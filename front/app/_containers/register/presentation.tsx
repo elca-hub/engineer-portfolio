@@ -80,13 +80,12 @@ export default function UserRegisterPresentation(){
             rules={{ required: "メールアドレスが未入力です" }}
             render={({ field, fieldState }) => (
               <InputField
-                title="メールアドレス"
-                type="email"
                 field={field}
                 fieldState={fieldState}
+                title="メールアドレス"
+                type="email"
                 isRequired
                 autoFocus
-                icon={<RiMailLine />}
               ></InputField>
             )}
           ></Controller>
