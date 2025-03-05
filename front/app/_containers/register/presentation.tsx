@@ -11,7 +11,7 @@ import { CalloutContext } from "@/app/state";
 import { useRouter } from "next/navigation";
 import TextWithIcon from "@/components/ui/text/textWithIcon";
 import { registerApi } from "./action";
-import { CalendarDate, JapaneseCalendar, today, getLocalTimeZone } from "@internationalized/date";
+import { CalendarDate, today, getLocalTimeZone } from "@internationalized/date";
 import DatePickerField from "@/components/layout/input/datePickerField";
 import DPLink from "@/components/ui/text/link";
 import DPButton from "@/components/ui/button/button";
