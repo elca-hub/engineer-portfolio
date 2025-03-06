@@ -14,11 +14,12 @@ const DPButton = ({...props}: DBButtonProps) => {
       {...props}
       className={`
         ${convertColorMode(props.colormode)}
-        px-4 py-2
-        font-bold text-lg
-        rounded
-        hover:opacity-80 hover:scale-[0.98]
+        rounded px-4
+        py-2 text-lg
+        font-bold
         transition-all duration-300
+        hover:scale-[0.98] hover:opacity-80
+        focus:outline-none focus:ring-2 focus:ring-sky-500
       `}
     >
       {props.children}

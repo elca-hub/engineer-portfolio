@@ -18,10 +18,10 @@ const duration = 1.0;
 
 const HomeSection = ({ title, contents, imagePath, imageAlt, imageWidth, imageHeight}: ButtonProps) => {
   return (
-    <section className='h-screen mx-10 flex items-center justify-center gap-10 md:gap-20 md:flex-row flex-col'>
+    <section className='mx-10 flex h-screen flex-col items-center justify-center gap-10 md:flex-row md:gap-20'>
       <div>
         <motion.h3
-          className='text-4xl md:mb-8 mb-4 text-foreground font-bold'
+          className='mb-4 text-4xl font-bold text-foreground md:mb-8'
           initial={{ y: 50, opacity: 0 }}
           whileInView={{
             y: 0,
@@ -35,7 +35,7 @@ const HomeSection = ({ title, contents, imagePath, imageAlt, imageWidth, imageHe
           {title}
         </motion.h3>
         <motion.div
-          className='md:text-2xl text-lg text-subtext whitespace-pre-line'
+          className='whitespace-pre-line text-lg text-subtext md:text-2xl'
           style={{ whiteSpace: 'aut-phrase' }}
           initial={{ y: -10, opacity: 0 }}
           whileInView={{

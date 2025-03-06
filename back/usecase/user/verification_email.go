@@ -67,10 +67,6 @@ func (i verificationEmailInterator) Execute(input VerificationEmailInput) (Verif
 		return i.presenter.Output(""), err
 	}
 
-	if userModel.EmailVerification() != model.Confirmed {
-		return i.presenter.Output(""), errors.New("メールアドレスが認証されていません")
-	}
-
 	userModel.UpdateEmailVerification(model.Confirmed)
 
 	if err := i.sqlRepository.Update(userModel); err != nil {

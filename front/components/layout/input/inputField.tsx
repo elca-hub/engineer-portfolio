@@ -26,11 +26,11 @@ const InputField = ({...props}: InputFieldProps) => {
     <TextField
       {...props.field}
       {...props}
-      className='flex flex-col gap-2 my-4'
+      className='my-4 flex flex-col gap-2'
     >
       <Label className="text-gray-700">{labelNode}</Label>
-      <Input className='border border-subtext p-2 rounded focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition duration-200 ease-in-out' />
-      <Text slot="description" className='text-subtext text-sm'>{props.helperText}</Text>
+      <Input className='rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary' />
+      <Text slot="description" className='text-sm text-subtext'>{props.helperText}</Text>
       <FieldError className="text-red-500">{props.fieldState.error?.message}</FieldError>
     </TextField>
   )

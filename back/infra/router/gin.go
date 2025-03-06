@@ -99,7 +99,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
-		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
+		apiRouterGroup.POST("/verification/email", e.verificationEmailAction())
 		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
 		authRouterGroup := apiRouterGroup.Group("/auth")

@@ -53,7 +53,7 @@ export default function CalloutGroup() {
   }, [callout, setCallout]);
 
   return (
-    <div className="fixed top-0 right-0 p-4 z-50">
+    <div className="fixed right-0 top-0 z-50 p-4">
       <AnimatePresence>
         {callout.map((item, index) => (
           <motion.div
@@ -64,7 +64,7 @@ export default function CalloutGroup() {
             exit={{ opacity: 0, y: 20 }}
             key={index}
           >
-            <div className={`${convertType(item.type).bgColor} ${convertType(item.type).textColor} p-3 rounded-md flex items-center gap-2`}>
+            <div className={`${convertType(item.type).bgColor} ${convertType(item.type).textColor} flex items-center gap-2 rounded-md p-3`}>
               {convertType(item.type).icon}
               <p>{item.content}</p>
             </div>

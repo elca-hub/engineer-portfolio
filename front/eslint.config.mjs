@@ -1,8 +1,8 @@
+import { FlatCompat } from "@eslint/eslintrc";
+import typescriptEslintParser from "@typescript-eslint/parser";
+import importAccess from "eslint-plugin-import-access/flat-config";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import importAccess from "eslint-plugin-import-access/flat-config";
-import typescriptEslintParser from "@typescript-eslint/parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,7 +12,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends("next/core-web-vitals", "next/typescript", "prettier"),
   {
     // set up typescript-eslint
     languageOptions: {
@@ -26,12 +26,28 @@ const eslintConfig = [
   {
     plugins: {
       "import-access": importAccess,
+      "prettier": {
+        rules: {
+          "prettier/prettier": "error",
+        },
+      },
     },
   },
   {
     rules: {
-      "import-access/jsdoc": ["error"]
+      "import-access/jsdoc": ["error"],
+      "eqeqeq": ["error", "always"],
+      "react-hooks/exhaustive-deps": "off",
     },
+  },
+  {
+    ignores: [
+      ".next/*",
+      "node_modules/*",
+      "out/*",
+      "public/*",
+      "build/*"
+    ]
   }
 ];
 

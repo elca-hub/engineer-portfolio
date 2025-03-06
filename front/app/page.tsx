@@ -11,7 +11,7 @@ import HeadContent from '@/components/layout/headContent';
 
 const pacifico = Pacifico({
   weight: '400',
-  subsets: ['latin'],
+  subsets: ['latin']
 });
 
 const sections: ButtonProps[] = [
@@ -47,7 +47,7 @@ const TopPage = () => {
   const targetRef = useRef<HTMLDivElement>(null);
   const topViewButtonRef = useRef<HTMLDivElement>(null);
   const [scope, animate] = useAnimate();
-  
+
   const [isStaticButtonView, setIsStaticButtonView] = useState(false);
 
   const scrollTarget = () => {
@@ -70,10 +70,10 @@ const TopPage = () => {
   return (
     <div>
       <HeadContent title="Home" des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。" />
-      <div className='flex w-100vw h-screen items-center justify-center flex-col'>
+      <div className='w-100vw flex h-screen flex-col items-center justify-center'>
         <header className='
-          w-full h-full flex items-center justify-center gap-20 bg-gradient-to-b from-lightblue to-background
-          md:flex-row flex-col
+          flex size-full flex-col items-center justify-center gap-20 bg-gradient-to-b from-lightblue to-background
+          md:flex-row
         '>
           <motion.div
             initial={{ x: 50, opacity: 0 }}
@@ -88,10 +88,10 @@ const TopPage = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: AnimateTime, delay: 0.4 }}
           >
-            <h1 className={`${pacifico.className} md:text-8xl mb-8 text-4xl`}>
+            <h1 className={`${pacifico.className} mb-8 text-4xl md:text-8xl`}>
               <span className='text-primary'>Dev</span><span className='text-secondary'>Port</span>
             </h1>
-            <p className={`${pacifico.className} text-subtext text-xl md:text-4xl`}>
+            <p className={`${pacifico.className} text-xl text-subtext md:text-4xl`}>
               <span className='text-primary'>Dev</span>eloper <span className='text-secondary'>Port</span>folio, Redefined.
             </p>
           </motion.div>
@@ -108,7 +108,7 @@ const TopPage = () => {
         </motion.div>
 
         <motion.div
-          className='flex items-center justify-center text-subtext text-xl mb-10 gap-4 cursor-pointer'
+          className='mb-10 flex cursor-pointer items-center justify-center gap-4 text-xl text-subtext'
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: AnimateTime, delay: 1.6 }}
@@ -121,7 +121,7 @@ const TopPage = () => {
       <div
         ref={scope}
         className={`
-          w-full fixed z-10 py-4 transition-all duration-300
+          fixed z-10 w-full py-4 transition-all duration-300
           ${isStaticButtonView ? 'top-0' : '-top-20'}
         `}
       >

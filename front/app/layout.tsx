@@ -17,7 +17,7 @@ export default function RootLayout({
 
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${notoSansJP.variable} antialiased bg-background`}>
+      <body className={`${notoSansJP.variable} bg-background antialiased`}>
         <MainProvider>
           {children}
           <CalloutGroup />

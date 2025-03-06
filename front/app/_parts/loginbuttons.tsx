@@ -9,7 +9,7 @@ import DPButton from '@/components/ui/button/button';
 const LoginButtons = () => {
   return (
     <motion.div
-      className='flex items-center justify-center md:gap-28 gap-10'
+      className='flex items-center justify-center gap-10 md:gap-28'
     >
       <Link href='/login'>
         <DPButton colormode='primary'>
