@@ -1,6 +1,3 @@
-/**
- * @package
- */
 'use client'
 
 import { CalloutContext } from '@/app/state'
@@ -18,6 +15,9 @@ type FormContent = {
 	accessCode: string
 }
 
+/**
+ * @package
+ */
 export default function ConfirmEmailPresenter() {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const router = useRouter()
