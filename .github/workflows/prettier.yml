@@ -38,4 +38,4 @@ jobs:
     - name: Add commit message
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: "Prettierのルールに従わない箇所を直しておきました！"
+        commit_message: "Prettierのルールに従わない箇所を直しておきました！🫡"
