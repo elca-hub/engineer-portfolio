@@ -38,7 +38,7 @@ export const confirmEmailApi = async (accessCode: string): Promise<ErrorResponse
 	})
 
 	if (res.ok) {
-		console.log(res.headers.get('Set-Cookie'))
+		cookie.delete(cookieConfirmName) // トークンを削除
 
 		return { status: res.status }
 	} else {
