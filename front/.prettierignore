@@ -11,3 +11,4 @@ yarn.lock
 pnpm-lock.yaml
 next.config.js
 .vscode/
+README.md
