@@ -54,6 +54,20 @@ func (mr *MockUserRepositoryMockRecorder) AddConfirmationCode(email, code any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddConfirmationCode", reflect.TypeOf((*MockUserRepository)(nil).AddConfirmationCode), email, code)
 }
 
+// DeleteConfirmationCode mocks base method.
+func (m *MockUserRepository) DeleteConfirmationCode(email *model.Email) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteConfirmationCode", email)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteConfirmationCode indicates an expected call of DeleteConfirmationCode.
+func (mr *MockUserRepositoryMockRecorder) DeleteConfirmationCode(email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteConfirmationCode", reflect.TypeOf((*MockUserRepository)(nil).DeleteConfirmationCode), email)
+}
+
 // DeleteSession mocks base method.
 func (m *MockUserRepository) DeleteSession(token string) error {
 	m.ctrl.T.Helper()

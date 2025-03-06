@@ -10,4 +10,5 @@ type UserRepository interface {
 	DeleteSession(token string) error
 	AddConfirmationCode(email *model.Email, code int64) error
 	GetConfirmationCode(email *model.Email) (int64, error)
+	DeleteConfirmationCode(email *model.Email) error
 }

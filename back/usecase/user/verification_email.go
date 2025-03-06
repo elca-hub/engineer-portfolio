@@ -73,6 +73,10 @@ func (i verificationEmailInterator) Execute(input VerificationEmailInput) (Verif
 		return i.presenter.Output(""), err
 	}
 
+	if err := i.noSqlRepository.DeleteConfirmationCode(userEmail); err != nil {
+		return i.presenter.Output(""), err
+	}
+
 	token, err := i.noSqlRepository.StartSession(userEmail)
 
 	if err != nil {
