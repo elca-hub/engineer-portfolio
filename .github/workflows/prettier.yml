@@ -28,7 +28,7 @@ jobs:
     - run: npm ci
 
     - name: Run Prettier
-      run: npx prettier --check "front/**/*"
+      run: npx prettier --check .
 
     - name: Comment on PR
       if: failure()
