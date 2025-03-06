@@ -10,6 +10,10 @@ jobs:
   prettier:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: front
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -21,7 +25,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: front/package-lock.json
 
-    - run: npm install
+    - run: npm ci
 
     - name: Run Prettier
       run: npx prettier --check "front/**/*"
