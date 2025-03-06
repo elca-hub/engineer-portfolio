@@ -41,5 +41,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           eslint_flags: './**/*.{ts,tsx}'
+          workdir: front
       - name: run eslint
         run: npm run lint
