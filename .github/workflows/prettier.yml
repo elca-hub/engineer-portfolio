@@ -21,7 +21,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: front/package-lock.json
 
-    - run: npm ci
+    - run: npm install
 
     - name: Run Prettier
       run: npx prettier --check "front/**/*"
