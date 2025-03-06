@@ -19,7 +19,7 @@ type (
 	}
 
 	LoginUserPresenter interface {
-		Output(user model.User, token string) LoginUserOutput
+		Output(email model.Email, token string) LoginUserOutput
 	}
 
 	LoginUserOutput struct {
@@ -50,30 +50,34 @@ func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, erro
 	inputEmail, err := model.NewEmail(input.Email)
 
 	if err != nil {
-		return i.presenter.Output(model.User{}, ""), err
+		return i.presenter.Output(model.Email{}, ""), err
 	}
 
 	userModel, err := i.sqlRepository.FindByEmail(inputEmail)
 
 	if err != nil {
-		return i.presenter.Output(model.User{}, ""), err
+		return i.presenter.Output(*inputEmail, ""), err
 	}
 
 	rawPassword, err := model.NewRawPassword(input.Password)
 
 	if err != nil {
-		return i.presenter.Output(*userModel, ""), err
+		return i.presenter.Output(*inputEmail, ""), err
 	}
 
 	if !security.CheckPasswordHash(rawPassword, userModel.Password()) {
-		return i.presenter.Output(*userModel, ""), errors.New("invalid password")
+		return i.presenter.Output(*inputEmail, ""), errors.New("パスワードが間違っています")
+	}
+
+	if userModel.EmailVerification() == model.InConfirmation {
+		return i.presenter.Output(*inputEmail, ""), errors.New("メールアドレスの認証が完了していません")
 	}
 
 	session, err := i.noSqlRepository.StartSession(inputEmail)
 
 	if err != nil {
-		return i.presenter.Output(*userModel, ""), err
+		return i.presenter.Output(*inputEmail, ""), err
 	}
 
-	return i.presenter.Output(*userModel, session), nil
+	return i.presenter.Output(*inputEmail, session), nil
 }

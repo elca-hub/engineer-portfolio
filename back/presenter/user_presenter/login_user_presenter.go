@@ -15,9 +15,9 @@ func NewLoginUserPresenter() user.LoginUserPresenter {
 	return LoginUserPresenter{}
 }
 
-func (p LoginUserPresenter) Output(account model.User, token string) user.LoginUserOutput {
+func (p LoginUserPresenter) Output(email model.Email, token string) user.LoginUserOutput {
 	return user.LoginUserOutput{
-		Email: account.Email().Email(),
+		Email: email.Email(),
 		Token: token,
 	}
 }

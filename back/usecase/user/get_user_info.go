@@ -48,6 +48,11 @@ func NewGetUserInfoInterator(
 
 func (i getUserInfoInterator) Execute(input GetUserInfoInput) (GetUserInfoOutput, error) {
 	email, err := model.NewEmail(input.Email)
+
+	if err != nil {
+		return i.presenter.Output(model.User{}, ""), err
+	}
+
 	userModel, err := i.sqlRepository.FindByEmail(email)
 
 	if err != nil {

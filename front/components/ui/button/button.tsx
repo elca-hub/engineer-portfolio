@@ -1,21 +1,30 @@
-import { ColorMode } from '@/types/colorMode';
-import React from 'react';
+import { ButtonHTMLAttributes, DetailedHTMLProps } from "react"
 
-interface ButtonProps {
-  mode: ColorMode;
-  children: React.ReactNode;
+interface DBButtonProps extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
+  colormode: 'primary' | 'secondary';
 }
 
-const baseStyle = 'px-4 py-2 rounded font-bold text-lg hover:opacity-80 hover:scale-[0.98] transition-all duration-300';
+const DPButton = ({...props}: DBButtonProps) => {
+  const convertColorMode = (colormode: 'primary' | 'secondary') => {
+    return colormode === 'primary' ? 'bg-primary text-foreground' : 'bg-secondary text-white';
+  }
 
-const Button = ({ mode, children }: ButtonProps) => {
   return (
     <button
-      className={`${baseStyle} ${mode === 'primary' ? 'bg-primary text-foreground' : 'bg-secondary text-black'}`}
+      {...props}
+      className={`
+        ${convertColorMode(props.colormode)}
+        rounded px-4
+        py-2 text-lg
+        font-bold
+        transition-all duration-300
+        hover:scale-[0.98] hover:opacity-80
+        focus:outline-none focus:ring-2 focus:ring-sky-500
+      `}
     >
-      {children}
+      {props.children}
     </button>
-  );
-};
+  )
+}
 
-export default Button;
+export default DPButton

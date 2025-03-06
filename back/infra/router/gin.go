@@ -10,13 +10,15 @@ import (
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 type GinEngine struct {
@@ -85,13 +87,19 @@ func (e *GinEngine) Listen() {
 }
 
 func (e *GinEngine) setupRouter(router *gin.Engine) {
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Set-Cookie"},
+		AllowCredentials: true,
+	}))
 	apiRouterGroup := router.Group("/api/v1")
 	{
 		apiRouterGroup.GET("/ping", e.healthCheckAction())
 
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
-		apiRouterGroup.GET("/verification/email", e.verificationEmailAction())
+		apiRouterGroup.POST("/verification/email", e.verificationEmailAction())
 		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
 		authRouterGroup := apiRouterGroup.Group("/auth")

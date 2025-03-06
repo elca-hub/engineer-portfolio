@@ -3,6 +3,7 @@ package repository
 import (
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
+
 	"gorm.io/gorm"
 )
 
@@ -26,6 +27,14 @@ func (r GormUserRepository) Exists(email *model.Email) (bool, error) {
 	var counter int64
 
 	r.db.Model(&gorm_model.User{}).Where("email = ?", email.Email()).Count(&counter)
+
+	return counter > 0, nil
+}
+
+func (r GormUserRepository) ExistsByName(name string) (bool, error) {
+	var counter int64
+
+	r.db.Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
 
 	return counter > 0, nil
 }
@@ -80,7 +89,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 	return gorm_model.User{
 		ID:                user.ID().ID(),
 		Name:              user.Name(),
-		Age:               user.Age(),
+		Birthday:          user.Birthday(),
 		Email:             email.Email(),
 		Password:          user.Password().HashedPassword(),
 		EmailVerification: user.EmailVerification(),
@@ -99,7 +108,7 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 	user, err := model.NewUser(
 		model.NewUUID(gormUser.ID),
 		gormUser.Name,
-		gormUser.Age,
+		gormUser.Birthday,
 		userEmail,
 		model.NewHashedPassword(gormUser.Password),
 		gormUser.CreatedAt,

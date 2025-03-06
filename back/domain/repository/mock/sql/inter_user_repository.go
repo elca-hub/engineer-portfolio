@@ -69,6 +69,21 @@ func (mr *MockUserRepositoryMockRecorder) Exists(email any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockUserRepository)(nil).Exists), email)
 }
 
+// ExistsByName mocks base method.
+func (m *MockUserRepository) ExistsByName(name string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistsByName", name)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistsByName indicates an expected call of ExistsByName.
+func (mr *MockUserRepositoryMockRecorder) ExistsByName(name any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsByName", reflect.TypeOf((*MockUserRepository)(nil).ExistsByName), name)
+}
+
 // FetchInConfirmationUsers mocks base method.
 func (m *MockUserRepository) FetchInConfirmationUsers() ([]*model.User, error) {
 	m.ctrl.T.Helper()

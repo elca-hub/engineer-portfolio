@@ -68,3 +68,11 @@ func (r *RedisUserRepository) GetConfirmationCode(email *model.Email) (int64, er
 
 	return code, nil
 }
+
+func (r *RedisUserRepository) DeleteConfirmationCode(email *model.Email) error {
+	if err := r.client.Del(context.Background(), email.Email()).Err(); err != nil {
+		return err
+	}
+
+	return nil
+}

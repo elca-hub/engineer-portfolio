@@ -6,6 +6,7 @@ import (
 	"devport/infra/database/gorm/gorm_model"
 	gormrepository "devport/infra/database/gorm/repository"
 	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,7 @@ func (c *RepositoryConfig) UserRepository() sql.UserRepository {
 
 func NewMysqlHandler(c *MysqlConfig) (repository.SQL, error) {
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
 		c.user,
 		c.password,
 		c.host,

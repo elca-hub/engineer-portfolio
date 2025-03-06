@@ -8,6 +8,7 @@ import (
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 )
@@ -30,6 +31,12 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	var input user.LoginUserInput
 
 	const logKey = "login_user"
+
+	if _, err := middleware.GetToken(r); err == nil {
+		logging.NewInfo(a.l, logKey, http.StatusOK).Log("user already login")
+		response.NewError(errors.New("user already login"), http.StatusBadRequest).Send(w)
+		return
+	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		logging.NewError(
