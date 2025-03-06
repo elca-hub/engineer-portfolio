@@ -1,0 +1,25 @@
+{
+	"tabWidth": 2,
+	"useTabs": true,
+	"semi": false,
+	"printWidth": 200,
+	"singleQuote": true,
+	"trailingComma": "all",
+	"bracketSpacing": true,
+	"bracketSameLine": false,
+	"plugins": ["prettier-plugin-organize-imports"],
+	"overrides": [
+		{
+			"files": "*.html",
+			"options": {
+				"printWidth": 360
+			}
+		},
+		{
+			"files": ["*.css", "*.scss"],
+			"options": {
+				"singleQuote": false
+			}
+		}
+	]
+}
