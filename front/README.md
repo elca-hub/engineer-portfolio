@@ -83,47 +83,47 @@ Server Componentは使い方によってはむしろ速度が遅くなったり�
 side-menu.tsx
 
 ```tsx
-"use client";
+'use client'
 
-import { useState } from "react";
+import { useState } from 'react'
 
 // `children`に`<UserInfo>`などのServer Componentsを渡すことが可能！
 export function SideMenu({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(false)
 
-  return (
-    <>
-      {children}
-      <div>
-        <button type="button" onClick={() => setOpen((prev) => !prev)}>
-          toggle
-        </button>
-        <div>...</div>
-      </div>
-    </>
-  );
+	return (
+		<>
+			{children}
+			<div>
+				<button type="button" onClick={() => setOpen((prev) => !prev)}>
+					toggle
+				</button>
+				<div>...</div>
+			</div>
+		</>
+	)
 }
 ```
 
 page.tsx
 
 ```tsx
-import { UserInfo } from "./user-info"; // Server Components
-import { SideMenu } from "./side-menu"; // Client Components
+import { UserInfo } from './user-info' // Server Components
+import { SideMenu } from './side-menu' // Client Components
 
 /**
  * Client Components(`<SideMenu>`)の子要素として
  * Server Components(`<UserInfo>`)を渡せる
  */
 export function Page() {
-  return (
-    <div>
-      <SideMenu>
-        <UserInfo />
-      </SideMenu>
-      <main>{/* ... */}</main>
-    </div>
-  );
+	return (
+		<div>
+			<SideMenu>
+				<UserInfo />
+			</SideMenu>
+			<main>{/* ... */}</main>
+		</div>
+	)
 }
 ```
 
@@ -131,7 +131,7 @@ export function Page() {
 `SideMenu`に`children`を設けることで、Server Componentのモジュールを使用することができます。
 これを**Compositionパターン**といいます。
 
-しかしこのパターンを導入する際には、**Server Component**を先に設計しないと後戻りや修正が増える可能性がある**という点には留意が必要です。
+しかしこのパターンを導入する際には、**Server Component**を先に設計しないと後戻りや修正が増える可能性がある\*\*という点には留意が必要です。
 
 ### Container/Presentationalパターン
 
@@ -142,10 +142,10 @@ Server ComponentとClient Componentをしっかりと分けて、それぞれに
 このパターンでは、Container ComponentとPresentational Componentの2種類が登場します。
 それぞれの責務は以下のとおりです。
 
-| Component | 責務 |
-| :---: | :---: |
-| Container Component | アプリケーションのロジックに対して責務がある |
-| Presentational Component | UIに対して責務がある |
+|        Component         |                     責務                     |
+| :----------------------: | :------------------------------------------: |
+|   Container Component    | アプリケーションのロジックに対して責務がある |
+| Presentational Component |             UIに対して責務がある             |
 
 Presentational ComponentはUIにしか関心がないため、原則として**状態を持ちません**。
 データの受け取り方法はあくまでPropsで行います。
