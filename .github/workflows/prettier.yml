@@ -1,0 +1,39 @@
+name: Prettier Format
+
+on:
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: front
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: front/package-lock.json
+
+    - run: npm ci
+
+    - name: Format Prettier
+      run: npx prettier --write "./**/*.{ts,tsx}"
+
+    - name: Add commit message
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "Prettierのルールに従わない箇所を直しておきました！🫡"

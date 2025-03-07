@@ -1,1 +1,1 @@
-export type ColorMode = 'primary' | 'secondary';
+export type ColorMode = 'primary' | 'secondary'

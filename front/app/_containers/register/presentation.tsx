@@ -1,6 +1,3 @@
-/**
- * @package
- */
 'use client'
 
 import { CalloutContext } from '@/app/state'
@@ -24,6 +21,9 @@ type FormContent = {
 	passwordConfirmation: string
 }
 
+/**
+ * @package
+ */
 export default function UserRegisterPresentation() {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const router = useRouter()

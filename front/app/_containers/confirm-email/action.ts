@@ -10,6 +10,9 @@ type ErrorResponse = {
 	errors?: string[]
 }
 
+/**
+ * @package
+ */
 export const confirmEmailApi = async (accessCode: string): Promise<ErrorResponse> => {
 	const cookie = await cookies()
 

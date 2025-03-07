@@ -10,7 +10,7 @@ on:
     branches: [ "develop" ]
 
 jobs:
-  build:
+  go_test:
     runs-on: ubuntu-latest
     defaults:
       run:

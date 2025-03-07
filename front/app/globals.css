@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-noto-sans-jp), Helvetica, sans-serif;
+	color: var(--foreground);
+	background: var(--background);
+	font-family: var(--font-noto-sans-jp), Helvetica, sans-serif;
 }
