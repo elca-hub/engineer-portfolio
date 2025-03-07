@@ -6,12 +6,8 @@ name: GoTest
 on:
   push:
     branches: [ "develop" ]
-    paths:
-      - 'back/**'
   pull_request:
     branches: [ "develop" ]
-    paths:
-      - 'back/**'
 
 jobs:
   go_test:

@@ -3,8 +3,6 @@ name: Prettier Format
 on:
   pull_request:
     branches: [ "develop" ]
-    paths:
-      - 'front/**'
 
 jobs:
   prettier:
