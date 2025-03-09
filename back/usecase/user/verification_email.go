@@ -58,7 +58,7 @@ func (i verificationEmailInterator) Execute(input VerificationEmailInput) (Verif
 	}
 
 	if code != input.AccessCode {
-		return i.presenter.Output(""), errors.New("アクセスコードが違います。再度ログインしてください")
+		return i.presenter.Output(""), errors.New("アクセスコードが違います")
 	}
 
 	userModel, err := i.sqlRepository.FindByEmail(userEmail)

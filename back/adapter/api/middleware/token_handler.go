@@ -42,13 +42,32 @@ func GetToken(req *http.Request) (*CookieToken, error) {
 	return tokenModel, nil
 }
 
+func UpdateAgeToken(req *http.Request, res http.ResponseWriter) error {
+	nowCookieValue, err := GetToken(req)
+
+	if err != nil {
+		return err
+	}
+
+	http.SetCookie(res, &http.Cookie{
+		Name:     tokenName,
+		Value:    nowCookieValue.Token(),
+		HttpOnly: true,
+		Secure:   os.Getenv("GO_ENVIRONMENT") == "production",
+		MaxAge:   60 * 60 * 24 * 7, // 1 week
+		Domain:   os.Getenv("DOMAIN_NAME"),
+	})
+
+	return nil
+}
+
 func SetToken(res http.ResponseWriter, token *CookieToken) {
 	http.SetCookie(res, &http.Cookie{
 		Name:     tokenName,
 		Value:    token.Token(),
 		HttpOnly: true,
 		Secure:   os.Getenv("GO_ENVIRONMENT") == "production",
-		MaxAge:   3600,
+		MaxAge:   60 * 60 * 24 * 7, // 1 week
 		Domain:   os.Getenv("DOMAIN_NAME"),
 		Path:     "/api/v1",
 	})

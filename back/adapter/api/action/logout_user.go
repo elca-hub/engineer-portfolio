@@ -7,6 +7,8 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
+	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -24,27 +26,21 @@ func NewLogoutUserAction(uc user.LogoutUserUseCase, v validator.Validator, l log
 	}
 }
 
-func (a *LogoutUserAction) Execute(w http.ResponseWriter, r *http.Request) {
+func (a *LogoutUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
 	var input user.LogoutUserInput
 	const logKey = "logout_user"
 
-	userToken, err := middleware.GetToken(r)
+	contextToken, isExists := c.Get("token")
 
-	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get token")
-		response.NewError(err, http.StatusBadRequest).Send(w)
+	if !isExists {
+		errObj := errors.New("not found cookie token")
+		logging.NewError(a.l, errObj, logKey, http.StatusBadRequest).Log("error when get token")
+		response.NewError(errObj, http.StatusBadRequest).Send(w)
 
 		return
 	}
 
-	input.Token = userToken.Token()
-
-	defer r.Body.Close()
-
-	if err := a.v.Validate(input); err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
-		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
-	}
+	input.Token = contextToken.(string)
 
 	output, err := a.uc.Execute(input)
 	if err != nil {

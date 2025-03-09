@@ -11,7 +11,7 @@ func NewGetUserInfoPresenter() *GetUserInfoPresenter {
 	return &GetUserInfoPresenter{}
 }
 
-func (p *GetUserInfoPresenter) Output(model usermodel.User, token string) user.GetUserInfoOutput {
+func (p *GetUserInfoPresenter) Output(model usermodel.User) user.GetUserInfoOutput {
 	emailModel := model.Email()
 	var email string
 	if emailModel == nil {
@@ -19,11 +19,10 @@ func (p *GetUserInfoPresenter) Output(model usermodel.User, token string) user.G
 	} else {
 		email = emailModel.Email()
 	}
-	
+
 	return user.GetUserInfoOutput{
 		Email: email,
 		Name:  model.Name(),
 		Age:   model.Age(),
-		Token: token,
 	}
 }

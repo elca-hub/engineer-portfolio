@@ -100,13 +100,13 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.POST("/verification/email", e.verificationEmailAction())
-		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
 		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			userRouterGroup := authRouterGroup.Group("/user")
 			{
+				userRouterGroup.POST("/logout", e.logoutUserAction())
 				userRouterGroup.GET("/", e.getUserInfoAction())
 			}
 		}
@@ -194,7 +194,6 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 		var (
 			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
-				e.noSQL.UserRepository(),
 				user_presenter.NewGetUserInfoPresenter(),
 			)
 
@@ -216,6 +215,6 @@ func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 			act = action.NewLogoutUserAction(uc, e.validator, e.log)
 		)
 
-		act.Execute(c.Writer, c.Request)
+		act.Execute(c.Writer, c.Request, c)
 	}
 }

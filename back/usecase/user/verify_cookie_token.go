@@ -17,12 +17,11 @@ type (
 	}
 
 	VerifyCookieTokenPresenter interface {
-		Output(email model.Email, Token string) VerifyCookieTokenOutput
+		Output(email model.Email) VerifyCookieTokenOutput
 	}
 
 	VerifyCookieTokenOutput struct {
 		Email string
-		Token string
 	}
 
 	verifyCookieTokenInterator struct {
@@ -48,24 +47,18 @@ func (i verifyCookieTokenInterator) Execute(input VerifyCookieTokenInput) (Verif
 	email, err := i.noSqlRepository.GetSession(input.Token)
 
 	if err != nil {
-		return i.presenter.Output(model.Email{}, ""), err
+		return i.presenter.Output(model.Email{}), err
 	}
 
 	isExist, err := i.sqlRepository.Exists(email)
 
 	if err != nil {
-		return i.presenter.Output(model.Email{}, ""), err
+		return i.presenter.Output(model.Email{}), err
 	}
 
 	if !isExist {
-		return i.presenter.Output(model.Email{}, ""), errors.New("ユーザが存在しません")
+		return i.presenter.Output(model.Email{}), errors.New("ユーザが存在しません")
 	}
 
-	token, err := i.noSqlRepository.StartSession(email)
-
-	if err != nil {
-		return i.presenter.Output(*email, ""), err
-	}
-
-	return i.presenter.Output(*email, token), nil
+	return i.presenter.Output(*email), nil
 }

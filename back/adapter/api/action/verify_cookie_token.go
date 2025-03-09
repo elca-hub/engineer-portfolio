@@ -8,6 +8,7 @@ import (
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 )
 
@@ -30,7 +31,6 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 	const logKey = "verify_cookie_token"
 
 	userToken, err := middleware.GetToken(r)
-
 	if err != nil {
 		errMsg := "error when get token"
 
@@ -43,10 +43,16 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 
 		return
 	}
-
 	input.Token = userToken.Token()
 
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
+			response.NewError(err, http.StatusInternalServerError).Send(w)
+			return
+		}
+	}(r.Body)
 
 	if err := a.v.Validate(input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
@@ -61,15 +67,14 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	cookie, err := middleware.NewCookieToken(output.Token)
+	c.Set("email", output.Email)
+	c.Set("token", input.Token)
 
-	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when set token")
+	if err := middleware.UpdateAgeToken(r, w); err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when update age token")
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	middleware.SetToken(w, cookie)
-	c.Set("email", output.Email)
 	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success verify cookie token")
 }
