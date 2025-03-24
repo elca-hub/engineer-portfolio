@@ -101,7 +101,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 
 	store := cookie.NewStore([]byte(os.Getenv("SESSION_SECRET")))
 
-	router.Use(sessions.Sessions("devport_session", store))
+	router.Use(sessions.Sessions("dp_session", store))
 
 	apiRouterGroup := router.Group("/api/v1")
 	{
