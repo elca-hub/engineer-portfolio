@@ -1,8 +1,9 @@
+import { NextAuthProvider } from '@/app/provider'
 import CalloutGroup from '@/components/layout/calloutGroup'
 import '@radix-ui/themes/styles.css'
 import { Noto_Sans_JP } from 'next/font/google'
 import './globals.css'
-import { MainProvider } from './state'
+import { StateProvider } from './state'
 
 const notoSansJP = Noto_Sans_JP({
 	variable: '--font-noto-sans-jp',
@@ -17,10 +18,12 @@ export default function RootLayout({
 	return (
 		<html lang="ja" suppressHydrationWarning>
 			<body className={`${notoSansJP.variable} bg-background antialiased`}>
-				<MainProvider>
-					{children}
-					<CalloutGroup />
-				</MainProvider>
+				<NextAuthProvider>
+					<StateProvider>
+						{children}
+						<CalloutGroup />
+					</StateProvider>
+				</NextAuthProvider>
 			</body>
 		</html>
 	)

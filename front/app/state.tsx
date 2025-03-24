@@ -13,7 +13,7 @@ export const CalloutContext = React.createContext({
 	setCallout: (callout: calloutItemType[]) => {},
 })
 
-export const MainProvider = ({ children }: { children: React.ReactNode }) => {
+export const StateProvider = ({ children }: { children: React.ReactNode }) => {
 	const [callout, setCallout] = useState<calloutItemType[]>([])
 
 	return <CalloutContext.Provider value={{ callout, setCallout }}>{children}</CalloutContext.Provider>
