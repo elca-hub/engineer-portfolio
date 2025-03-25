@@ -29,7 +29,7 @@ func (s *Smtp) SendEmail(to []string, subject string, body string) error {
 
 	smtpServer := fmt.Sprintf("%s:%s", config.smtpServer, config.smtpPort)
 
-	msg := []byte(fmt.Sprintf("To: %s\nSubject: %s\n\n%s", strings.Join(to, ","), sanitizedSubject, sanitizedBody))
+msg := []byte(fmt.Sprintf("To: %s\nSubject: %s\n\n%s", strings.Join(to, ","), encodeHTML(sanitizedSubject), encodeHTML(sanitizedBody)))
 
 	return smtp.SendMail(smtpServer, nil, config.smtpUser, to, msg)
 }
