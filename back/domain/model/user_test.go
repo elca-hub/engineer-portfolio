@@ -13,12 +13,6 @@ func fetchEmail() *Email {
 	return email
 }
 
-func fetchPassword() *HashedPassword {
-	hashed := NewHashedPassword("test")
-
-	return hashed
-}
-
 func TestUser(t *testing.T) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	birthday, _ := time.ParseInLocation("2006-01-02", "1990-01-01", jst)
@@ -31,7 +25,6 @@ func TestUser(t *testing.T) {
 			fetchEmail(),
 			time.Now(),
 			time.Now(),
-			Unconfirmed,
 		)
 
 		assert.NoError(t, err)
@@ -72,7 +65,6 @@ func TestUser(t *testing.T) {
 						fetchEmail(),
 						time.Now(),
 						time.Now(),
-						Unconfirmed,
 					)
 
 					assert.Error(t, err)
@@ -99,7 +91,6 @@ func TestUser(t *testing.T) {
 						fetchEmail(),
 						time.Now(),
 						time.Now(),
-						Unconfirmed,
 					)
 
 					assert.Error(t, err)

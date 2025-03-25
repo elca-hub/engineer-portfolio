@@ -32,11 +32,9 @@ func beforeAction(t *testing.T, i CreateUserInput) (
 func TestCreateUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		i := CreateUserInput{
-			Birthday:             "1990-01-01",
-			Name:                 "test",
-			Email:                "test@example.com",
-			Password:             "Security_1234",
-			PasswordConfirmation: "Security_1234",
+			Birthday: "1990-01-01",
+			Name:     "test",
+			Email:    "test@example.com",
 		}
 
 		testEmail, _ := usermodel.NewEmail(i.Email)
@@ -80,11 +78,9 @@ func TestCreateUser(t *testing.T) {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 					i := CreateUserInput{
-						Birthday:             "1990-01-01",
-						Name:                 "test",
-						Email:                c.email,
-						Password:             "Security_1234",
-						PasswordConfirmation: "Security_1234",
+						Birthday: "1990-01-01",
+						Name:     "test",
+						Email:    c.email,
 					}
 
 					testEmail, _ := usermodel.NewEmail(i.Email)
@@ -124,53 +120,9 @@ func TestCreateUser(t *testing.T) {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 					i := CreateUserInput{
-						Birthday:             "1990-01-01",
-						Name:                 c.name,
-						Email:                "test@example.com",
-						Password:             "Security_1234",
-						PasswordConfirmation: "Security_1234",
-					}
-
-					uc, sqlMock, _, _ := beforeAction(t, i)
-
-					sqlMock.EXPECT().Exists(gomock.Any()).Return(false, nil)
-					sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
-
-					_, err := uc.Execute(i)
-
-					assert.Error(t, err)
-				})
-			}
-		})
-
-		t.Run("Password", func(t *testing.T) {
-			cases := map[string]struct {
-				password             string
-				PasswordConfirmation string
-			}{
-				"empty": {
-					password:             "",
-					PasswordConfirmation: "",
-				},
-				"too short": {
-					password:             "1234567",
-					PasswordConfirmation: "1234567",
-				},
-				"wrong confirmation password": {
-					password:             "Security_1234",
-					PasswordConfirmation: "Security_12345",
-				},
-			}
-
-			for name, c := range cases {
-				t.Run(name, func(t *testing.T) {
-					t.Parallel()
-					i := CreateUserInput{
-						Birthday:             "1990-01-01",
-						Name:                 "test",
-						Email:                "test@example.com",
-						Password:             c.password,
-						PasswordConfirmation: c.PasswordConfirmation,
+						Birthday: "1990-01-01",
+						Name:     c.name,
+						Email:    "test@example.com",
 					}
 
 					uc, sqlMock, _, _ := beforeAction(t, i)
