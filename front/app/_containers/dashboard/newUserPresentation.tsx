@@ -7,6 +7,7 @@ import InputField from '@/components/layout/input/inputField'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
+import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { RiCake2Line, RiIdCardLine, RiUserAddLine } from 'react-icons/ri'
@@ -21,6 +22,8 @@ export type RegisterFormContent = {
  */
 export default function NewUserPresentation() {
 	const { callout, setCallout } = useContext(CalloutContext)
+
+	const router = useRouter()
 
 	const { control, handleSubmit, watch } = useForm<RegisterFormContent>({
 		defaultValues: {
@@ -43,6 +46,9 @@ export default function NewUserPresentation() {
 					for (const error of res.errors) {
 						setCallout([...callout, { type: 'error', content: error }])
 					}
+				} else {
+					setCallout([...callout, { type: 'success', content: 'ユーザ登録が完了しました' }])
+					router.push('/dashboard')
 				}
 			}
 
