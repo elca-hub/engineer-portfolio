@@ -45,7 +45,7 @@ func TestCreateUser(t *testing.T) {
 		sqlMock.EXPECT().Exists(testEmail).Return(false, nil)
 		sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
 		noSqlMock.EXPECT().AddConfirmationCode(gomock.Any(), gomock.Any()).Return(nil)
-		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any())
+		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
 		res, err := uc.Execute(i)
 
