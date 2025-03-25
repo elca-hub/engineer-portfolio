@@ -4,6 +4,7 @@ import { isNewUser } from '@/app/_containers/dashboard/action'
 import DashboardPresentation from '@/app/_containers/dashboard/dashboardPresentation'
 import NewUserPresentation from '@/app/_containers/dashboard/newUserPresentation'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import HeadContent from '@/components/layout/headContent'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
@@ -22,11 +23,25 @@ export default async function DashboardContainer() {
 
 	const isNew = await isNewUser(sessionUser.email ?? '')
 
-	console.log(isNew)
-
 	if (isNew) {
-		return <NewUserPresentation></NewUserPresentation>
+		return (
+			<>
+				<HeadContent
+					title="新規登録"
+					des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
+				/>
+				<NewUserPresentation></NewUserPresentation>
+			</>
+		)
 	} else {
-		return <DashboardPresentation></DashboardPresentation>
+		return (
+			<>
+				<HeadContent
+					title="ダッシュボード"
+					des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
+				/>
+				<DashboardPresentation></DashboardPresentation>
+			</>
+		)
 	}
 }
