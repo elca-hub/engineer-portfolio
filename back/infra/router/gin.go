@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	gouuid "github.com/satori/go.uuid"
 	"log"
 	"net/http"
 	"os"
@@ -106,9 +105,6 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 	apiRouterGroup := router.Group("/api/v1")
 	{
 		apiRouterGroup.GET("/ping", e.healthCheckAction())
-		apiRouterGroup.GET("/csrf_token", e.getCsrfToken()) // CSRFトークンの取得
-
-		apiRouterGroup.Use(e.checkCsrfToken())
 
 		apiRouterGroup.POST("/signup", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
@@ -229,60 +225,5 @@ func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 		)
 
 		act.Execute(c.Writer, c.Request, c)
-	}
-}
-
-func (e *GinEngine) getCsrfToken() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		csrfToken := gouuid.NewV4().String()
-
-		session.Set(csrfTokenName, csrfToken)
-
-		if err := session.Save(); err != nil {
-			e.log.Errorf("failed to save session")
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"code":    http.StatusInternalServerError,
-				"message": "failed to save session",
-			})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"code":       http.StatusOK,
-			"csrf_token": csrfToken,
-		})
-	}
-}
-
-func (e *GinEngine) checkCsrfToken() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// X-CSRF-Tokenの取得
-		csrfToken := c.GetHeader("X-CSRF-Token")
-
-		// セッションから取得
-		session := sessions.Default(c)
-		sessionCsrfToken := session.Get(csrfTokenName)
-
-		println("sessionCsrfToken: ", sessionCsrfToken == nil)
-
-		// セッションにトークンがない場合は新規作成
-		if sessionCsrfToken == nil {
-			session.Set(csrfTokenName, csrfToken)
-		}
-
-		// セッションのトークンとリクエストのトークンが一致しない場合はエラー
-		if sessionCsrfToken != csrfToken {
-			c.JSON(http.StatusForbidden, gin.H{
-				"code":    http.StatusForbidden,
-				"message": "invalid csrf token",
-			})
-
-			e.log.Errorf("invalid csrf token")
-
-			c.Abort()
-		}
-
-		c.Next()
 	}
 }
