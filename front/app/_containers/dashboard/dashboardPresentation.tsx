@@ -16,7 +16,7 @@ export default function DashboardPresentation() {
 		<div className="flex h-screen flex-col items-center justify-center">
 			<header className="mb-6">
 				<TextWithIcon icon={<RiLockLine />} size="text-4xl">
-					<h1 className="text-4xl font-bold tracking-widest text-foreground">ログイン</h1>
+					<h1 className="text-4xl font-bold tracking-widest text-foreground">ダッシュボード</h1>
 				</TextWithIcon>
 			</header>
 
