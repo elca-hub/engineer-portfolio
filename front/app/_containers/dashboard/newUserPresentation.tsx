@@ -86,6 +86,7 @@ export default function NewUserPresentation() {
 								helperText="ユーザ名は50文字以下で入力してください。特殊記号は使用できません。"
 								icon={<RiIdCardLine />}
 								autoComplete="off"
+								autoFocus
 							></InputField>
 						)}
 					></Controller>
