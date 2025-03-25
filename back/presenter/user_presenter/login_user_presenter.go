@@ -1,7 +1,6 @@
 package user_presenter
 
 import (
-	"devport/domain/model"
 	"devport/usecase/user"
 )
 
@@ -15,9 +14,9 @@ func NewLoginUserPresenter() user.LoginUserPresenter {
 	return LoginUserPresenter{}
 }
 
-func (p LoginUserPresenter) Output(email model.Email, token string) user.LoginUserOutput {
+func (p LoginUserPresenter) Output(isExists bool, token string) user.LoginUserOutput {
 	return user.LoginUserOutput{
-		Email: email.Email(),
-		Token: token,
+		IsExists: isExists,
+		Token:    token,
 	}
 }

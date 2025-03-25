@@ -9,7 +9,7 @@ import { RiGoogleFill, RiLockLine } from 'react-icons/ri'
 /**
  * @package
  */
-export default function UserLoginPresentation() {
+export default function DashboardPresentation() {
 	const callbackUrl = useSearchParams().get('callbackUrl') || '/dashboard'
 
 	return (

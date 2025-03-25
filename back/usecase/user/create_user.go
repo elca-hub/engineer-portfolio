@@ -6,7 +6,6 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
-	"devport/infra/security"
 	"errors"
 	"fmt"
 	"math/big"
@@ -19,11 +18,9 @@ type (
 	}
 
 	CreateUserInput struct {
-		Birthday             string `json:"birthday" validate:"required"`
-		Name                 string `json:"name" validate:"required,max=50,min=1"`
-		Email                string `json:"email" validate:"required,email"`
-		Password             string `json:"password" validate:"required,min=8,max=64"`
-		PasswordConfirmation string `json:"password_confirmation" validate:"required,eqfield=Password"`
+		Birthday string `json:"birthday" validate:"required"`
+		Name     string `json:"name" validate:"required,max=50,min=1"`
+		Email    string `json:"email" validate:"required,email"`
 	}
 
 	CreateUserOutput struct {
@@ -50,9 +47,6 @@ func NewCreateUserInterator(
 }
 
 func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
-	if input.Password != input.PasswordConfirmation {
-		return CreateUserOutput{""}, errors.New("確認用パスワードが一致しません")
-	}
 
 	userEmail, err := model.NewEmail(input.Email)
 
@@ -85,15 +79,7 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, err
 	}
 
-	rawPassword, err := model.NewRawPassword(input.Password)
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	hashedPassword := security.HashPassword(rawPassword)
-
-	user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, userEmail, hashedPassword, time.Now(), time.Now(), model.InConfirmation)
+	user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, userEmail, time.Now(), time.Now())
 
 	if err != nil {
 		return CreateUserOutput{""}, err

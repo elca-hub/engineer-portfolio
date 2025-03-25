@@ -9,12 +9,10 @@ import (
 type User struct {
 	gorm.Model
 
-	ID                string    `gorm:"primaryKey"`
-	Name              string    `gorm:"size:255;not null"`
-	Email             string    `gorm:"size:255;unique;not null"`
-	Password          string    `gorm:"size:255;not null"`
-	EmailVerification int       `gorm:"not null"`
-	Birthday          time.Time `gorm:"not null,default:CURRENT_TIMESTAMP"`
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID        string    `gorm:"primaryKey"`
+	Name      string    `gorm:"size:255;not null"`
+	Email     string    `gorm:"size:255;unique;not null"`
+	Birthday  time.Time `gorm:"not null,default:CURRENT_TIMESTAMP"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

@@ -9,5 +9,4 @@ type UserRepository interface {
 	ExistsByName(name string) (bool, error)
 	Update(u *model.User) error
 	FindByEmail(email *model.Email) (*model.User, error)
-	FetchInConfirmationUsers() ([]*model.User, error)
 }

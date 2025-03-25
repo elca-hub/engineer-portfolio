@@ -1,44 +1,10 @@
-import type { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession, type NextAuthOptions } from 'next-auth'
 
-export const authOptions: NextAuthOptions = {
-	providers: [
-		GoogleProvider({
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-		}),
-	],
-	pages: {
-		signIn: '/login',
-	},
-	session: {
-		strategy: 'jwt',
-	},
-	callbacks: {
-		jwt: ({ token, user }) => {
-			if (user) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const u = user as unknown as any
-				return {
-					...token,
-					id: u.id,
-				}
-			}
-			return token
-		},
-		session: ({ session, token }) => {
-			return {
-				...session,
-				user: {
-					...session.user,
-					id: token.id,
-				},
-			}
-		},
-	},
-	events: {
-		async signIn(message) {
-			console.log(new Date(), 'signIn', message)
-		},
-	},
+export const config = {
+	providers: [],
+} satisfies NextAuthOptions
+
+export function auth(...args: [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']] | [NextApiRequest, NextApiResponse] | []) {
+	return getServerSession(...args, config)
 }

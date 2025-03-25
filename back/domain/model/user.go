@@ -8,22 +8,17 @@ import (
 )
 
 const (
-	Unconfirmed int = iota
-	InConfirmation
-	Confirmed
 	MaxNameLen = 50
 )
 
 type User struct {
-	id                UUID
-	name              string
-	birthday          time.Time
-	age               int
-	email             *Email
-	password          *HashedPassword
-	createdAt         time.Time
-	updatedAt         time.Time
-	emailVerification int
+	id        UUID
+	name      string
+	birthday  time.Time
+	age       int
+	email     *Email
+	createdAt time.Time
+	updatedAt time.Time
 }
 
 func NewUser(
@@ -31,10 +26,8 @@ func NewUser(
 	name string,
 	birthDay time.Time,
 	email *Email,
-	password *HashedPassword,
 	createdAt time.Time,
 	updatedAt time.Time,
-	emailVerification int,
 ) (*User, error) {
 	excludeStrings := []string{" ", "@", "#", "$", "%", "&", "", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/", "~", "`", "\n", "\t", "/", "?", "%", "#", "&", "=", "--", "/", "*/"}
 
@@ -75,20 +68,14 @@ func NewUser(
 		return nil, errors.New("メールアドレスが指定されていません")
 	}
 
-	if password == nil {
-		return nil, errors.New("パスワードが指定されていません")
-	}
-
 	return &User{
 		id,
 		name,
 		birthDay,
 		age,
 		email,
-		password,
 		createdAt,
 		updatedAt,
-		emailVerification,
 	}, nil
 }
 
@@ -108,10 +95,6 @@ func (u *User) Email() *Email {
 	return u.email
 }
 
-func (u *User) Password() *HashedPassword {
-	return u.password
-}
-
 func (u *User) CreatedAt() time.Time {
 	return u.createdAt
 }
@@ -120,14 +103,6 @@ func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
 }
 
-func (u *User) EmailVerification() int {
-	return u.emailVerification
-}
-
 func (u *User) Birthday() time.Time {
 	return u.birthday
-}
-
-func (u *User) UpdateEmailVerification(emailVerification int) {
-	u.emailVerification = emailVerification
 }
