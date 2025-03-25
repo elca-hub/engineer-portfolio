@@ -7,7 +7,6 @@ import (
 	"devport/domain/repository/sql"
 	"devport/infra/email"
 	"errors"
-	"fmt"
 	"math/big"
 	"time"
 )
@@ -100,11 +99,12 @@ func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, e
 		return CreateUserOutput{""}, err
 	}
 
-	mailSubject := "【ユーザ登録の認証コード送信のお知らせ】"
+	mailSubject := "【新規登録完了のお知らせ】"
 
-	mailContent := fmt.Sprintf("初回に登録されるすべてのユーザーに認証コードによるメール確認を行なっています。\n以下の数字を入力して認証を完了してください。\n認証コード:%d", n)
+	vars := map[string]string{"Name": user.Name()}
+	files := []string{"infra/email/template/register.tpl"}
 
-	if err := i.email.SendEmail([]string{input.Email}, mailSubject, mailContent); err != nil {
+	if err := i.email.SendEmail(input.Email, mailSubject, vars, files...); err != nil {
 		return CreateUserOutput{""}, err
 	}
 

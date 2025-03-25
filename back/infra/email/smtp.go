@@ -1,10 +1,10 @@
 package email
 
 import (
-	"fmt"
-	"net/smtp"
-	"strings"
-	"regexp"
+	"bytes"
+	"gopkg.in/gomail.v2"
+	"html/template"
+	"strconv"
 )
 
 type Smtp struct{}
@@ -13,34 +13,42 @@ func NewSmtp() *Smtp {
 	return &Smtp{}
 }
 
-func (s *Smtp) SendEmail(to []string, subject string, body string) error {
+func (s *Smtp) SendEmail(to string, subject string, vars interface{}, files ...string) error {
 	config := NewSMTPConfig()
 
-	// Validate email addresses
-	for _, email := range to {
-		if !isValidEmail(email) {
-			return fmt.Errorf("invalid email address: %s", email)
-		}
+	body, err := makeBody(vars, files...)
+	if err != nil {
+		return err
 	}
 
-	// Sanitize subject and body
-	sanitizedSubject := sanitizeInput(subject)
-	sanitizedBody := sanitizeInput(body)
+	m := gomail.NewMessage()
+	m.SetHeader("From", config.smtpUser)
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", body)
 
-	smtpServer := fmt.Sprintf("%s:%s", config.smtpServer, config.smtpPort)
+	portNum, _ := strconv.Atoi(config.smtpPort)
 
-msg := []byte(fmt.Sprintf("To: %s\nSubject: %s\n\n%s", strings.Join(to, ","), encodeHTML(sanitizedSubject), encodeHTML(sanitizedBody)))
+	println(body)
+	d := gomail.Dialer{Host: config.smtpServer, Port: portNum}
 
-	return smtp.SendMail(smtpServer, nil, config.smtpUser, to, msg)
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+
+	return nil
 }
-// isValidEmail validates the email format
-func isValidEmail(email string) bool {
-	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	return re.MatchString(email)
-}
 
-// sanitizeInput removes potentially harmful content from input
-func sanitizeInput(input string) string {
-	// Implement sanitization logic here (e.g., remove HTML tags, escape special characters)
-	return input
+func makeBody(vars interface{}, files ...string) (string, error) {
+	t, err := template.ParseFiles(files...)
+	if err != nil {
+		return "", err
+	}
+	buff := &bytes.Buffer{}
+
+	if err := t.Execute(buff, vars); err != nil {
+		return "", err
+	}
+
+	return buff.String(), nil
 }

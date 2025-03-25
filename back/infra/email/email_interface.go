@@ -3,5 +3,5 @@
 package email
 
 type Email interface {
-	SendEmail(to []string, subject string, body string) error
+	SendEmail(to string, subject string, vars interface{}, files ...string) error
 }

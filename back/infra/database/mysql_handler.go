@@ -3,7 +3,6 @@ package database
 import (
 	"devport/domain/repository"
 	"devport/domain/repository/sql"
-	"devport/infra/database/gorm/gorm_model"
 	gormrepository "devport/infra/database/gorm/repository"
 	"fmt"
 
@@ -37,11 +36,6 @@ func NewMysqlHandler(c *MysqlConfig) (repository.SQL, error) {
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	if err != nil {
-		return nil, err
-	}
-
-	err = db.AutoMigrate(&gorm_model.User{})
 	if err != nil {
 		return nil, err
 	}
