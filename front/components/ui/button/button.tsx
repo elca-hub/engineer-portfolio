@@ -13,6 +13,7 @@ const DPButton = ({ ...props }: DBButtonProps) => {
 		<button
 			{...props}
 			className={`
+				${props.className}
         ${convertColorMode(props.colormode)}
         rounded px-4
         py-2 text-lg

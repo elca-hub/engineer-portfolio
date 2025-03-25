@@ -2,11 +2,11 @@ package action
 
 import (
 	"devport/adapter/api/logging"
-	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -30,25 +30,27 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 	var input user.GetUserInfoInput
 	const logKey = "get_user_info"
 
-	userToken, err := middleware.GetToken(r)
+	contextToken, isExistsToken := c.Get("token")
 
-	if err != nil {
+	if !isExistsToken {
+		err := errors.New("not found cookie token")
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get token")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 
 		return
 	}
 
-	keysEmail, isExist := c.Get("email")
+	keysEmail, isExistsEmail := c.Get("email")
 
-	if !isExist {
+	if !isExistsEmail {
+		err := errors.New("not found email")
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get email")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 
 		return
 	}
 
-	input.Token = userToken.Token()
+	input.Token = contextToken.(string)
 	input.Email = keysEmail.(string)
 
 	defer func(Body io.ReadCloser) {

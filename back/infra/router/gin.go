@@ -10,6 +10,8 @@ import (
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"log"
 	"net/http"
 	"os"
@@ -31,6 +33,8 @@ type GinEngine struct {
 	log        logger.Logger
 	email      email.Email
 }
+
+const csrfTokenName = "dp_csrf_token"
 
 func NewGinServer(
 	port Port,
@@ -93,20 +97,24 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Set-Cookie"},
 		AllowCredentials: true,
 	}))
+
+	store := cookie.NewStore([]byte(os.Getenv("SESSION_SECRET")))
+
+	router.Use(sessions.Sessions("dp_session", store))
+
 	apiRouterGroup := router.Group("/api/v1")
 	{
 		apiRouterGroup.GET("/ping", e.healthCheckAction())
 
-		apiRouterGroup.POST("/signup", e.createUserAction())
+		apiRouterGroup.POST("/register", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
-		apiRouterGroup.POST("/verification/email", e.verificationEmailAction())
-		apiRouterGroup.POST("/logout", e.logoutUserAction())
 
 		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			userRouterGroup := authRouterGroup.Group("/user")
 			{
+				userRouterGroup.POST("/logout", e.logoutUserAction())
 				userRouterGroup.GET("/", e.getUserInfoAction())
 			}
 		}
@@ -153,22 +161,6 @@ func (e *GinEngine) loginUserAction() gin.HandlerFunc {
 	}
 }
 
-func (e *GinEngine) verificationEmailAction() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var (
-			uc = user.NewVerificationEmailInterator(
-				e.sql.UserRepository(),
-				e.noSQL.UserRepository(),
-				user_presenter.NewVerificationEmailPresenter(),
-			)
-
-			act = action.NewVerifyEmailAction(uc, e.validator, e.log)
-		)
-
-		act.Execute(c.Writer, c.Request)
-	}
-}
-
 func (e *GinEngine) verifyCookieTokenAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
@@ -194,7 +186,6 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 		var (
 			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
-				e.noSQL.UserRepository(),
 				user_presenter.NewGetUserInfoPresenter(),
 			)
 
@@ -216,6 +207,6 @@ func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 			act = action.NewLogoutUserAction(uc, e.validator, e.log)
 		)
 
-		act.Execute(c.Writer, c.Request)
+		act.Execute(c.Writer, c.Request, c)
 	}
 }

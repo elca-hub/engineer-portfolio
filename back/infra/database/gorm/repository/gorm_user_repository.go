@@ -61,40 +61,16 @@ func (r GormUserRepository) FindByEmail(email *model.Email) (*model.User, error)
 	return user, nil
 }
 
-func (r GormUserRepository) FetchInConfirmationUsers() ([]*model.User, error) {
-	var gormUsers []gorm_model.User
-
-	if err := r.db.Where("email_verification = ?", model.InConfirmation).Find(&gormUsers).Error; err != nil {
-		return nil, err
-	}
-
-	var users []*model.User
-
-	for _, gormUser := range gormUsers {
-		user, err := convertToDomainModel(gormUser)
-
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, user)
-	}
-
-	return users, nil
-}
-
 func convertToGormModel(user model.User) gorm_model.User {
 	email := user.Email()
 
 	return gorm_model.User{
-		ID:                user.ID().ID(),
-		Name:              user.Name(),
-		Birthday:          user.Birthday(),
-		Email:             email.Email(),
-		Password:          user.Password().HashedPassword(),
-		EmailVerification: user.EmailVerification(),
-		CreatedAt:         user.CreatedAt(),
-		UpdatedAt:         user.UpdatedAt(),
+		ID:        user.ID().ID(),
+		Name:      user.Name(),
+		Birthday:  user.Birthday(),
+		Email:     email.Email(),
+		CreatedAt: user.CreatedAt(),
+		UpdatedAt: user.UpdatedAt(),
 	}
 }
 
@@ -110,10 +86,8 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 		gormUser.Name,
 		gormUser.Birthday,
 		userEmail,
-		model.NewHashedPassword(gormUser.Password),
 		gormUser.CreatedAt,
 		gormUser.UpdatedAt,
-		gormUser.EmailVerification,
 	)
 
 	if err != nil {

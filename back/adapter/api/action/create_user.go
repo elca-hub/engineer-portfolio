@@ -7,6 +7,7 @@ import (
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -39,11 +40,21 @@ func (a *CreateUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
+			response.NewError(err, http.StatusInternalServerError).Send(w)
+
+			return
+		}
+	}(r.Body)
 
 	if err := a.v.Validate(input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
+
+		return
 	}
 
 	output, err := a.uc.Execute(input)

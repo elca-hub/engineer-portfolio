@@ -4,8 +4,6 @@ import (
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
-	"devport/infra/security"
-	"errors"
 )
 
 type (
@@ -14,17 +12,16 @@ type (
 	}
 
 	LoginUserInput struct {
-		Email    string `validate:"required,email"`
-		Password string `validate:"required,min=8,max=32"`
+		Email string `validate:"required,email"`
 	}
 
 	LoginUserPresenter interface {
-		Output(email model.Email, token string) LoginUserOutput
+		Output(isExists bool, token string) LoginUserOutput
 	}
 
 	LoginUserOutput struct {
-		Email string
-		Token string
+		IsExists bool
+		Token    string
 	}
 
 	loginUserInterator struct {
@@ -47,37 +44,25 @@ func NewLoginUserInterator(
 }
 
 func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, error) {
-	inputEmail, err := model.NewEmail(input.Email)
+	email, err := model.NewEmail(input.Email)
 
 	if err != nil {
-		return i.presenter.Output(model.Email{}, ""), err
+		return i.presenter.Output(false, ""), err
 	}
 
-	userModel, err := i.sqlRepository.FindByEmail(inputEmail)
+	if _, err := i.sqlRepository.FindByEmail(email); err != nil {
+		if err.Error() == "record not found" {
+			return i.presenter.Output(false, ""), nil
+		} else {
+			return i.presenter.Output(false, ""), err
+		}
+	}
+
+	session, err := i.noSqlRepository.StartSession(email)
 
 	if err != nil {
-		return i.presenter.Output(*inputEmail, ""), err
+		return i.presenter.Output(false, ""), err
 	}
 
-	rawPassword, err := model.NewRawPassword(input.Password)
-
-	if err != nil {
-		return i.presenter.Output(*inputEmail, ""), err
-	}
-
-	if !security.CheckPasswordHash(rawPassword, userModel.Password()) {
-		return i.presenter.Output(*inputEmail, ""), errors.New("パスワードが間違っています")
-	}
-
-	if userModel.EmailVerification() == model.InConfirmation {
-		return i.presenter.Output(*inputEmail, ""), errors.New("メールアドレスの認証が完了していません")
-	}
-
-	session, err := i.noSqlRepository.StartSession(inputEmail)
-
-	if err != nil {
-		return i.presenter.Output(*inputEmail, ""), err
-	}
-
-	return i.presenter.Output(*inputEmail, session), nil
+	return i.presenter.Output(true, session), nil
 }
