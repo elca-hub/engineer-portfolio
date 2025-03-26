@@ -24,7 +24,7 @@ func beforeAction(t *testing.T, i CreateUserInput) (
 	noSqlMock := mock_nosql.NewMockUserRepository(ctrl)
 	emailMock := mock_email.NewMockEmail(ctrl)
 
-	uc := NewCreateUserInterator(sqlMock, noSqlMock, emailMock)
+	uc := NewCreateUserInterator(sqlMock, noSqlMock, emailMock, 5)
 
 	return uc, sqlMock, noSqlMock, emailMock
 }
@@ -41,13 +41,14 @@ func TestCreateUser(t *testing.T) {
 
 		uc, sqlMock, noSqlMock, emailMock := beforeAction(t, i)
 
-		sqlMock.EXPECT().Create(gomock.Any()).Return(nil)
-		sqlMock.EXPECT().Exists(testEmail).Return(false, nil)
-		sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
+		sqlMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+		sqlMock.EXPECT().Exists(gomock.Any(), testEmail).Return(false, nil)
+		sqlMock.EXPECT().ExistsByName(gomock.Any(), i.Name).Return(false, nil)
+		sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).Return(nil)
 		noSqlMock.EXPECT().AddConfirmationCode(gomock.Any(), gomock.Any()).Return(nil)
 		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
-		res, err := uc.Execute(i)
+		res, err := uc.Execute(t.Context(), i)
 
 		assert.NoError(t, err)
 
@@ -87,9 +88,10 @@ func TestCreateUser(t *testing.T) {
 
 					uc, sqlMock, _, _ := beforeAction(t, i)
 
-					sqlMock.EXPECT().Exists(testEmail).Return(c.isExist, nil)
+					sqlMock.EXPECT().Exists(gomock.Any(), testEmail).Return(c.isExist, nil)
+					sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).Return(nil)
 
-					_, err := uc.Execute(i)
+					_, err := uc.Execute(t.Context(), i)
 
 					assert.Error(t, err)
 				})
@@ -127,10 +129,11 @@ func TestCreateUser(t *testing.T) {
 
 					uc, sqlMock, _, _ := beforeAction(t, i)
 
-					sqlMock.EXPECT().Exists(gomock.Any()).Return(false, nil)
-					sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
+					sqlMock.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
+					sqlMock.EXPECT().ExistsByName(gomock.Any(), i.Name).Return(false, nil)
+					sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).Return(nil)
 
-					_, err := uc.Execute(i)
+					_, err := uc.Execute(t.Context(), i)
 
 					assert.Error(t, err)
 				})
