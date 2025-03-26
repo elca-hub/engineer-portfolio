@@ -2,11 +2,11 @@ package database
 
 import (
 	"context"
+	"devport/adapter/repository"
+	"devport/domain/repo/nosql"
+	"devport/infra/database/redis/redis_repo"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	"devport/domain/repository"
-	"devport/domain/repository/nosql"
-	"devport/infra/database/redis/redis_repo"
 )
 
 type RedisHandler struct {

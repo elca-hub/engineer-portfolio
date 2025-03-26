@@ -1,8 +1,8 @@
 package database
 
 import (
+	"devport/adapter/repository"
 	"errors"
-	"devport/domain/repository"
 )
 
 const (

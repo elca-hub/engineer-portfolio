@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"devport/domain/model"
-	"devport/domain/repository/sql"
+	"devport/domain/repo/sql"
 	"time"
 )
 

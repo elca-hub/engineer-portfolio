@@ -1,8 +1,8 @@
 package user
 
 import (
-	"devport/domain/repository/nosql"
-	"devport/domain/repository/sql"
+	"devport/domain/repo/nosql"
+	"devport/domain/repo/sql"
 )
 
 type (

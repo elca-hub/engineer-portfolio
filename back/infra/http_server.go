@@ -2,8 +2,8 @@ package infra
 
 import (
 	"devport/adapter/logger"
+	"devport/adapter/repository"
 	"devport/adapter/validator"
-	"devport/domain/repository"
 	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/log"

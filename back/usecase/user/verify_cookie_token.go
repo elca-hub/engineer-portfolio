@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"devport/domain/model"
-	"devport/domain/repository/nosql"
-	"devport/domain/repository/sql"
+	"devport/domain/repo/nosql"
+	"devport/domain/repo/sql"
 	"errors"
 	"time"
 )

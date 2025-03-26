@@ -1,6 +1,6 @@
 package repository
 
-import "devport/domain/repository/nosql"
+import "devport/domain/repo/nosql"
 
 type NoSQL interface {
 	UserRepository() nosql.UserRepository

@@ -2,8 +2,8 @@ package user
 
 import (
 	usermodel "devport/domain/model"
-	mock_nosql "devport/domain/repository/mock/nosql"
-	mock_sql "devport/domain/repository/mock/sql"
+	mock_nosql "devport/domain/repo/mock/nosql"
+	mock_sql "devport/domain/repo/mock/sql"
 	mock_email "devport/infra/mock/email"
 	"testing"
 

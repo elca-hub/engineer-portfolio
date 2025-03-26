@@ -1,7 +1,7 @@
 package database
 
 import (
-	"devport/domain/repository"
+	"devport/adapter/repository"
 	"errors"
 )
 

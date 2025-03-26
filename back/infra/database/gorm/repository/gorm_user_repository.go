@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
+	"devport/adapter/repository"
 	"devport/domain/model"
-	"devport/domain/repository"
 	"devport/infra/database/gorm/gorm_model"
 	"gorm.io/gorm"
 )

@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"devport/domain/repository"
+	"devport/adapter/repository"
 	"fmt"
 
 	"gorm.io/driver/mysql"
