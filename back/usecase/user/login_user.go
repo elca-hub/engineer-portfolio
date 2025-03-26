@@ -1,14 +1,18 @@
 package user
 
 import (
+	"context"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
+	"errors"
+	"gorm.io/gorm"
+	"time"
 )
 
 type (
 	LoginUserUseCase interface {
-		Execute(LoginUserInput) (LoginUserOutput, error)
+		Execute(context.Context, LoginUserInput) (LoginUserOutput, error)
 	}
 
 	LoginUserInput struct {
@@ -28,6 +32,7 @@ type (
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       LoginUserPresenter
+		ctxTimeout      time.Duration
 	}
 )
 
@@ -35,32 +40,48 @@ func NewLoginUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	presenter LoginUserPresenter,
+	t time.Duration,
 ) LoginUserUseCase {
 	return loginUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
 		presenter:       presenter,
+		ctxTimeout:      t,
 	}
 }
 
-func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, error) {
-	email, err := model.NewEmail(input.Email)
+func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (LoginUserOutput, error) {
+	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
+	defer cancel()
 
-	if err != nil {
-		return i.presenter.Output(false, ""), err
-	}
+	var (
+		session string
+	)
 
-	if _, err := i.sqlRepository.FindByEmail(email); err != nil {
-		if err.Error() == "record not found" {
-			return i.presenter.Output(false, ""), nil
-		} else {
-			return i.presenter.Output(false, ""), err
+	err := i.sqlRepository.WithTransaction(ctx, func(tx *gorm.DB) error {
+		email, err := model.NewEmail(input.Email)
+		if err != nil {
+			return err
 		}
-	}
 
-	session, err := i.noSqlRepository.StartSession(email)
+		if _, err := i.sqlRepository.FindByEmail(tx, email); err != nil {
+			return err
+		}
+
+		session, err = i.noSqlRepository.StartSession(email)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return i.presenter.Output(false, ""), nil
+		}
+
 		return i.presenter.Output(false, ""), err
 	}
 

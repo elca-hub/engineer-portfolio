@@ -6,6 +6,7 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/domain/repository"
+	repository2 "devport/infra/database/gorm/repository"
 	"devport/infra/email"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
@@ -133,9 +134,10 @@ func (e *GinEngine) createUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewCreateUserInterator(
-				e.sql.UserRepository(),
+				repository2.NewGormUserRepository(e.sql),
 				e.noSQL.UserRepository(),
 				e.email,
+				e.ctxTimeout,
 			)
 
 			act = action.NewCreateUserAction(uc, e.validator, e.log)
@@ -149,9 +151,10 @@ func (e *GinEngine) loginUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewLoginUserInterator(
-				e.sql.UserRepository(),
+				repository2.NewGormUserRepository(e.sql),
 				e.noSQL.UserRepository(),
 				user_presenter.NewLoginUserPresenter(),
+				e.ctxTimeout,
 			)
 
 			act = action.NewLoginUserAction(uc, e.validator, e.log)
@@ -165,9 +168,10 @@ func (e *GinEngine) verifyCookieTokenAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewVerifyCookieTokenInterator(
-				e.sql.UserRepository(),
+				repository2.NewGormUserRepository(e.sql),
 				e.noSQL.UserRepository(),
 				user_presenter.NewVerifyCookieTokenPresenter(),
+				e.ctxTimeout,
 			)
 
 			act = action.NewVerifyCookieTokenAction(uc, e.validator, e.log)
@@ -185,8 +189,9 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewGetUserInfoInterator(
-				e.sql.UserRepository(),
+				repository2.NewGormUserRepository(e.sql),
 				user_presenter.NewGetUserInfoPresenter(),
+				e.ctxTimeout,
 			)
 
 			act = action.NewGetUserAction(uc, e.validator, e.log)

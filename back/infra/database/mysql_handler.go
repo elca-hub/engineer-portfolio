@@ -1,30 +1,19 @@
 package database
 
 import (
+	"context"
 	"devport/domain/repository"
-	"devport/domain/repository/sql"
-	gormrepository "devport/infra/database/gorm/repository"
 	"fmt"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-type RepositoryConfig struct {
+type GormHandler struct {
 	db *gorm.DB
 }
 
-func NewRepositoryConfig(db *gorm.DB) *RepositoryConfig {
-	return &RepositoryConfig{
-		db: db,
-	}
-}
-
-func (c *RepositoryConfig) UserRepository() sql.UserRepository {
-	return gormrepository.NewGormUserRepository(c.db)
-}
-
-func NewMysqlHandler(c *MysqlConfig) (repository.SQL, error) {
+func NewGormHandler(c *MysqlConfig) (*GormHandler, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
 		c.user,
@@ -40,5 +29,35 @@ func NewMysqlHandler(c *MysqlConfig) (repository.SQL, error) {
 		return nil, err
 	}
 
-	return NewRepositoryConfig(db), nil
+	return &GormHandler{db: db}, nil
+}
+
+func (h GormHandler) BeginTx(ctx context.Context) (repository.Tx, error) {
+	tx := h.db.WithContext(ctx).Begin()
+
+	return newGormTx(tx), tx.Error
+}
+
+func (h GormHandler) DB() *gorm.DB {
+	return h.db
+}
+
+type gormTx struct {
+	tx *gorm.DB
+}
+
+func newGormTx(tx *gorm.DB) repository.Tx {
+	return gormTx{tx: tx}
+}
+
+func (t gormTx) Commit() error {
+	return t.tx.Commit().Error
+}
+
+func (t gormTx) Rollback() {
+	t.tx.Rollback()
+}
+
+func (t gormTx) Tx() *gorm.DB {
+	return t.tx
 }

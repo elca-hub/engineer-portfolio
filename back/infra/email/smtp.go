@@ -29,7 +29,6 @@ func (s *Smtp) SendEmail(to string, subject string, vars interface{}, files ...s
 
 	portNum, _ := strconv.Atoi(config.smtpPort)
 
-	println(body)
 	d := gomail.Dialer{Host: config.smtpServer, Port: portNum}
 
 	if err := d.DialAndSend(m); err != nil {

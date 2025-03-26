@@ -65,7 +65,7 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := a.uc.Execute(input)
+	output, err := a.uc.Execute(r.Context(), input)
 	if err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when login user")
 		response.NewError(err, http.StatusInternalServerError).Send(w)

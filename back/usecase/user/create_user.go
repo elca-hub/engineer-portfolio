@@ -1,19 +1,19 @@
 package user
 
 import (
-	"crypto/rand"
+	"context"
 	"devport/domain/model"
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"devport/infra/email"
 	"errors"
-	"math/big"
+	"gorm.io/gorm"
 	"time"
 )
 
 type (
 	CreateUserUseCase interface {
-		Execute(CreateUserInput) (CreateUserOutput, error)
+		Execute(context.Context, CreateUserInput) (CreateUserOutput, error)
 	}
 
 	CreateUserInput struct {
@@ -30,6 +30,7 @@ type (
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
 		email           email.Email
+		ctxTimeout      time.Duration
 	}
 )
 
@@ -37,75 +38,78 @@ func NewCreateUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	email email.Email,
+	t time.Duration,
 ) CreateUserUseCase {
 	return createUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
 		email:           email,
+		ctxTimeout:      t,
 	}
 }
 
-func (i createUserInterator) Execute(input CreateUserInput) (CreateUserOutput, error) {
+func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput) (CreateUserOutput, error) {
+	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
+	defer cancel()
 
-	userEmail, err := model.NewEmail(input.Email)
+	err := i.sqlRepository.WithTransaction(ctx, func(tx *gorm.DB) error {
+		e, err := model.NewEmail(input.Email)
+
+		if err != nil {
+			return err
+		}
+
+		isExistsMail, err := i.sqlRepository.Exists(tx, e)
+
+		if err != nil {
+			return err
+		}
+
+		if isExistsMail {
+			return errors.New("メールアドレスは既に存在します")
+		}
+
+		isExistsName, err := i.sqlRepository.ExistsByName(tx, input.Name)
+
+		if err != nil {
+			return err
+		}
+
+		if isExistsName {
+			return errors.New("ユーザ名は既に存在します")
+		}
+
+		jst, _ := time.LoadLocation("Asia/Tokyo")
+		birthDay, err := time.ParseInLocation("2006-01-02", input.Birthday, jst)
+
+		if err != nil {
+			return err
+		}
+
+		user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, e, time.Now(), time.Now())
+
+		if err != nil {
+			return err
+		}
+
+		if err := i.sqlRepository.Create(tx, user); err != nil {
+			return err
+		}
+
+		mailObject := "【新規登録完了のお知らせ】"
+
+		vars := map[string]string{"Name": user.Name()}
+		files := []string{"infra/email/template/register.tpl"}
+
+		if err := i.email.SendEmail(input.Email, mailObject, vars, files...); err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	isExists, err := i.sqlRepository.Exists(userEmail) // ユーザが存在するか確認
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-	if isExists {
-		return CreateUserOutput{""}, errors.New("メールアドレスは既に存在します")
-	}
-
-	isUserNameExists, err := i.sqlRepository.ExistsByName(input.Name) // ユーザ名が存在するか確認
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-	if isUserNameExists {
-		return CreateUserOutput{""}, errors.New("ユーザ名は既に存在します")
-	}
-
-	jst, _ := time.LoadLocation("Asia/Tokyo")
-	birthDay, err := time.ParseInLocation("2006-01-02", input.Birthday, jst)
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, userEmail, time.Now(), time.Now())
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	if err := i.sqlRepository.Create(user); err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	// 6桁の確認コードを生成
-	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
-
-	if err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	if err := i.noSqlRepository.AddConfirmationCode(userEmail, n.Int64()); err != nil {
-		return CreateUserOutput{""}, err
-	}
-
-	mailSubject := "【新規登録完了のお知らせ】"
-
-	vars := map[string]string{"Name": user.Name()}
-	files := []string{"infra/email/template/register.tpl"}
-
-	if err := i.email.SendEmail(input.Email, mailSubject, vars, files...); err != nil {
-		return CreateUserOutput{""}, err
+		return CreateUserOutput{}, err
 	}
 
 	return CreateUserOutput{input.Email}, nil
