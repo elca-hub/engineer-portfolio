@@ -19,9 +19,12 @@ func NewGormUserRepository(db repository.SQL) *GormUserRepository {
 }
 
 func (r GormUserRepository) Create(ctx context.Context, user *model.User) error {
-	tx, _ := ctx.Value("TransactionContextKey").(*gorm.DB)
-
+	tx, ok := ctx.Value("TransactionContextKey").(*gorm.DB)
 	gormUser := convertToGormModel(*user)
+
+	if !ok {
+		return r.db.Execute(ctx).Create(&gormUser).Error
+	}
 
 	return tx.Create(&gormUser).Error
 }
@@ -43,9 +46,14 @@ func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool
 }
 
 func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
+	tx, ok := ctx.Value("TransactionContextKey").(*gorm.DB)
 	gormUser := convertToGormModel(*user)
 
-	return r.db.Execute(ctx).Save(&gormUser).Error
+	if !ok {
+		return r.db.Execute(ctx).Save(&gormUser).Error
+	}
+
+	return tx.Save(&gormUser).Error
 }
 
 func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email) (*model.User, error) {
