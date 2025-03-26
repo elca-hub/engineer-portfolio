@@ -58,7 +58,7 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 		session string
 	)
 
-	err := i.sqlRepository.WithTransaction(ctx, func(tx *gorm.DB) error {
+	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
 		email, err := model.NewEmail(input.Email)
 		if err != nil {
 			return err

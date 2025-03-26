@@ -18,38 +18,40 @@ func NewGormUserRepository(db repository.SQL) *GormUserRepository {
 	}
 }
 
-func (r GormUserRepository) Create(tx *gorm.DB, user *model.User) error {
+func (r GormUserRepository) Create(ctx context.Context, user *model.User) error {
+	tx, _ := ctx.Value("TransactionContextKey").(*gorm.DB)
+
 	gormUser := convertToGormModel(*user)
 
 	return tx.Create(&gormUser).Error
 }
 
-func (r GormUserRepository) Exists(tx *gorm.DB, email *model.Email) (bool, error) {
+func (r GormUserRepository) Exists(ctx context.Context, email *model.Email) (bool, error) {
 	var counter int64
 
-	tx.Model(&gorm_model.User{}).Where("email = ?", email.Email()).Count(&counter)
+	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("email = ?", email.Email()).Count(&counter)
 
 	return counter > 0, nil
 }
 
-func (r GormUserRepository) ExistsByName(tx *gorm.DB, name string) (bool, error) {
+func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
 	var counter int64
 
-	tx.Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
+	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
 
 	return counter > 0, nil
 }
 
-func (r GormUserRepository) Update(tx *gorm.DB, user *model.User) error {
+func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
 	gormUser := convertToGormModel(*user)
 
-	return tx.Save(&gormUser).Error
+	return r.db.Execute(ctx).Save(&gormUser).Error
 }
 
-func (r GormUserRepository) FindByEmail(tx *gorm.DB, email *model.Email) (*model.User, error) {
+func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email) (*model.User, error) {
 	var gormUser gorm_model.User
 
-	if err := tx.Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
+	if err := r.db.Execute(ctx).Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
 		return nil, err
 	}
 
@@ -62,20 +64,21 @@ func (r GormUserRepository) FindByEmail(tx *gorm.DB, email *model.Email) (*model
 	return user, nil
 }
 
-func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(tx *gorm.DB) error) error {
+func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
 	tx, err := r.db.BeginTx(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	if err := fn(tx.Tx()); err != nil {
-		tx.Rollback()
+	transactionCtx := context.WithValue(ctx, "TransactionContextKey", tx.Tx())
 
+	if err := fn(transactionCtx); err != nil {
+		tx.Tx().Rollback()
 		return err
 	}
 
-	return tx.Commit()
+	return tx.Tx().Commit().Error
 }
 
 func convertToGormModel(user model.User) gorm_model.User {

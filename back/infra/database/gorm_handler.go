@@ -38,8 +38,8 @@ func (h GormHandler) BeginTx(ctx context.Context) (repository.Tx, error) {
 	return newGormTx(tx), tx.Error
 }
 
-func (h GormHandler) DB() *gorm.DB {
-	return h.db
+func (h GormHandler) Execute(ctx context.Context) *gorm.DB {
+	return h.db.WithContext(ctx)
 }
 
 type gormTx struct {
@@ -48,14 +48,6 @@ type gormTx struct {
 
 func newGormTx(tx *gorm.DB) repository.Tx {
 	return gormTx{tx: tx}
-}
-
-func (t gormTx) Commit() error {
-	return t.tx.Commit().Error
-}
-
-func (t gormTx) Rollback() {
-	t.tx.Rollback()
 }
 
 func (t gormTx) Tx() *gorm.DB {

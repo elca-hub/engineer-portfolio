@@ -4,7 +4,6 @@ import (
 	"context"
 	"devport/domain/model"
 	"devport/domain/repository/sql"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -55,7 +54,7 @@ func (i getUserInfoInterator) Execute(tx context.Context, input GetUserInfoInput
 		userModel *model.User
 	)
 
-	err := i.sqlRepository.WithTransaction(ctx, func(tx *gorm.DB) error {
+	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
 		email, err := model.NewEmail(input.Email)
 
 		if err != nil {

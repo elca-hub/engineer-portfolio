@@ -10,6 +10,7 @@
 package mock_sql
 
 import (
+	context "context"
 	model "devport/domain/model"
 	reflect "reflect"
 
@@ -41,74 +42,88 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUserRepository) Create(u *model.User) error {
+func (m *MockUserRepository) Create(context context.Context, u *model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", u)
+	ret := m.ctrl.Call(m, "Create", context, u)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockUserRepositoryMockRecorder) Create(u any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Create(context, u any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), u)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), context, u)
 }
 
 // Exists mocks base method.
-func (m *MockUserRepository) Exists(email *model.Email) (bool, error) {
+func (m *MockUserRepository) Exists(context context.Context, email *model.Email) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Exists", email)
+	ret := m.ctrl.Call(m, "Exists", context, email)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Exists indicates an expected call of Exists.
-func (mr *MockUserRepositoryMockRecorder) Exists(email any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Exists(context, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockUserRepository)(nil).Exists), email)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockUserRepository)(nil).Exists), context, email)
 }
 
 // ExistsByName mocks base method.
-func (m *MockUserRepository) ExistsByName(name string) (bool, error) {
+func (m *MockUserRepository) ExistsByName(context context.Context, name string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExistsByName", name)
+	ret := m.ctrl.Call(m, "ExistsByName", context, name)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExistsByName indicates an expected call of ExistsByName.
-func (mr *MockUserRepositoryMockRecorder) ExistsByName(name any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) ExistsByName(context, name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsByName", reflect.TypeOf((*MockUserRepository)(nil).ExistsByName), name)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsByName", reflect.TypeOf((*MockUserRepository)(nil).ExistsByName), context, name)
 }
 
 // FindByEmail mocks base method.
-func (m *MockUserRepository) FindByEmail(email *model.Email) (*model.User, error) {
+func (m *MockUserRepository) FindByEmail(context context.Context, email *model.Email) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByEmail", email)
+	ret := m.ctrl.Call(m, "FindByEmail", context, email)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByEmail indicates an expected call of FindByEmail.
-func (mr *MockUserRepositoryMockRecorder) FindByEmail(email any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) FindByEmail(context, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockUserRepository)(nil).FindByEmail), email)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEmail", reflect.TypeOf((*MockUserRepository)(nil).FindByEmail), context, email)
 }
 
 // Update mocks base method.
-func (m *MockUserRepository) Update(u *model.User) error {
+func (m *MockUserRepository) Update(context context.Context, u *model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", u)
+	ret := m.ctrl.Call(m, "Update", context, u)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUserRepositoryMockRecorder) Update(u any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Update(context, u any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserRepository)(nil).Update), u)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserRepository)(nil).Update), context, u)
+}
+
+// WithTransaction mocks base method.
+func (m *MockUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithTransaction", ctx, fn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithTransaction indicates an expected call of WithTransaction.
+func (mr *MockUserRepositoryMockRecorder) WithTransaction(ctx, fn any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithTransaction", reflect.TypeOf((*MockUserRepository)(nil).WithTransaction), ctx, fn)
 }

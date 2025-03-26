@@ -6,12 +6,10 @@ import (
 )
 
 type SQL interface {
-	DB() *gorm.DB
+	Execute(ctx context.Context) *gorm.DB
 	BeginTx(ctx context.Context) (Tx, error)
 }
 
 type Tx interface {
-	Commit() error
-	Rollback()
 	Tx() *gorm.DB
 }

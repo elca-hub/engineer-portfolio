@@ -4,14 +4,13 @@ package sql
 import (
 	"context"
 	"devport/domain/model"
-	"gorm.io/gorm"
 )
 
 type UserRepository interface {
-	Create(tx *gorm.DB, u *model.User) error
-	Exists(tx *gorm.DB, email *model.Email) (bool, error)
-	ExistsByName(tx *gorm.DB, name string) (bool, error)
-	Update(tx *gorm.DB, u *model.User) error
-	FindByEmail(tx *gorm.DB, email *model.Email) (*model.User, error)
-	WithTransaction(ctx context.Context, fn func(tx *gorm.DB) error) error
+	Create(context context.Context, u *model.User) error
+	Exists(context context.Context, email *model.Email) (bool, error)
+	ExistsByName(context context.Context, name string) (bool, error)
+	Update(context context.Context, u *model.User) error
+	FindByEmail(context context.Context, email *model.Email) (*model.User, error)
+	WithTransaction(ctx context.Context, fn func(context.Context) error) error
 }

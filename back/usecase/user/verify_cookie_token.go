@@ -6,7 +6,6 @@ import (
 	"devport/domain/repository/nosql"
 	"devport/domain/repository/sql"
 	"errors"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -53,7 +52,7 @@ func (i verifyCookieTokenInterator) Execute(ctx context.Context, input VerifyCoo
 	var (
 		email *model.Email
 	)
-	err := i.sqlRepository.WithTransaction(ctx, func(tx *gorm.DB) error {
+	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
 		email, err := i.noSqlRepository.GetSession(input.Token)
 
 		if err != nil {
