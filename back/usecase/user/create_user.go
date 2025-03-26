@@ -104,7 +104,7 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			return err
 		}
 
-		return errors.New("test")
+		return nil
 	})
 
 	if err != nil {
