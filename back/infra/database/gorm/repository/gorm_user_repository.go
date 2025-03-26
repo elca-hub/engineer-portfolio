@@ -83,6 +83,7 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 
 	if err := fn(transactionCtx); err != nil {
 		tx.Tx().Rollback()
+
 		return err
 	}
 

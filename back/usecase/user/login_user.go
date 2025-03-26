@@ -58,31 +58,23 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 		session string
 	)
 
-	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
-		email, err := model.NewEmail(input.Email)
-		if err != nil {
-			return err
-		}
-
-		if _, err := i.sqlRepository.FindByEmail(tx, email); err != nil {
-			return err
-		}
-
-		session, err = i.noSqlRepository.StartSession(email)
-
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-
+	email, err := model.NewEmail(input.Email)
 	if err != nil {
+		return LoginUserOutput{}, err
+	}
+
+	if _, err := i.sqlRepository.FindByEmail(ctx, email); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return i.presenter.Output(false, ""), nil
 		}
 
-		return i.presenter.Output(false, ""), err
+		return LoginUserOutput{}, err
+	}
+
+	session, err = i.noSqlRepository.StartSession(email)
+
+	if err != nil {
+		return LoginUserOutput{}, err
 	}
 
 	return i.presenter.Output(true, session), nil
