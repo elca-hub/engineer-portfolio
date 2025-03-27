@@ -53,6 +53,8 @@ export default function NewUserPresentation() {
 			}
 
 			registerFlow()
+
+			setIsSubmit(false)
 		}
 	}, [isSubmit])
 
