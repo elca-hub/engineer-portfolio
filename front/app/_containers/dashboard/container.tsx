@@ -1,9 +1,8 @@
 'use server'
 
 import { isNewUser } from '@/app/_containers/dashboard/action'
-import DashboardPresentation from '@/app/_containers/dashboard/dashboardPresentation'
 import HeaderPresentation from '@/app/_containers/dashboard/headerPresentation'
-import NewUserPresentation from '@/app/_containers/dashboard/newUserPresentation'
+import DashboardPresentation from '@/app/_containers/dashboard/presentation'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import HeadContent from '@/components/layout/headContent'
 import { getServerSession } from 'next-auth'
@@ -31,7 +30,6 @@ export default async function DashboardContainer() {
 					title="新規登録"
 					des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 				/>
-				<NewUserPresentation></NewUserPresentation>
 			</>
 		)
 	} else {
@@ -41,7 +39,7 @@ export default async function DashboardContainer() {
 					title="ダッシュボード"
 					des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 				/>
-				<DashboardPresentation header={<HeaderPresentation userIconPath="/dummy.png"></HeaderPresentation>}></DashboardPresentation>
+				<DashboardPresentation header={<HeaderPresentation userIconPath="/dummy.png"></HeaderPresentation>} userName="test"></DashboardPresentation>
 			</>
 		)
 	}

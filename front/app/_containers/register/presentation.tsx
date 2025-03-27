@@ -20,7 +20,7 @@ export type RegisterFormContent = {
 /**
  * @package
  */
-export default function NewUserPresentation() {
+export default function RegisterPresentation() {
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	const router = useRouter()
