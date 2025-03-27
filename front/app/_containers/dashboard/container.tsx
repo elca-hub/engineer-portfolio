@@ -2,6 +2,7 @@
 
 import { isNewUser } from '@/app/_containers/dashboard/action'
 import DashboardPresentation from '@/app/_containers/dashboard/dashboardPresentation'
+import HeaderPresentation from '@/app/_containers/dashboard/headerPresentation'
 import NewUserPresentation from '@/app/_containers/dashboard/newUserPresentation'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import HeadContent from '@/components/layout/headContent'
@@ -40,7 +41,7 @@ export default async function DashboardContainer() {
 					title="ダッシュボード"
 					des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 				/>
-				<DashboardPresentation></DashboardPresentation>
+				<DashboardPresentation header={<HeaderPresentation userIconPath="/dummy.png"></HeaderPresentation>}></DashboardPresentation>
 			</>
 		)
 	}
