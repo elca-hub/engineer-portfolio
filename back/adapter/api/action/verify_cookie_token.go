@@ -59,7 +59,7 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
 	}
 
-	output, err := a.uc.Execute(input)
+	output, err := a.uc.Execute(r.Context(), input)
 	if err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when verify cookie token")
 

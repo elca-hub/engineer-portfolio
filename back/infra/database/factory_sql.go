@@ -1,8 +1,8 @@
 package database
 
 import (
+	"devport/adapter/repository"
 	"errors"
-	"devport/domain/repository"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 func NewDatabaseSqlFactory(instance int) (repository.SQL, error) {
 	switch instance {
 	case InstanceMySQL:
-		return NewMysqlHandler(NewMySQLConfig())
+		return NewGormHandler(NewMySQLConfig())
 	default:
 		return nil, errors.New("invalid instance")
 	}

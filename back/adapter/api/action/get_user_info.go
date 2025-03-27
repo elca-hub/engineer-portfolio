@@ -62,7 +62,7 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 		}
 	}(r.Body)
 
-	output, err := a.uc.Execute(input)
+	output, err := a.uc.Execute(r.Context(), input)
 
 	if err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get user info")

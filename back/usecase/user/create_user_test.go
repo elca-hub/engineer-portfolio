@@ -1,10 +1,11 @@
 package user
 
 import (
+	"context"
 	usermodel "devport/domain/model"
-	mock_nosql "devport/domain/repository/mock/nosql"
-	mock_sql "devport/domain/repository/mock/sql"
-	mock_email "devport/infra/mock/email"
+	mocknosql "devport/domain/repo/mock/nosql"
+	mocksql "devport/domain/repo/mock/sql"
+	mockemail "devport/infra/mock/email"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,18 +14,18 @@ import (
 
 func beforeAction(t *testing.T, i CreateUserInput) (
 	CreateUserUseCase,
-	*mock_sql.MockUserRepository,
-	*mock_nosql.MockUserRepository,
-	*mock_email.MockEmail,
+	*mocksql.MockUserRepository,
+	*mocknosql.MockUserRepository,
+	*mockemail.MockEmail,
 ) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	sqlMock := mock_sql.NewMockUserRepository(ctrl)
-	noSqlMock := mock_nosql.NewMockUserRepository(ctrl)
-	emailMock := mock_email.NewMockEmail(ctrl)
+	sqlMock := mocksql.NewMockUserRepository(ctrl)
+	noSqlMock := mocknosql.NewMockUserRepository(ctrl)
+	emailMock := mockemail.NewMockEmail(ctrl)
 
-	uc := NewCreateUserInterator(sqlMock, noSqlMock, emailMock)
+	uc := NewCreateUserInterator(sqlMock, noSqlMock, emailMock, 5)
 
 	return uc, sqlMock, noSqlMock, emailMock
 }
@@ -41,13 +42,14 @@ func TestCreateUser(t *testing.T) {
 
 		uc, sqlMock, noSqlMock, emailMock := beforeAction(t, i)
 
-		sqlMock.EXPECT().Create(gomock.Any()).Return(nil)
-		sqlMock.EXPECT().Exists(testEmail).Return(false, nil)
-		sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
+		sqlMock.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+		sqlMock.EXPECT().Exists(gomock.Any(), testEmail).Return(false, nil)
+		sqlMock.EXPECT().ExistsByName(gomock.Any(), i.Name).Return(false, nil)
+		sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).Return(nil)
 		noSqlMock.EXPECT().AddConfirmationCode(gomock.Any(), gomock.Any()).Return(nil)
-		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any())
+		emailMock.EXPECT().SendEmail([]string{i.Email}, gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
-		res, err := uc.Execute(i)
+		res, err := uc.Execute(t.Context(), i)
 
 		assert.NoError(t, err)
 
@@ -87,9 +89,12 @@ func TestCreateUser(t *testing.T) {
 
 					uc, sqlMock, _, _ := beforeAction(t, i)
 
-					sqlMock.EXPECT().Exists(testEmail).Return(c.isExist, nil)
+					sqlMock.EXPECT().Exists(gomock.Any(), testEmail).Return(c.isExist, nil)
+					sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+						return fn(ctx)
+					})
 
-					_, err := uc.Execute(i)
+					_, err := uc.Execute(t.Context(), i)
 
 					assert.Error(t, err)
 				})
@@ -127,10 +132,12 @@ func TestCreateUser(t *testing.T) {
 
 					uc, sqlMock, _, _ := beforeAction(t, i)
 
-					sqlMock.EXPECT().Exists(gomock.Any()).Return(false, nil)
-					sqlMock.EXPECT().ExistsByName(i.Name).Return(false, nil)
-
-					_, err := uc.Execute(i)
+					sqlMock.EXPECT().Exists(gomock.Any(), gomock.Any()).Return(false, nil)
+					sqlMock.EXPECT().ExistsByName(gomock.Any(), i.Name).Return(false, nil)
+					sqlMock.EXPECT().WithTransaction(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+						return fn(ctx)
+					})
+					_, err := uc.Execute(t.Context(), i)
 
 					assert.Error(t, err)
 				})

@@ -1,14 +1,18 @@
 package user
 
 import (
+	"context"
 	"devport/domain/model"
-	"devport/domain/repository/nosql"
-	"devport/domain/repository/sql"
+	"devport/domain/repo/nosql"
+	"devport/domain/repo/sql"
+	"errors"
+	"gorm.io/gorm"
+	"time"
 )
 
 type (
 	LoginUserUseCase interface {
-		Execute(LoginUserInput) (LoginUserOutput, error)
+		Execute(context.Context, LoginUserInput) (LoginUserOutput, error)
 	}
 
 	LoginUserInput struct {
@@ -28,6 +32,7 @@ type (
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       LoginUserPresenter
+		ctxTimeout      time.Duration
 	}
 )
 
@@ -35,33 +40,41 @@ func NewLoginUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	presenter LoginUserPresenter,
+	t time.Duration,
 ) LoginUserUseCase {
 	return loginUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
 		presenter:       presenter,
+		ctxTimeout:      t,
 	}
 }
 
-func (i loginUserInterator) Execute(input LoginUserInput) (LoginUserOutput, error) {
+func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (LoginUserOutput, error) {
+	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
+	defer cancel()
+
+	var (
+		session string
+	)
+
 	email, err := model.NewEmail(input.Email)
-
 	if err != nil {
-		return i.presenter.Output(false, ""), err
+		return LoginUserOutput{}, err
 	}
 
-	if _, err := i.sqlRepository.FindByEmail(email); err != nil {
-		if err.Error() == "record not found" {
+	if _, err := i.sqlRepository.FindByEmail(ctx, email); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return i.presenter.Output(false, ""), nil
-		} else {
-			return i.presenter.Output(false, ""), err
 		}
+
+		return LoginUserOutput{}, err
 	}
 
-	session, err := i.noSqlRepository.StartSession(email)
+	session, err = i.noSqlRepository.StartSession(email)
 
 	if err != nil {
-		return i.presenter.Output(false, ""), err
+		return LoginUserOutput{}, err
 	}
 
 	return i.presenter.Output(true, session), nil

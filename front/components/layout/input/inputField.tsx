@@ -13,7 +13,7 @@ interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivEle
 }
 
 const InputField = ({ ...props }: InputFieldProps) => {
-	const titleNode = props.isDisabled ? (
+	const titleNode = props.isRequired ? (
 		<>
 			{props.title}
 			<span className="text-red-500">*</span>

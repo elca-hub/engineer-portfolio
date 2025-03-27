@@ -15,7 +15,7 @@ func NewVerifyCookieTokenPresenter() user.VerifyCookieTokenPresenter {
 	return VerifyCookieTokenPresenter{}
 }
 
-func (p VerifyCookieTokenPresenter) Output(email model.Email) user.VerifyCookieTokenOutput {
+func (p VerifyCookieTokenPresenter) Output(email *model.Email) user.VerifyCookieTokenOutput {
 	return user.VerifyCookieTokenOutput{
 		Email: email.Email(),
 	}

@@ -40,15 +40,20 @@ func (m *MockEmail) EXPECT() *MockEmailMockRecorder {
 }
 
 // SendEmail mocks base method.
-func (m *MockEmail) SendEmail(to []string, subject, body string) error {
+func (m *MockEmail) SendEmail(to, subject string, vars any, files ...string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendEmail", to, subject, body)
+	varargs := []any{to, subject, vars}
+	for _, a := range files {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SendEmail", varargs...)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendEmail indicates an expected call of SendEmail.
-func (mr *MockEmailMockRecorder) SendEmail(to, subject, body any) *gomock.Call {
+func (mr *MockEmailMockRecorder) SendEmail(to, subject, vars any, files ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendEmail", reflect.TypeOf((*MockEmail)(nil).SendEmail), to, subject, body)
+	varargs := append([]any{to, subject, vars}, files...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendEmail", reflect.TypeOf((*MockEmail)(nil).SendEmail), varargs...)
 }
