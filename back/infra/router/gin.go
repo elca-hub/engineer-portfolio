@@ -109,6 +109,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 
 		apiRouterGroup.POST("/register", e.createUserAction())
 		apiRouterGroup.POST("/login", e.loginUserAction())
+		apiRouterGroup.GET("/is_exists", e.isExistsUserAction())
 
 		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
@@ -210,6 +211,22 @@ func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 			)
 
 			act = action.NewLogoutUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) isExistsUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewIsExistsUserInteractor(
+				repository2.NewGormUserRepository(e.sql),
+				user_presenter.NewIsExistsUserPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewIsExistsUserAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

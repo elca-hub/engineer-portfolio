@@ -1,6 +1,6 @@
 'use server'
 
-import { isNewUser } from '@/app/_containers/dashboard/action'
+import { isExists } from '@/app/_containers/register/action'
 import RegisterPresentation from '@/app/_containers/register/presentation'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { getServerSession } from 'next-auth'
@@ -19,9 +19,9 @@ export default async function RegisterContainer() {
 		redirect('/login')
 	}
 
-	const isNew = await isNewUser(sessionUser.email ?? '')
+	const isAlreadyRegistration = await isExists(sessionUser.email ?? '')
 
-	if (!isNew) {
+	if (isAlreadyRegistration) {
 		redirect('/dashboard')
 	}
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { registerApi } from '@/app/_containers/dashboard/action'
+import { registerApi } from '@/app/_containers/register/action'
 import { CalloutContext } from '@/app/state'
 import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'

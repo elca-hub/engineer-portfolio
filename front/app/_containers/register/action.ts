@@ -4,20 +4,14 @@ import { apiPrefix } from '@/constants/api'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 import { getServerSession } from 'next-auth'
 
-export async function isNewUser(email: string): Promise<boolean> {
-	const res = await fetch(`${apiPrefix}/login`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			email,
-		}),
+export async function isExists(email: string): Promise<boolean> {
+	const res = await fetch(`${apiPrefix}/is_exists?email=${email}`, {
+		method: 'GET',
 	})
 
 	if (res.ok) {
-		const data = await res.json()
-		return !data.IsExists
+		const data = (await res.json()) as { is_exists: boolean }
+		return data.is_exists
 	}
 
 	return false
