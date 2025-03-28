@@ -22,12 +22,17 @@ type (
 	}
 
 	CreateUserOutput struct {
-		Email string
+		Email string `json:"email"`
+	}
+
+	CreateUserPresenter interface {
+		Output(email string) CreateUserOutput
 	}
 
 	createUserInterator struct {
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
+		presenter       CreateUserPresenter
 		email           email.Email
 		ctxTimeout      time.Duration
 	}
@@ -36,12 +41,14 @@ type (
 func NewCreateUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
+	presenter CreateUserPresenter,
 	email email.Email,
 	t time.Duration,
 ) CreateUserUseCase {
 	return createUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
+		presenter:       presenter,
 		email:           email,
 		ctxTimeout:      t,
 	}
@@ -109,8 +116,8 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 
 	if err != nil {
 
-		return CreateUserOutput{}, err
+		return i.presenter.Output(""), err
 	}
 
-	return CreateUserOutput{input.Email}, nil
+	return i.presenter.Output(input.Email), nil
 }

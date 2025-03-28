@@ -6,6 +6,7 @@ import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { loginFlow } from '@/lib/access'
 import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
@@ -46,10 +47,23 @@ export default function RegisterPresentation() {
 					for (const error of res.errors) {
 						setCallout([...callout, { type: 'error', content: error }])
 					}
-				} else {
-					setCallout([...callout, { type: 'success', content: 'ユーザ登録が完了しました' }])
-					router.push('/dashboard')
+
+					return
 				}
+
+				const login = await loginFlow(res.data?.email || '')
+
+				if (login.errors) {
+					for (const error of login.errors) {
+						setCallout([...callout, { type: 'error', content: error }])
+					}
+
+					return
+				}
+
+				setCallout([...callout, { type: 'success', content: '登録が完了しました' }])
+				router.push('/dashboard')
+				return
 			}
 
 			registerFlow()

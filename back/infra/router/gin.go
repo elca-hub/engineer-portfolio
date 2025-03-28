@@ -137,6 +137,7 @@ func (e *GinEngine) createUserAction() gin.HandlerFunc {
 			uc = user.NewCreateUserInterator(
 				repository2.NewGormUserRepository(e.sql),
 				e.noSQL.UserRepository(),
+				user_presenter.NewCreateUserPresenter(),
 				e.email,
 				e.ctxTimeout,
 			)

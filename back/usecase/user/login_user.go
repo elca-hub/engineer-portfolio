@@ -5,8 +5,6 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/nosql"
 	"devport/domain/repo/sql"
-	"errors"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -16,16 +14,15 @@ type (
 	}
 
 	LoginUserInput struct {
-		Email string `validate:"required,email"`
+		Email string `validate:"required,email" json:"email"`
 	}
 
 	LoginUserPresenter interface {
-		Output(isExists bool, token string) LoginUserOutput
+		Output(token string) LoginUserOutput
 	}
 
 	LoginUserOutput struct {
-		IsExists bool
-		Token    string
+		Token string `json:"token"`
 	}
 
 	loginUserInterator struct {
@@ -60,22 +57,18 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 
 	email, err := model.NewEmail(input.Email)
 	if err != nil {
-		return LoginUserOutput{}, err
+		return i.presenter.Output(""), err
 	}
 
 	if _, err := i.sqlRepository.FindByEmail(ctx, email); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return i.presenter.Output(false, ""), nil
-		}
-
-		return LoginUserOutput{}, err
+		return i.presenter.Output(""), err
 	}
 
 	session, err = i.noSqlRepository.StartSession(email)
 
 	if err != nil {
-		return LoginUserOutput{}, err
+		return i.presenter.Output(""), err
 	}
 
-	return i.presenter.Output(true, session), nil
+	return i.presenter.Output(session), nil
 }

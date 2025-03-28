@@ -4,20 +4,7 @@ import { apiPrefix } from '@/constants/api'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 import { getServerSession } from 'next-auth'
 
-export async function isExists(email: string): Promise<boolean> {
-	const res = await fetch(`${apiPrefix}/is_exists?email=${email}`, {
-		method: 'GET',
-	})
-
-	if (res.ok) {
-		const data = (await res.json()) as { is_exists: boolean }
-		return data.is_exists
-	}
-
-	return false
-}
-
-export async function registerApi(formContent: { name: string; birthday: string }): Promise<DPResponseData<null>> {
+export async function registerApi(formContent: { name: string; birthday: string }): Promise<DPResponseData<{ email: string }>> {
 	const userSession = await getServerSession(authOptions)
 
 	if (!userSession) {
@@ -42,5 +29,5 @@ export async function registerApi(formContent: { name: string; birthday: string 
 		}),
 	})
 
-	return await NewDPResponse<null>(res)
+	return await NewDPResponse<{ email: string }>(res)
 }

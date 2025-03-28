@@ -2,7 +2,9 @@
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/api'
+import { DPResponseData } from '@/lib/api'
 import { getServerSession } from 'next-auth'
+import { cookies } from 'next/headers'
 import 'server-only'
 
 type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error'
@@ -10,6 +12,35 @@ type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error'
 type RedirectStatus = {
 	redirectPath: string
 	isRedirect: boolean
+}
+
+export async function loginFlow(email: string): Promise<DPResponseData<{ isSuccess: boolean }>> {
+	const res = await fetch(`${apiPrefix}/login`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			email,
+		}),
+	})
+
+	if (!res.ok) {
+		const error = await res.json()
+		console.error(error)
+
+		return {
+			errors: error.errors,
+		}
+	}
+	const data = await res.json()
+	console.log('loginFlow', data)
+	const cookieStore = await cookies()
+	cookieStore.set('devport_api_token', data.token)
+
+	return {
+		data: { isSuccess: true },
+	}
 }
 
 export async function isLogin(): Promise<LoginStatus> {
@@ -28,7 +59,16 @@ export async function isLogin(): Promise<LoginStatus> {
 	if (res.ok) {
 		const json = (await res.json()) as { is_exists: boolean }
 
-		return json.is_exists ? 'login' : 'new_user'
+		if (!json.is_exists) return 'new_user'
+
+		const cookieStore = await cookies()
+		const dpSession = cookieStore.get('devport_api_token')
+		console.log(dpSession)
+		if (!dpSession || dpSession.value === '') {
+			return 'not_login'
+		} else {
+			return 'login'
+		}
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
 
@@ -45,22 +85,22 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 		case 'login':
 			return {
 				redirectPath: '/dashboard',
-				isRedirect: 'login' !== nowPath,
+				isRedirect: '/dashboard' !== nowPath,
 			}
 		case 'new_user':
 			return {
 				redirectPath: '/register',
-				isRedirect: 'register' !== nowPath,
+				isRedirect: '/register' !== nowPath,
 			}
 		case 'not_login':
 			return {
 				redirectPath: '/login',
-				isRedirect: 'login' !== nowPath,
+				isRedirect: '/login' !== nowPath,
 			}
 		case 'error':
 			return {
 				redirectPath: '/login',
-				isRedirect: 'login' !== nowPath,
+				isRedirect: '/login' !== nowPath,
 			}
 	}
 }

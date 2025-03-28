@@ -2,23 +2,14 @@
 
 import HeaderPresentation from '@/app/_containers/dashboard/headerPresentation'
 import DashboardPresentation from '@/app/_containers/dashboard/presentation'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import HeadContent from '@/components/layout/headContent'
-import { getServerSession } from 'next-auth'
+import { handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardContainer() {
-	const session = await getServerSession(authOptions)
+	const res = await handleAuthRedirect('/dashboard')
 
-	if (!session) {
-		redirect('/login')
-	}
-
-	const sessionUser = session.user
-
-	if (!sessionUser) {
-		redirect('/login')
-	}
+	if (res.isRedirect) redirect(res.redirectPath)
 
 	return (
 		<>
