@@ -116,6 +116,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			userRouterGroup := authRouterGroup.Group("/user")
 			{
+				userRouterGroup.Use(e.verifyCookieTokenAction())
 				userRouterGroup.POST("/logout", e.logoutUserAction())
 				userRouterGroup.GET("/", e.getUserInfoAction())
 			}

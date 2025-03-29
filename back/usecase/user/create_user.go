@@ -92,7 +92,17 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			return err
 		}
 
-		user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, e, time.Now(), time.Now())
+		user, err := model.NewUser(
+			0,
+			input.Name,
+			birthDay,
+			e,
+			"",
+			"",
+			"",
+			[]*model.Skill{},
+			[]*model.ExternalServiceUrl{},
+		)
 
 		if err != nil {
 			return err

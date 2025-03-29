@@ -2,7 +2,6 @@ package action
 
 import (
 	"devport/adapter/api/logging"
-	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
@@ -49,8 +48,6 @@ func (a *LogoutUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
-
-	middleware.DeleteToken(w)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
 	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success logout")

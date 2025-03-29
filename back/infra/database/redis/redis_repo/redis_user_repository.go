@@ -3,6 +3,7 @@ package redis_repo
 import (
 	"context"
 	"devport/domain/model"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -18,7 +19,13 @@ func NewRedisUserRepository(client *redis.Client) *RedisUserRepository {
 }
 
 func (r *RedisUserRepository) StartSession(email *model.Email) (string, error) {
-	token := model.NewUUID("").ID()
+	tokenRaw, err := uuid.NewUUID()
+
+	if err != nil {
+		return "", err
+	}
+
+	token := tokenRaw.String()
 
 	if err := r.client.Set(context.Background(), token, email.Email(), time.Hour).Err(); err != nil {
 		return "", err

@@ -2,13 +2,12 @@ package action
 
 import (
 	"devport/adapter/api/logging"
-	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
+	"errors"
 	"github.com/gin-gonic/gin"
-	"io"
 	"net/http"
 )
 
@@ -30,51 +29,27 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 	var input user.VerifyCookieTokenInput
 	const logKey = "verify_cookie_token"
 
-	userToken, err := middleware.GetToken(r)
-	if err != nil {
-		errMsg := "error when get token"
-
-		if err.Error() == "empty token" {
-			errMsg = "token is empty"
-		}
-
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log(errMsg)
-		response.NewError(err, http.StatusBadRequest).Send(w)
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		err := errors.New("not found cookie token")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when login user")
+		response.NewError(err, http.StatusInternalServerError).Send(w)
 
 		return
 	}
-	input.Token = userToken.Token()
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
-			response.NewError(err, http.StatusInternalServerError).Send(w)
-			return
-		}
-	}(r.Body)
-
-	if err := a.v.Validate(input); err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
-		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
-	}
+	// tokenの先頭にBearerがついているので取り除く
+	input.Token = token[7:]
 
 	output, err := a.uc.Execute(r.Context(), input)
+
 	if err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when verify cookie token")
-
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	c.Set("email", output.Email)
-	c.Set("token", input.Token)
-
-	if err := middleware.UpdateAgeToken(r, w); err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when update age token")
-		response.NewError(err, http.StatusInternalServerError).Send(w)
-		return
-	}
+	c.Set("user", output.User)
 
 	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success verify cookie token")
 }

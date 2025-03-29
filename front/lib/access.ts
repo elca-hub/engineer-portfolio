@@ -14,6 +14,16 @@ type RedirectStatus = {
 	isRedirect: boolean
 }
 
+export async function getSessionToken(): Promise<string | null> {
+	const cookie = await cookies()
+	const dpSession = cookie.get('devport_api_token')
+
+	if (!dpSession || dpSession.value === '') {
+		return null
+	}
+	return dpSession.value
+}
+
 export async function loginFlow(email: string): Promise<DPResponseData<{ isSuccess: boolean }>> {
 	const res = await fetch(`${apiPrefix}/login`, {
 		method: 'POST',

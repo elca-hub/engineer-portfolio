@@ -5,6 +5,7 @@ import (
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
+	"devport/domain/model"
 	"devport/usecase/user"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -30,19 +31,9 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 	var input user.GetUserInfoInput
 	const logKey = "get_user_info"
 
-	contextToken, isExistsToken := c.Get("token")
+	userContext, isExistsUserContext := c.Get("user")
 
-	if !isExistsToken {
-		err := errors.New("not found cookie token")
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get token")
-		response.NewError(err, http.StatusBadRequest).Send(w)
-
-		return
-	}
-
-	keysEmail, isExistsEmail := c.Get("email")
-
-	if !isExistsEmail {
+	if !isExistsUserContext {
 		err := errors.New("not found email")
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get email")
 		response.NewError(err, http.StatusBadRequest).Send(w)
@@ -50,8 +41,7 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 		return
 	}
 
-	input.Token = contextToken.(string)
-	input.Email = keysEmail.(string)
+	input.Email = userContext.(*model.User).Email().Email()
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()

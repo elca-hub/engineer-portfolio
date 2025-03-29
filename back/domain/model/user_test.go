@@ -34,7 +34,7 @@ func TestUser(t *testing.T) {
 		t.Run("Name", func(t *testing.T) {
 			tooLongName := ""
 
-			for i := 0; i < MaxNameLen+1; i++ {
+			for i := 0; i < MaxUserNameLen+1; i++ {
 				tooLongName += "a"
 			}
 

@@ -8,31 +8,39 @@ import (
 )
 
 const (
-	MaxNameLen = 50
+	MaxUserNameLen                = 50
+	MaxUserSkillsLen              = 50
+	MaxUserExternalServiceURLsLen = 5
 )
 
 type User struct {
-	id        UUID
-	name      string
-	birthday  time.Time
-	age       int
-	email     *Email
-	createdAt time.Time
-	updatedAt time.Time
+	id                  uint
+	name                string
+	birthday            time.Time
+	age                 int
+	email               *Email
+	iconPath            string
+	headerPath          string
+	bioPath             string
+	skills              []*Skill
+	externalServiceURLs []*ExternalServiceUrl
 }
 
 func NewUser(
-	id UUID,
+	id uint,
 	name string,
 	birthDay time.Time,
 	email *Email,
-	createdAt time.Time,
-	updatedAt time.Time,
+	iconPath string,
+	headerPath string,
+	bioPath string,
+	skills []*Skill,
+	externalServiceURLs []*ExternalServiceUrl,
 ) (*User, error) {
 	excludeStrings := []string{" ", "@", "#", "$", "%", "&", "", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/", "~", "`", "\n", "\t", "/", "?", "%", "#", "&", "=", "--", "/", "*/"}
 
-	if len(name) > MaxNameLen {
-		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", name, MaxNameLen)
+	if len(name) > MaxUserNameLen {
+		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", name, MaxUserNameLen)
 	}
 
 	if len(name) == 0 {
@@ -68,18 +76,29 @@ func NewUser(
 		return nil, errors.New("メールアドレスが指定されていません")
 	}
 
+	if len(skills) > MaxUserSkillsLen {
+		return nil, fmt.Errorf("スキルは%d個まで登録できます", MaxUserSkillsLen)
+	}
+
+	if len(externalServiceURLs) > MaxUserExternalServiceURLsLen {
+		return nil, fmt.Errorf("外部サービスURLは%d個まで登録できます", MaxUserExternalServiceURLsLen)
+	}
+
 	return &User{
 		id,
 		name,
 		birthDay,
 		age,
 		email,
-		createdAt,
-		updatedAt,
+		iconPath,
+		headerPath,
+		bioPath,
+		skills,
+		externalServiceURLs,
 	}, nil
 }
 
-func (u *User) ID() UUID {
+func (u *User) ID() uint {
 	return u.id
 }
 
@@ -95,14 +114,26 @@ func (u *User) Email() *Email {
 	return u.email
 }
 
-func (u *User) CreatedAt() time.Time {
-	return u.createdAt
-}
-
-func (u *User) UpdatedAt() time.Time {
-	return u.updatedAt
-}
-
 func (u *User) Birthday() time.Time {
 	return u.birthday
+}
+
+func (u *User) IconPath() string {
+	return u.iconPath
+}
+
+func (u *User) HeaderPath() string {
+	return u.headerPath
+}
+
+func (u *User) BioPath() string {
+	return u.bioPath
+}
+
+func (u *User) Skills() []*Skill {
+	return u.skills
+}
+
+func (u *User) ExternalServiceURLs() []*ExternalServiceUrl {
+	return u.externalServiceURLs
 }

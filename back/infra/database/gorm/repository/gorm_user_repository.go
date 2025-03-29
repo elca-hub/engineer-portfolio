@@ -93,13 +93,39 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 func convertToGormModel(user model.User) gorm_model.User {
 	email := user.Email()
 
+	modelSkills := user.Skills()
+
+	skills := make([]gorm_model.Skill, len(modelSkills))
+
+	for i, modelSkill := range modelSkills {
+		skills[i] = gorm_model.Skill{
+			Name:      modelSkill.Name(),
+			Status:    modelSkill.Status(),
+			When:      modelSkill.When(),
+			SortIndex: modelSkill.SortIndex(),
+		}
+	}
+
+	modelExternalServiceUrls := user.ExternalServiceURLs()
+
+	externalServiceUrls := make([]gorm_model.ExternalServiceUrl, len(modelExternalServiceUrls))
+
+	for i, modelExternalServiceUrl := range modelExternalServiceUrls {
+		externalServiceUrls[i] = gorm_model.ExternalServiceUrl{
+			Name: modelExternalServiceUrl.Name(),
+			Url:  modelExternalServiceUrl.Url(),
+		}
+	}
+
 	return gorm_model.User{
-		ID:        user.ID().ID(),
-		Name:      user.Name(),
-		Birthday:  user.Birthday(),
-		Email:     email.Email(),
-		CreatedAt: user.CreatedAt(),
-		UpdatedAt: user.UpdatedAt(),
+		Name:                user.Name(),
+		Birthday:            user.Birthday(),
+		Email:               email.Email(),
+		IconPath:            user.IconPath(),
+		HeaderPath:          user.HeaderPath(),
+		BioPath:             user.BioPath(),
+		Skills:              skills,
+		ExternalServiceUrls: externalServiceUrls,
 	}
 }
 
@@ -110,13 +136,40 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 		return nil, err
 	}
 
+	gormSkills := gormUser.Skills
+
+	skills := make([]*model.Skill, len(gormSkills))
+
+	for i, gormSkill := range gormSkills {
+		skills[i], err = model.NewSkill(gormSkill.Name, gormSkill.Status, gormSkill.When, gormSkill.SortIndex)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	gormExternalServiceUrl := gormUser.ExternalServiceUrls
+
+	externalServiceUrls := make([]*model.ExternalServiceUrl, len(gormExternalServiceUrl))
+
+	for i, gormExternalServiceUrl := range gormExternalServiceUrl {
+		externalServiceUrls[i], err = model.NewExternalServiceUrl(gormExternalServiceUrl.Name, gormExternalServiceUrl.Url)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	user, err := model.NewUser(
-		model.NewUUID(gormUser.ID),
+		gormUser.ID,
 		gormUser.Name,
 		gormUser.Birthday,
 		userEmail,
-		gormUser.CreatedAt,
-		gormUser.UpdatedAt,
+		gormUser.IconPath,
+		gormUser.HeaderPath,
+		gormUser.BioPath,
+		skills,
+		externalServiceUrls,
 	)
 
 	if err != nil {
