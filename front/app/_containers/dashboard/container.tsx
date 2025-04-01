@@ -3,7 +3,7 @@
 import HeaderPresentation from '@/app/_containers/dashboard/headerPresentation'
 import DashboardPresentation from '@/app/_containers/dashboard/presentation'
 import HeadContent from '@/components/layout/headContent'
-import { apiPrefix } from '@/constants/api'
+import { apiPrefix, defaultUserIcon } from '@/constants/constant'
 import { getSessionToken, handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
@@ -40,7 +40,7 @@ export default async function DashboardContainer() {
 	if (fetchUserInfo.ok) {
 		userInfo = {
 			userName: userInfoData.name,
-			iconPath: userInfoData.icon_path,
+			iconPath: userInfoData.icon_path === '' ? defaultUserIcon : userInfoData.icon_path,
 			headerPath: userInfoData.header_path,
 			bioPath: userInfoData.bio_path,
 			skillsLength: userInfoData.skills.length,
@@ -49,7 +49,16 @@ export default async function DashboardContainer() {
 			isDone: true,
 		}
 	} else {
-		userInfo.isDone = true
+		userInfo = {
+			userName: '',
+			iconPath: defaultUserIcon,
+			headerPath: '',
+			bioPath: '',
+			skillsLength: 0,
+			externalLinksLength: 0,
+			isFetch: false,
+			isDone: true,
+		}
 	}
 
 	return (
@@ -58,7 +67,10 @@ export default async function DashboardContainer() {
 				title="ダッシュボード"
 				des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 			/>
-			<DashboardPresentation header={<HeaderPresentation userIconPath="/dummy.png"></HeaderPresentation>} userInfo={userInfo}></DashboardPresentation>
+			<DashboardPresentation
+				header={<HeaderPresentation userIconPath={userInfo.iconPath}></HeaderPresentation>}
+				userInfo={userInfo}
+			></DashboardPresentation>
 		</>
 	)
 }

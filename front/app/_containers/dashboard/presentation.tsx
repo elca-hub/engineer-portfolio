@@ -2,8 +2,10 @@
 
 import { CalloutContext } from '@/app/state'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { defaultUserIcon } from '@/constants/constant'
 import { useContext, useEffect } from 'react'
-import { RiSurveyLine } from 'react-icons/ri'
+import { Button, Disclosure, DisclosurePanel, Heading } from 'react-aria-components'
+import { RiArrowRightSLine, RiSurveyLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -31,7 +33,7 @@ export default function DashboardPresentation({ header, userInfo }: Props) {
 				setCallout([...callout, { content: 'ユーザ情報の取得に失敗しました', type: 'error' }])
 			}
 		}
-	}, [userInfo.isDone])
+	}, [userInfo.isDone, userInfo.isFetch])
 
 	return (
 		<div className="flex flex-col h-screen gap-2">
@@ -43,6 +45,21 @@ export default function DashboardPresentation({ header, userInfo }: Props) {
 						<TextWithIcon icon={<RiSurveyLine></RiSurveyLine>}>ダッシュボード</TextWithIcon>
 					</div>
 					<h2 className="text-gray-600">ここでは{userInfo.userName}さんに関する情報を見ることができます</h2>
+				</div>
+
+				<div className="flex flex-col items-center justify-center gap-2">
+					{userInfo.iconPath === defaultUserIcon && (
+						<Disclosure>
+							<Heading>
+								<Button slot="trigger">
+									<TextWithIcon icon={<RiArrowRightSLine></RiArrowRightSLine>}>自分好みのアイコンを設定しましょう！</TextWithIcon>
+								</Button>
+							</Heading>
+							<DisclosurePanel>
+								<p className="text-gray-600">アイコンは{userInfo.headerPath}から設定できます</p>
+							</DisclosurePanel>
+						</Disclosure>
+					)}
 				</div>
 			</main>
 		</div>

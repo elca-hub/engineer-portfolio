@@ -8,6 +8,5 @@ export default async function UserLoginContainer() {
 	const res = await handleAuthRedirect('/login')
 
 	if (res.isRedirect) redirect(res.redirectPath)
-
 	return <UserLoginPresentation></UserLoginPresentation>
 }

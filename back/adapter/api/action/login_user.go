@@ -29,7 +29,7 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	var input user.LoginUserInput
 
 	const logKey = "login_user"
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		logging.NewError(
 			a.l,
@@ -63,16 +63,6 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
-
-	//token, err := middleware.NewCookieToken(output.Token)
-	//
-	//if err != nil {
-	//	logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when create cookie token")
-	//	response.NewError(err, http.StatusInternalServerError).Send(w)
-	//	return
-	//}
-	//
-	//middleware.SetToken(w, token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
 

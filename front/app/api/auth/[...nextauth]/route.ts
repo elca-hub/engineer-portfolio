@@ -1,3 +1,4 @@
+import { loginFlow } from '@/lib/access'
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -34,6 +35,14 @@ export const authOptions: NextAuthOptions = {
 					id: token.id,
 				},
 			}
+		},
+		signIn: async ({ user }) => {
+			const res = await loginFlow(user?.email || '')
+
+			if (!res.data?.isSuccess) {
+				return '/login'
+			}
+			return true
 		},
 	},
 }

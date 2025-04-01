@@ -1,6 +1,6 @@
 'use server'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { apiPrefix } from '@/constants/api'
+import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 import { getServerSession } from 'next-auth'
 

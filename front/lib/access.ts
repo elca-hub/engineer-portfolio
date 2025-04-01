@@ -1,13 +1,13 @@
 'use server'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { apiPrefix } from '@/constants/api'
+import { apiPrefix } from '@/constants/constant'
 import { DPResponseData } from '@/lib/api'
 import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'
 import 'server-only'
 
-type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error'
+type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error' | 'cookie_expired'
 
 type RedirectStatus = {
 	redirectPath: string
@@ -44,9 +44,11 @@ export async function loginFlow(email: string): Promise<DPResponseData<{ isSucce
 		}
 	}
 	const data = await res.json()
-	console.log('loginFlow', data)
 	const cookieStore = await cookies()
-	cookieStore.set('devport_api_token', data.token)
+	cookieStore.set('devport_api_token', data.token, {
+		maxAge: 60 * 60 * 24,
+		httpOnly: true,
+	})
 
 	return {
 		data: { isSuccess: true },
@@ -73,12 +75,7 @@ export async function isLogin(): Promise<LoginStatus> {
 
 		const cookieStore = await cookies()
 		const dpSession = cookieStore.get('devport_api_token')
-		console.log(dpSession)
-		if (!dpSession || dpSession.value === '') {
-			return 'not_login'
-		} else {
-			return 'login'
-		}
+		return !dpSession || dpSession.value === '' ? 'cookie_expired' : 'login'
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
 
@@ -111,6 +108,11 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 			return {
 				redirectPath: '/login',
 				isRedirect: '/login' !== nowPath,
+			}
+		case 'cookie_expired':
+			return {
+				redirectPath: '/auth-cookie',
+				isRedirect: nowPath === '/login',
 			}
 	}
 }
