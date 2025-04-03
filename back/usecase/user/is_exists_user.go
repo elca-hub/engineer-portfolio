@@ -17,11 +17,12 @@ type (
 	}
 
 	IsExistsUserOutput struct {
-		IsExists bool `json:"is_exists"`
+		IsExists bool   `json:"is_exists"`
+		UserId   string `json:"user_id"`
 	}
 
 	IsExistsUserPresenter interface {
-		Output(isExists bool) IsExistsUserOutput
+		Output(isExists bool, userId string) IsExistsUserOutput
 	}
 
 	isExistsUserInteractor struct {
@@ -50,14 +51,20 @@ func (i isExistsUserInteractor) Execute(ctx context.Context, input IsExistsUserI
 	e, err := model.NewEmail(input.Email)
 
 	if err != nil {
-		return i.presenter.Output(false), err
+		return i.presenter.Output(false, ""), err
 	}
 
 	isExistsMail, err := i.sqlRepository.Exists(ctx, e)
 
 	if err != nil {
-		return i.presenter.Output(false), err
+		return i.presenter.Output(false, ""), err
 	}
 
-	return i.presenter.Output(isExistsMail), nil
+	user, err := i.sqlRepository.FindByEmail(ctx, e)
+
+	if err != nil {
+		return i.presenter.Output(false, ""), err
+	}
+
+	return i.presenter.Output(isExistsMail, user.ID()), nil
 }

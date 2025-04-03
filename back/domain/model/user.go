@@ -14,7 +14,7 @@ const (
 )
 
 type User struct {
-	id                  uint
+	id                  string
 	name                string
 	birthday            time.Time
 	age                 int
@@ -27,7 +27,7 @@ type User struct {
 }
 
 func NewUser(
-	id uint,
+	id string,
 	name string,
 	birthDay time.Time,
 	email *Email,
@@ -44,13 +44,29 @@ func NewUser(
 	}
 
 	if len(name) == 0 {
-		return nil, errors.New("the name must not be empty")
+		return nil, errors.New("名前は必ず入力してください")
 	}
 
 	for _, excludeString := range excludeStrings {
 		for _, char := range name {
 			if string(char) == excludeString {
 				return nil, errors.New("名前に使用できない文字が含まれています")
+			}
+		}
+	}
+	
+	if len(id) > MaxUserNameLen {
+		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", id, MaxUserNameLen)
+	}
+
+	if len(id) == 0 {
+		return nil, errors.New("IDは必ず入力してください")
+	}
+
+	for _, excludeString := range excludeStrings {
+		for _, char := range id {
+			if string(char) == excludeString {
+				return nil, errors.New("IDに使用できない文字が含まれています")
 			}
 		}
 	}
@@ -98,7 +114,7 @@ func NewUser(
 	}, nil
 }
 
-func (u *User) ID() uint {
+func (u *User) ID() string {
 	return u.id
 }
 

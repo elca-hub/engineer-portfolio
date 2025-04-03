@@ -19,6 +19,7 @@ type (
 		Birthday string `json:"birthday" validate:"required"`
 		Name     string `json:"name" validate:"required,max=50,min=1"`
 		Email    string `json:"email" validate:"required,email"`
+		UserId   string `json:"user_id" validate:"required,max=50,min=1"`
 	}
 
 	CreateUserOutput struct {
@@ -85,6 +86,16 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			return errors.New("ユーザ名は既に存在します")
 		}
 
+		isExistsId, err := i.sqlRepository.ExistsById(tx, input.UserId)
+
+		if err != nil {
+			return err
+		}
+
+		if isExistsId {
+			return errors.New("IDはすでに存在しています")
+		}
+
 		jst, _ := time.LoadLocation("Asia/Tokyo")
 		birthDay, err := time.ParseInLocation("2006-01-02", input.Birthday, jst)
 
@@ -93,7 +104,7 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 		}
 
 		user, err := model.NewUser(
-			0,
+			input.UserId,
 			input.Name,
 			birthDay,
 			e,

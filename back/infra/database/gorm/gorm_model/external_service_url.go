@@ -10,5 +10,5 @@ type ExternalServiceUrl struct {
 	Name string `gorm:"size:100;not null"`
 	Url  string `gorm:"size:255;not null"`
 
-	UserId uint
+	UserId string
 }

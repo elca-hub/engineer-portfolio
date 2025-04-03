@@ -11,7 +11,7 @@ type (
 	}
 
 	LogoutUserInput struct {
-		Token string `validate:"required"`
+		Token string `validate:"required" json:"token"`
 	}
 
 	LogoutUserPresenter interface {

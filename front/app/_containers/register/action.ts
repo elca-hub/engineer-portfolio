@@ -4,7 +4,7 @@ import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 import { getServerSession } from 'next-auth'
 
-export async function registerApi(formContent: { name: string; birthday: string }): Promise<DPResponseData<{ email: string }>> {
+export async function registerApi(formContent: { name: string; birthday: string; userId: string }): Promise<DPResponseData<{ email: string }>> {
 	const userSession = await getServerSession(authOptions)
 
 	if (!userSession) {
@@ -26,6 +26,7 @@ export async function registerApi(formContent: { name: string; birthday: string 
 			birthday: formContent.birthday.toString(),
 			email: sessionUserData.email,
 			name: formContent.name,
+			user_id: formContent.userId,
 		}),
 	})
 

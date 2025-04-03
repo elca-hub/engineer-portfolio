@@ -12,5 +12,5 @@ type Skill struct {
 	Status    string    `gorm:"size:255;not null"`
 	When      time.Time `gorm:"not null"`
 	SortIndex int       `gorm:"not null"`
-	UserId    uint
+	UserId    string
 }

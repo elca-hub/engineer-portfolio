@@ -11,10 +11,11 @@ import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { RiCake2Line, RiIdCardLine, RiUserAddLine } from 'react-icons/ri'
+import { RiCake2Line, RiIdCardLine, RiUserAddLine, RiUserLine } from 'react-icons/ri'
 
 export type RegisterFormContent = {
 	name: string
+	userId: string
 	birthday: CalendarDate
 }
 
@@ -29,6 +30,7 @@ export default function RegisterPresentation() {
 	const { control, handleSubmit, watch } = useForm<RegisterFormContent>({
 		defaultValues: {
 			name: '',
+			userId: '',
 			birthday: today('Asia/Tokyo'),
 		},
 	})
@@ -41,6 +43,7 @@ export default function RegisterPresentation() {
 				const res = await registerApi({
 					name: watch().name,
 					birthday: watch().birthday.toString(),
+					userId: watch().userId,
 				})
 
 				if (res.errors) {
@@ -62,7 +65,7 @@ export default function RegisterPresentation() {
 				}
 
 				setCallout([...callout, { type: 'success', content: '登録が完了しました' }])
-				router.push('/dashboard')
+				router.push(`/${watch().userId}/profile`)
 				return
 			}
 
@@ -100,9 +103,35 @@ export default function RegisterPresentation() {
 								fieldState={fieldState}
 								isRequired
 								helperText="ユーザ名は50文字以下で入力してください。特殊記号は使用できません。"
-								icon={<RiIdCardLine />}
+								icon={<RiUserLine />}
 								autoComplete="off"
 								autoFocus
+								popoverContent="本名を入力する必要はありません。自分の個性的な名前をつけましょう！"
+							></InputField>
+						)}
+					></Controller>
+
+					<Controller
+						name="userId"
+						control={control}
+						rules={{
+							required: 'ユーザIDを入力してください',
+							max: {
+								value: 50,
+								message: 'IDは50文字以内で入力してください',
+							},
+						}}
+						render={({ field, fieldState }) => (
+							<InputField
+								title="ユーザID"
+								type="text"
+								field={field}
+								fieldState={fieldState}
+								isRequired
+								helperText="IDは50文字以下で入力してください。特殊記号は使用できません。"
+								icon={<RiIdCardLine />}
+								autoComplete="off"
+								popoverContent="プロフィールの共有、閲覧などに使用されます。"
 							></InputField>
 						)}
 					></Controller>

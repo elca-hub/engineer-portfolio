@@ -10,8 +10,9 @@ func NewIsExistsUserPresenter() user.IsExistsUserPresenter {
 	return &isExistsUserPresenter{}
 }
 
-func (p isExistsUserPresenter) Output(isExists bool) user.IsExistsUserOutput {
+func (p isExistsUserPresenter) Output(isExists bool, userId string) user.IsExistsUserOutput {
 	return user.IsExistsUserOutput{
 		IsExists: isExists,
+		UserId:   userId,
 	}
 }

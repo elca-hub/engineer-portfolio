@@ -215,7 +215,7 @@ func (e *GinEngine) logoutUserAction() gin.HandlerFunc {
 			act = action.NewLogoutUserAction(uc, e.validator, e.log)
 		)
 
-		act.Execute(c.Writer, c.Request, c)
+		act.Execute(c.Writer, c.Request)
 	}
 }
 

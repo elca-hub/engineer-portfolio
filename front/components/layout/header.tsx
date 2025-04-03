@@ -2,6 +2,7 @@
 
 import { CalloutContext } from '@/app/state'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { signOut } from 'next-auth/react'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
@@ -111,7 +112,7 @@ export default function DPHeader({ children, userIconPath }: Props) {
 							<MyMenuItem id="user-setting">
 								<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
 							</MyMenuItem>
-							<MyMenuItem id="signout">
+							<MyMenuItem id="signout" onAction={() => signOut()}>
 								<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
 							</MyMenuItem>
 						</Menu>

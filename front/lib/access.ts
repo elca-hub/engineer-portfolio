@@ -24,7 +24,41 @@ export async function getSessionToken(): Promise<string | null> {
 	return dpSession.value
 }
 
-export async function loginFlow(email: string): Promise<DPResponseData<{ isSuccess: boolean }>> {
+export async function logoutFlow(): Promise<DPResponseData<{ isSuccess: boolean }>> {
+	const token = await getSessionToken()
+
+	console.log(token)
+
+	const res = await fetch(`${apiPrefix}/auth/user/logout`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify({
+			token: token,
+		}),
+	})
+
+	if (!res.ok) {
+		const error = await res.json()
+		console.error(error)
+
+		return {
+			errors: error.errors,
+		}
+	}
+
+	const cookieStore = await cookies()
+
+	cookieStore.delete('devport_api_token')
+
+	return {
+		data: { isSuccess: true },
+	}
+}
+
+export async function loginFlow(email: string): Promise<DPResponseData<{ isSuccess: boolean; id: string }>> {
 	const res = await fetch(`${apiPrefix}/login`, {
 		method: 'POST',
 		headers: {
@@ -51,48 +85,55 @@ export async function loginFlow(email: string): Promise<DPResponseData<{ isSucce
 	})
 
 	return {
-		data: { isSuccess: true },
+		data: { isSuccess: true, id: data.user_id },
 	}
 }
 
-export async function isLogin(): Promise<LoginStatus> {
+export async function isLogin(): Promise<{ status: LoginStatus; userId?: string }> {
 	const session = await getServerSession(authOptions)
 
-	if (!session) return 'not_login'
+	if (!session) return { status: 'not_login' }
 
 	const sessionUser = session.user
 
-	if (!sessionUser) return 'not_login'
+	if (!sessionUser) return { status: 'not_login' }
 
 	const res = await fetch(`${apiPrefix}/is_exists?email=${sessionUser.email}`, {
 		method: 'GET',
 	})
 
 	if (res.ok) {
-		const json = (await res.json()) as { is_exists: boolean }
+		const json = (await res.json()) as { is_exists: boolean; user_id: string }
 
-		if (!json.is_exists) return 'new_user'
+		if (!json.is_exists) return { status: 'new_user' }
 
 		const cookieStore = await cookies()
 		const dpSession = cookieStore.get('devport_api_token')
-		return !dpSession || dpSession.value === '' ? 'cookie_expired' : 'login'
+		return !dpSession || dpSession.value === '' ? { status: 'cookie_expired' } : { status: 'login', userId: json.user_id }
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
 
 		errorJson.errors.forEach((value) => console.error(value))
 
-		return 'error'
+		return { status: 'error' }
 	}
 }
 
 export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatus> {
-	const status = await isLogin()
+	const login = await isLogin()
 
-	switch (status) {
+	switch (login.status) {
 		case 'login':
-			return {
-				redirectPath: '/my-profile',
-				isRedirect: '/my-profile' !== nowPath,
+			if (login.userId) {
+				return {
+					redirectPath: `/${login.userId}/profile`,
+					isRedirect: '/login' === nowPath || '/register' === nowPath || '/auth-cookie' === nowPath,
+				}
+			} else {
+				return {
+					redirectPath: '/login',
+					isRedirect: '/login' !== nowPath,
+				}
 			}
 		case 'new_user':
 			return {

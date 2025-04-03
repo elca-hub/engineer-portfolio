@@ -36,10 +36,10 @@ interface DatepickerFieldProps {
 
 const DatePickerField = ({ title, field, fieldState, isRequired, helperText, autoFocus, icon }: DatepickerFieldProps) => {
 	const titleNode = isRequired ? (
-		<>
+		<span>
 			{title}
 			<span className="text-red-500">*</span>
-		</>
+		</span>
 	) : (
 		title
 	)

@@ -19,12 +19,15 @@ func TestUser(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 
 		_, err := NewUser(
-			NewUUID(""),
+			"test",
 			"test",
 			birthday,
 			fetchEmail(),
-			time.Now(),
-			time.Now(),
+			"",
+			"",
+			"",
+			[],
+			[],
 		)
 
 		assert.NoError(t, err)
@@ -59,7 +62,7 @@ func TestUser(t *testing.T) {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 					_, err := NewUser(
-						NewUUID(""),
+						"test",
 						c.name,
 						birthday,
 						fetchEmail(),
@@ -85,7 +88,7 @@ func TestUser(t *testing.T) {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 					_, err := NewUser(
-						NewUUID(""),
+						"test",
 						"test",
 						c.birthdayCase,
 						fetchEmail(),

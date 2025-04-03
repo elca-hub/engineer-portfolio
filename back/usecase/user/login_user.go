@@ -18,11 +18,12 @@ type (
 	}
 
 	LoginUserPresenter interface {
-		Output(token string) LoginUserOutput
+		Output(token string, userId string) LoginUserOutput
 	}
 
 	LoginUserOutput struct {
-		Token string `json:"token"`
+		Token  string `json:"token"`
+		UserId string `json:"user_id"`
 	}
 
 	loginUserInterator struct {
@@ -57,18 +58,24 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 
 	email, err := model.NewEmail(input.Email)
 	if err != nil {
-		return i.presenter.Output(""), err
+		return i.presenter.Output("", ""), err
 	}
 
 	if _, err := i.sqlRepository.FindByEmail(ctx, email); err != nil {
-		return i.presenter.Output(""), err
+		return i.presenter.Output("", ""), err
 	}
 
 	session, err = i.noSqlRepository.StartSession(email)
 
 	if err != nil {
-		return i.presenter.Output(""), err
+		return i.presenter.Output("", ""), err
 	}
 
-	return i.presenter.Output(session), nil
+	user, err := i.sqlRepository.FindByEmail(ctx, email)
+
+	if err != nil {
+		return i.presenter.Output("", ""), err
+	}
+
+	return i.presenter.Output(session, user.ID()), nil
 }

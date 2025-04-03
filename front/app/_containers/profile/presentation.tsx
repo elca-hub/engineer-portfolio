@@ -21,7 +21,7 @@ type Props = {
 /**
  * @package
  */
-export default function MyProfilePresentation({ header, userInfo }: Props) {
+export default function ProfilePresentation({ header, userInfo }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	useEffect(() => {

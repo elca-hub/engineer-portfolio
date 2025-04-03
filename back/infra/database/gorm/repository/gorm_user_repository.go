@@ -45,6 +45,14 @@ func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool
 	return counter > 0, nil
 }
 
+func (r GormUserRepository) ExistsById(ctx context.Context, id string) (bool, error) {
+	var counter int64
+
+	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("id = ?", id).Count(&counter)
+
+	return counter > 0, nil
+}
+
 func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
 	tx, ok := ctx.Value("TransactionContextKey").(*gorm.DB)
 	gormUser := convertToGormModel(*user)
@@ -118,6 +126,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 	}
 
 	return gorm_model.User{
+		ID:                  user.ID(),
 		Name:                user.Name(),
 		Birthday:            user.Birthday(),
 		Email:               email.Email(),
