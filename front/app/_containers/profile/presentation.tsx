@@ -8,6 +8,7 @@ type Props = {
 	header: React.ReactNode
 	userInfo: {
 		userName: string
+		userId: string
 		iconPath: string
 		headerPath: string
 		bioPath: string
@@ -48,7 +49,7 @@ export default function ProfilePresentation({ header, userInfo }: Props) {
 						<Image src={userInfo.iconPath} alt="icon" width="171" height="171" className="w-40 h-40 border-2 border-white shadow-md rounded-xl" />
 						<div className="flex flex-col gap-2 mb-2">
 							<h1 className="text-3xl font-bold tracking-wide text-foreground">{userInfo.userName}</h1>
-							<p className="text-lg font-medium text-gray-600">@何かしらのID</p>
+							<p className="text-lg font-medium text-gray-600">@{userInfo.userId}</p>
 						</div>
 					</div>
 				</div>

@@ -29,6 +29,7 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	let userInfo = {
 		userName: '',
+		userId: userId,
 		iconPath: '',
 		headerPath: '',
 		bioPath: '',
@@ -41,6 +42,7 @@ export default async function ProfileContainer({ userId }: Props) {
 	if (fetchUserInfo.ok) {
 		userInfo = {
 			userName: userInfoData.name,
+			userId: userInfoData.user_id,
 			iconPath: userInfoData.icon_path === '' ? defaultUserIcon : userInfoData.icon_path,
 			headerPath: userInfoData.header_path,
 			bioPath: userInfoData.bio_path,
@@ -52,6 +54,7 @@ export default async function ProfileContainer({ userId }: Props) {
 	} else {
 		userInfo = {
 			userName: '',
+			userId: userId,
 			iconPath: defaultUserIcon,
 			headerPath: '',
 			bioPath: '',

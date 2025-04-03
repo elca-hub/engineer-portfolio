@@ -23,6 +23,7 @@ type (
 	FetchUserInfoOutput struct {
 		Email      string `json:"email"`
 		Name       string `json:"name"`
+		UserId     string `json:"user_id"`
 		IconPath   string `json:"icon_path"`
 		HeaderPath string `json:"header_path"`
 		BioPath    string `json:"bio_path"`

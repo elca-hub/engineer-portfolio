@@ -58,6 +58,7 @@ func (p *FetchUserInfoPresenter) Output(model usermodel.User) user.FetchUserInfo
 
 	return user.FetchUserInfoOutput{
 		Email:              email,
+		UserId:             model.ID(),
 		Name:               model.Name(),
 		IconPath:           model.IconPath(),
 		HeaderPath:         model.HeaderPath(),
