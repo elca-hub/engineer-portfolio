@@ -10,7 +10,7 @@ import { RiGoogleFill, RiLockLine } from 'react-icons/ri'
  * @package
  */
 export default function UserLoginPresentation() {
-	const callbackUrl = useSearchParams().get('callbackUrl') || '/dashboard'
+	const callbackUrl = useSearchParams().get('callbackUrl') || '/'
 
 	return (
 		<div className="flex h-screen flex-col items-center justify-center">

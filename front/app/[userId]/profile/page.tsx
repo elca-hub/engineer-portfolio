@@ -1,13 +1,11 @@
 import ProfileContainer from '@/app/_containers/profile/container'
 
-const DashboardPage = ({ params }: { params: { userId: string } }) => {
-	const { userId } = params
-
-	console.log(userId)
+const DashboardPage = async (props: { params: Promise<{ userId: string }> }) => {
+	const { userId } = await props.params
 
 	return (
 		<>
-			<ProfileContainer></ProfileContainer>
+			<ProfileContainer userId={userId}></ProfileContainer>
 		</>
 	)
 }

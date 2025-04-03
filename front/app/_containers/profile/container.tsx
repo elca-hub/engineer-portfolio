@@ -7,7 +7,11 @@ import { apiPrefix, defaultUserIcon } from '@/constants/constant'
 import { getSessionToken, handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
-export default async function ProfileContainer() {
+type Props = {
+	userId: string
+}
+
+export default async function ProfileContainer({ userId }: Props) {
 	const res = await handleAuthRedirect('/profile')
 
 	if (res.isRedirect) redirect(res.redirectPath)
@@ -17,11 +21,8 @@ export default async function ProfileContainer() {
 		redirect('/login')
 	}
 
-	const fetchUserInfo = await fetch(`${apiPrefix}/auth/user`, {
+	const fetchUserInfo = await fetch(`${apiPrefix}/user/${userId}/`, {
 		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
 	})
 
 	const userInfoData = await fetchUserInfo.json()

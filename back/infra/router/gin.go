@@ -111,14 +111,18 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		apiRouterGroup.POST("/login", e.loginUserAction())
 		apiRouterGroup.GET("/is_exists", e.isExistsUserAction())
 
+		userRouterGroup := apiRouterGroup.Group("/user/:userId")
+		{
+			userRouterGroup.GET("/", e.fetchUserInfoAction())
+		}
+
 		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
-			userRouterGroup := authRouterGroup.Group("/user")
+			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
-				userRouterGroup.Use(e.verifyCookieTokenAction())
-				userRouterGroup.POST("/logout", e.logoutUserAction())
-				userRouterGroup.GET("/", e.getUserInfoAction())
+				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
+				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 			}
 		}
 	}
@@ -229,6 +233,22 @@ func (e *GinEngine) isExistsUserAction() gin.HandlerFunc {
 			)
 
 			act = action.NewIsExistsUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) fetchUserInfoAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewFetchUserInfoInterator(
+				repository2.NewGormUserRepository(e.sql),
+				user_presenter.NewFetchUserInfoPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFetchUserInfoAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

@@ -80,6 +80,22 @@ func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email)
 	return user, nil
 }
 
+func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.User, error) {
+	var gormUser gorm_model.User
+
+	if err := r.db.Execute(ctx).Where("id = ?", id).First(&gormUser).Error; err != nil {
+		return nil, err
+	}
+
+	user, err := convertToDomainModel(gormUser)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
 	tx, err := r.db.BeginTx(ctx)
 
