@@ -58,6 +58,7 @@ func (p *GetUserInfoPresenter) Output(model usermodel.User) user.GetUserInfoOutp
 
 	return user.GetUserInfoOutput{
 		Email:              email,
+		UserId:             model.ID(),
 		Name:               model.Name(),
 		IconPath:           model.IconPath(),
 		HeaderPath:         model.HeaderPath(),

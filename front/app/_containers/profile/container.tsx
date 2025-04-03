@@ -25,6 +25,16 @@ export default async function ProfileContainer({ userId }: Props) {
 		method: 'GET',
 	})
 
+	const authUserInfo = await fetch(`${apiPrefix}/auth/user`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+
+	const authUserInfoData = await authUserInfo.json()
+	const authUserId = authUserInfoData.user_id
+
 	const userInfoData = await fetchUserInfo.json()
 
 	let userInfo = {
@@ -74,6 +84,7 @@ export default async function ProfileContainer({ userId }: Props) {
 			<ProfilePresentation
 				header={<HeaderPresentation userIconPath={userInfo.iconPath}></HeaderPresentation>}
 				userInfo={userInfo}
+				isAuthUser={authUserId === userId}
 			></ProfilePresentation>
 		</>
 	)

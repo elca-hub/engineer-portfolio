@@ -23,6 +23,7 @@ type (
 
 	GetUserInfoOutput struct {
 		Email      string `json:"email"`
+		UserId     string `json:"user_id"`
 		Name       string `json:"name"`
 		IconPath   string `json:"icon_path"`
 		HeaderPath string `json:"header_path"`

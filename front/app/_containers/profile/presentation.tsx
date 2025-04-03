@@ -17,6 +17,7 @@ type Props = {
 		isFetch: boolean
 		isDone: boolean
 	}
+	isAuthUser: boolean
 }
 
 /**
