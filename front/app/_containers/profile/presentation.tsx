@@ -4,7 +4,7 @@ import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import Image from 'next/image'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Button, Dialog, DialogTrigger, DropZone, FileTrigger, Heading, Modal } from 'react-aria-components'
 import { RiCloseLine, RiImageAddLine, RiImageLine } from 'react-icons/ri'
 
@@ -30,6 +30,8 @@ type Props = {
 export default function ProfilePresentation({ header, userInfo, isAuthUser }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 
+	const [iconFile, setIconFile] = useState<File>()
+
 	useEffect(() => {
 		if (userInfo.isDone) {
 			if (!userInfo.isFetch) {
@@ -37,6 +39,26 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 			}
 		}
 	}, [userInfo.isDone, userInfo.isFetch])
+
+	useEffect(() => {
+		if (iconFile) {
+			if (iconFile.type !== 'image/png' && iconFile.type !== 'image/jpeg') {
+				setCallout([...callout, { content: 'PNGまたはJPEG形式の画像を選択してください', type: 'error' }])
+				setIconFile(undefined)
+				return
+			}
+
+			if (iconFile.size > 1024 * 1024 * 500) {
+				setCallout([...callout, { content: '画像のサイズは500MB以下にしてください', type: 'error' }])
+				setIconFile(undefined)
+				return
+			}
+
+			const formData = new FormData()
+			formData.append('icon', iconFile)
+			// TODO: APIを叩く
+		}
+	}, [iconFile])
 
 	return (
 		<div className="flex flex-col h-screen">
@@ -71,9 +93,26 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 
 											<h3 className="text-xl font-medium text-foreground mb-2">アイコン</h3>
 											<div className="mx-auto mb-4 relative w-[120px] h-[120px]">
-												<DropZone className="relative rounded-xl data-[drop-target]:ring-2 data-[drop-target]:ring-primary data-[drop-target]:ring-offset-2 data-[drop-target]:ring-offset-background">
+												<DropZone
+													onDrop={(e) => {
+														const targetFile = e.items[0]
+														if (targetFile.kind !== 'file') return
+														targetFile.getFile().then((f) => {
+															setIconFile(f)
+														})
+													}}
+													className="relative rounded-xl data-[drop-target]:ring-2 data-[drop-target]:ring-primary data-[drop-target]:ring-offset-2 data-[drop-target]:ring-offset-background"
+												>
 													<Image src={userInfo.iconPath} alt="icon" width="120" height="120" className="rounded-xl object-cover brightness-50" />
-													<FileTrigger>
+													<FileTrigger
+														onSelect={(e) => {
+															if (!e) return
+															const file = e.item(0)
+															if (file === null) return
+															setIconFile(file)
+														}}
+														acceptedFileTypes={['image/*']}
+													>
 														<Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-md hover:scale-95 transition-all duration-200">
 															<RiImageAddLine className="text-lg" />
 														</Button>
