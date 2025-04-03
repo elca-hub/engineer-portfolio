@@ -91,8 +91,8 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 	switch (status) {
 		case 'login':
 			return {
-				redirectPath: '/dashboard',
-				isRedirect: '/dashboard' !== nowPath,
+				redirectPath: '/my-profile',
+				isRedirect: '/my-profile' !== nowPath,
 			}
 		case 'new_user':
 			return {
