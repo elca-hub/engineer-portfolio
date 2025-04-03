@@ -21,7 +21,7 @@ export default function UserLoginPresentation() {
 			</header>
 
 			<main className="flex w-1/3 flex-col gap-4">
-				<DPButton className="flex justify-center" colormode="primary" onClick={() => signIn('google', { callbackUrl })}>
+				<DPButton className="flex justify-center" colormode="primary" onPress={() => signIn('google', { callbackUrl })}>
 					<TextWithIcon icon={<RiGoogleFill />}>メールアドレスでログイン</TextWithIcon>
 				</DPButton>
 			</main>

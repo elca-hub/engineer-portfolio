@@ -2,6 +2,7 @@
 
 import { CalloutContext } from '@/app/state'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { logoutFlow } from '@/lib/access'
 import { signOut } from 'next-auth/react'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
@@ -26,6 +27,7 @@ export type SearchUserFormContent = {
 
 export default function DPHeader({ children, userIconPath }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
+	const [isLogout, setIsLogout] = useState(false)
 
 	const {
 		control,
@@ -45,12 +47,23 @@ export default function DPHeader({ children, userIconPath }: Props) {
 		}
 	}, [errors])
 
+	useEffect(() => {
+		if (isLogout) {
+			const logout = async () => {
+				await logoutFlow()
+			}
+
+			logout()
+			signOut()
+			setIsLogout(false)
+		}
+	}, [isLogout])
+
 	const [isSubmit, setIsSubmit] = useState(false)
 
 	useEffect(() => {
 		if (isSubmit) {
 			const searchUser = async () => {
-				console.log('searchUser')
 				setCallout([...callout, { type: 'info', content: watch().name }])
 			}
 
@@ -112,7 +125,7 @@ export default function DPHeader({ children, userIconPath }: Props) {
 							<MyMenuItem id="user-setting">
 								<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
 							</MyMenuItem>
-							<MyMenuItem id="signout" onAction={() => signOut()}>
+							<MyMenuItem id="signout" onAction={() => setIsLogout(true)}>
 								<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
 							</MyMenuItem>
 						</Menu>

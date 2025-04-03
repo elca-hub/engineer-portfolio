@@ -27,8 +27,6 @@ export async function getSessionToken(): Promise<string | null> {
 export async function logoutFlow(): Promise<DPResponseData<{ isSuccess: boolean }>> {
 	const token = await getSessionToken()
 
-	console.log(token)
-
 	const res = await fetch(`${apiPrefix}/auth/user/logout`, {
 		method: 'POST',
 		headers: {

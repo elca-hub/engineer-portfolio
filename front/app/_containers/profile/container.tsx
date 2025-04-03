@@ -4,7 +4,7 @@ import HeaderPresentation from '@/app/_containers/profile/headerPresentation'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
 import HeadContent from '@/components/layout/headContent'
 import { apiPrefix, defaultUserIcon } from '@/constants/constant'
-import { getSessionToken, handleAuthRedirect } from '@/lib/access'
+import { getSessionToken } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
 type Props = {
@@ -12,10 +12,6 @@ type Props = {
 }
 
 export default async function ProfileContainer({ userId }: Props) {
-	const res = await handleAuthRedirect('/profile')
-
-	if (res.isRedirect) redirect(res.redirectPath)
-
 	const token = await getSessionToken()
 	if (!token) {
 		redirect('/login')

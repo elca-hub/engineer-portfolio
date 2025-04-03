@@ -1,4 +1,4 @@
-import { loginFlow, logoutFlow } from '@/lib/access'
+import { loginFlow } from '@/lib/access'
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -49,15 +49,6 @@ export const authOptions: NextAuthOptions = {
 				return `/${res.data.id}/profile`
 			} else {
 				return false
-			}
-		},
-	},
-	events: {
-		signOut: async () => {
-			const res = await logoutFlow()
-
-			if (res.errors) {
-				console.error(res.errors)
 			}
 		},
 	},
