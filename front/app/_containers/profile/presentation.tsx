@@ -1,8 +1,11 @@
 'use client'
 
 import { CalloutContext } from '@/app/state'
+import DPButton from '@/components/ui/button/button'
+import TextWithIcon from '@/components/ui/text/textWithIcon'
 import Image from 'next/image'
 import { useContext, useEffect } from 'react'
+import { RiImageLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -23,7 +26,7 @@ type Props = {
 /**
  * @package
  */
-export default function ProfilePresentation({ header, userInfo }: Props) {
+export default function ProfilePresentation({ header, userInfo, isAuthUser }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	useEffect(() => {
@@ -48,7 +51,14 @@ export default function ProfilePresentation({ header, userInfo }: Props) {
 				<div className="z-2 absolute -bottom-1/2 left-16">
 					<div className="flex items-end gap-4">
 						<Image src={userInfo.iconPath} alt="icon" width="171" height="171" className="w-40 h-40 border-2 border-white shadow-md rounded-xl" />
-						<div className="flex flex-col gap-2 mb-2">
+						<div className="flex flex-col mb-1">
+							{isAuthUser && (
+								<DPButton colormode="primary">
+									<p className="text-sm">
+										<TextWithIcon icon={<RiImageLine></RiImageLine>}>アイコンを編集</TextWithIcon>
+									</p>
+								</DPButton>
+							)}
 							<h1 className="text-3xl font-bold tracking-wide text-foreground">{userInfo.userName}</h1>
 							<p className="text-lg font-medium text-gray-600">@{userInfo.userId}</p>
 						</div>
