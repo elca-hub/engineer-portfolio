@@ -1,4 +1,4 @@
-import { loginFlow } from '@/lib/access'
+import { handleAuthRedirect } from '@/lib/access'
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -36,13 +36,14 @@ export const authOptions: NextAuthOptions = {
 				},
 			}
 		},
-		signIn: async ({ user }) => {
-			const res = await loginFlow(user?.email || '')
+		signIn: async ({}) => {
+			const authRedirectHandle = await handleAuthRedirect('/login')
 
-			if (!res.data?.isSuccess) {
-				return '/login'
+			if (authRedirectHandle.isRedirect) {
+				return authRedirectHandle.redirectPath
+			} else {
+				return true
 			}
-			return true
 		},
 	},
 }

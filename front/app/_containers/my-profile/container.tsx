@@ -1,14 +1,14 @@
 'use server'
 
-import HeaderPresentation from '@/app/_containers/dashboard/headerPresentation'
-import DashboardPresentation from '@/app/_containers/dashboard/presentation'
+import HeaderPresentation from '@/app/_containers/my-profile/headerPresentation'
+import MyProfilePresentation from '@/app/_containers/my-profile/presentation'
 import HeadContent from '@/components/layout/headContent'
 import { apiPrefix, defaultUserIcon } from '@/constants/constant'
 import { getSessionToken, handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
-export default async function DashboardContainer() {
-	const res = await handleAuthRedirect('/dashboard')
+export default async function MyProfileContainer() {
+	const res = await handleAuthRedirect('/my-profile')
 
 	if (res.isRedirect) redirect(res.redirectPath)
 
@@ -67,10 +67,10 @@ export default async function DashboardContainer() {
 				title="ダッシュボード"
 				des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 			/>
-			<DashboardPresentation
+			<MyProfilePresentation
 				header={<HeaderPresentation userIconPath={userInfo.iconPath}></HeaderPresentation>}
 				userInfo={userInfo}
-			></DashboardPresentation>
+			></MyProfilePresentation>
 		</>
 	)
 }

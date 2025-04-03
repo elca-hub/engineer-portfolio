@@ -1,12 +1,13 @@
 'use client'
 
 import { CalloutContext } from '@/app/state'
+import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
-import { Input, Label, SearchField } from 'react-aria-components'
+import { Button, Input, Label, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiUserSearchLine } from 'react-icons/ri'
+import { RiLockLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
 type Props = {
 	children?: React.ReactNode
@@ -98,8 +99,34 @@ export default function DPHeader({ children, userIconPath }: Props) {
 
 			<div className="flex items-center gap-4">
 				{children}
-				<Image src={userIconPath} alt="userIcon" width={46} height={46} />
+				<MenuTrigger>
+					<Button
+						aria-label="menu"
+						className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
+					>
+						<Image className="rounded-xl" src={userIconPath} alt="userIcon" width={46} height={46} />
+					</Button>
+					<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
+						<Menu className="outline-none">
+							<MyMenuItem id="user-setting">
+								<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
+							</MyMenuItem>
+							<MyMenuItem id="signout">
+								<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
+							</MyMenuItem>
+						</Menu>
+					</Popover>
+				</MenuTrigger>
 			</div>
 		</header>
+	)
+}
+
+function MyMenuItem(props: MenuItemProps) {
+	return (
+		<MenuItem
+			{...props}
+			className="cursor-pointer group flex w-full items-center rounded-md px-3 py-2 box-border outline-none cursor-default text-foreground focus:bg-primary focus:text-white"
+		/>
 	)
 }
