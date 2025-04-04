@@ -5,46 +5,27 @@ import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
 import UserIconImage from '@/components/ui/image/userIconImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { UserType } from '@/lib/model/user'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Button, Dialog, DialogTrigger, DropZone, FileTrigger, Heading, Modal } from 'react-aria-components'
 import { RiCloseLine, RiImageAddLine, RiImageLine } from 'react-icons/ri'
 
-type userInfoType = {
-	userName: string
-	userId: string
-	iconName: string
-	headerPath: string
-	bioPath: string
-	skillsLength: number
-	externalLinksLength: number
-	isFetch: boolean
-	isDone: boolean
-}
-
 type Props = {
 	header: React.ReactNode
-	userInfo: userInfoType
+	user: UserType
 	isAuthUser: boolean
 }
 
 /**
  * @package
  */
-export default function ProfilePresentation({ header, userInfo, isAuthUser }: Props) {
+export default function ProfilePresentation({ header, user, isAuthUser }: Props) {
 	const router = useRouter()
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	const [iconFile, setIconFile] = useState<File>()
-
-	useEffect(() => {
-		if (userInfo.isDone) {
-			if (!userInfo.isFetch) {
-				setCallout([...callout, { content: 'ユーザ情報の取得に失敗しました', type: 'error' }])
-			}
-		}
-	}, [userInfo.isDone, userInfo.isFetch])
 
 	useEffect(() => {
 		if (iconFile) {
@@ -86,8 +67,8 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 			{header}
 			<div className="relative">
 				<div className="relative w-full h-60">
-					{userInfo.headerPath ? (
-						<Image src={userInfo.headerPath} alt="header" className="object-fit rounded-lg" />
+					{user.header_path ? (
+						<Image src={user.header_path} alt="header" className="object-fit rounded-lg" />
 					) : (
 						<div className="w-full h-60 bg-gray-200" />
 					)}
@@ -96,7 +77,7 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 					<div className="flex items-end gap-4">
 						<UserIconImage
 							imageType="icon"
-							fileName={userInfo.iconName}
+							fileName={user.icon_name}
 							width="171"
 							height="171"
 							className="w-40 h-40 border-2 border-white shadow-md rounded-xl object-cover"
@@ -133,7 +114,7 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 												>
 													<UserIconImage
 														imageType="icon"
-														fileName={userInfo.iconName}
+														fileName={user.icon_name}
 														width="250"
 														height="250"
 														className="w-20 h-20 rounded-xl object-cover brightness-50"
@@ -157,8 +138,8 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 									</Modal>
 								</DialogTrigger>
 							)}
-							<h1 className="text-3xl font-bold tracking-wide text-foreground">{userInfo.userName}</h1>
-							<p className="text-lg font-medium text-gray-600">@{userInfo.userId}</p>
+							<h1 className="text-3xl font-bold tracking-wide text-foreground">{user.name}</h1>
+							<p className="text-lg font-medium text-gray-600">@{user.user_id}</p>
 						</div>
 					</div>
 				</div>

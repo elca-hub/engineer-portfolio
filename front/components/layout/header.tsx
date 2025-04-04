@@ -5,13 +5,13 @@ import DPButton from '@/components/ui/button/button'
 import UserIconImage from '@/components/ui/image/userIconImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { logoutFlow } from '@/lib/access'
-import { signOut } from 'next-auth/react'
+import { signIn, signOut } from 'next-auth/react'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
-import { Button, Input, Label, Link, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
+import { Button, Input, Label, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiLockLine, RiLoginBoxLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
+import { RiGoogleFill, RiLockLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
 type Props = {
 	children?: React.ReactNode
@@ -136,11 +136,9 @@ export default function DPHeader({ children, userIconName, isLogin }: Props) {
 						</Popover>
 					</MenuTrigger>
 				) : (
-					<Link href="/login">
-						<DPButton colormode="primary">
-							<TextWithIcon icon={<RiLoginBoxLine />}>ログイン</TextWithIcon>
-						</DPButton>
-					</Link>
+					<DPButton colormode="primary" onPress={() => signIn('google')}>
+						<TextWithIcon icon={<RiGoogleFill />}>ログイン</TextWithIcon>
+					</DPButton>
 				)}
 			</div>
 		</header>

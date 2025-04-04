@@ -123,6 +123,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		authRouterGroup := apiRouterGroup.Group("/auth")
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
+			authRouterGroup.GET("/health_check", e.healthCheckAction())
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
 				userAuthRouterGroup.POST("/update", e.updateUserAction())

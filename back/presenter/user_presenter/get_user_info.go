@@ -1,8 +1,10 @@
 package user_presenter
 
 import (
+	"devport/domain/dto"
 	usermodel "devport/domain/model"
 	"devport/usecase/user"
+	usecase "devport/usecase/user"
 )
 
 type GetUserInfoPresenter struct{}
@@ -11,29 +13,11 @@ func NewGetUserInfoPresenter() *GetUserInfoPresenter {
 	return &GetUserInfoPresenter{}
 }
 
-func (p *GetUserInfoPresenter) Output(model usermodel.User) user.GetUserInfoOutput {
-	emailModel := model.Email()
-	var email string
-	if emailModel == nil {
-		email = ""
-	} else {
-		email = emailModel.Email()
-	}
+func (p *GetUserInfoPresenter) Output(user usermodel.User) user.GetUserInfoOutput {
+	skills := make([]dto.SkillDTO, 0, len(user.Skills()))
 
-	skillOutput := make([]struct {
-		Name      string `json:"name"`
-		Status    string `json:"status"`
-		When      string `json:"when"`
-		SortIndex int    `json:"sort_index"`
-	}, 0, len(model.Skills()))
-
-	for _, skill := range model.Skills() {
-		skillOutput = append(skillOutput, struct {
-			Name      string `json:"name"`
-			Status    string `json:"status"`
-			When      string `json:"when"`
-			SortIndex int    `json:"sort_index"`
-		}{
+	for _, skill := range user.Skills() {
+		skills = append(skills, dto.SkillDTO{
 			Name:      skill.Name(),
 			Status:    skill.Status(),
 			When:      skill.When().String(),
@@ -41,29 +25,26 @@ func (p *GetUserInfoPresenter) Output(model usermodel.User) user.GetUserInfoOutp
 		})
 	}
 
-	externalserviceurlOutput := make([]struct {
-		Name string `json:"name"`
-		Url  string `json:"url"`
-	}, 0, len(model.ExternalServiceURLs()))
-
-	for _, externalserviceurl := range model.ExternalServiceURLs() {
-		externalserviceurlOutput = append(externalserviceurlOutput, struct {
-			Name string `json:"name"`
-			Url  string `json:"url"`
-		}{
-			Name: externalserviceurl.Name(),
-			Url:  externalserviceurl.Url(),
+	externalServiceURLs := make([]dto.ExternalServiceUrlDTO, 0, len(user.ExternalServiceURLs()))
+	for _, externalServiceURL := range user.ExternalServiceURLs() {
+		externalServiceURLs = append(externalServiceURLs, dto.ExternalServiceUrlDTO{
+			Name: externalServiceURL.Name(),
+			Url:  externalServiceURL.Url(),
 		})
 	}
 
-	return user.GetUserInfoOutput{
-		Email:              email,
-		UserId:             model.ID(),
-		Name:               model.Name(),
-		IconPath:           model.IconName(),
-		HeaderPath:         model.HeaderPath(),
-		BioPath:            model.BioPath(),
-		Skills:             skillOutput,
-		ExternalServiceUrl: externalserviceurlOutput,
+	userDto := dto.UserDTO{
+		Email:              user.Email().Email(),
+		UserId:             user.ID(),
+		Name:               user.Name(),
+		IconName:           user.IconName(),
+		HeaderPath:         user.HeaderPath(),
+		BioPath:            user.BioPath(),
+		Skills:             skills,
+		ExternalServiceUrl: externalServiceURLs,
+	}
+
+	return usecase.GetUserInfoOutput{
+		User: userDto,
 	}
 }

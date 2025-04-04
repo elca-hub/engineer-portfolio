@@ -2,7 +2,8 @@
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/constant'
-import { DPResponseData } from '@/lib/api'
+import { DPResponseData, NewDPResponse } from '@/lib/api'
+import { UserType } from '@/lib/model/user'
 import console from 'console'
 import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'
@@ -124,12 +125,10 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 				Authorization: `Bearer ${dpSession}`,
 			},
 		})
-
+		console.log('sessionRes', sessionRes)
 		if (sessionRes.ok) {
 			return { status: 'login', userId: json.user_id }
 		} else {
-			const errorJson = (await sessionRes.json()) as { errors: string[] }
-			errorJson.errors.forEach((value) => console.error(value))
 			return { status: 'cookie_expired' }
 		}
 	} else {
@@ -189,8 +188,8 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 				}
 			} else {
 				return {
-					redirectPath: '/login',
-					isRedirect: '/login' !== nowPath,
+					redirectPath: '/',
+					isRedirect: false,
 				}
 			}
 		case 'new_user':
@@ -200,13 +199,13 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 			}
 		case 'not_login':
 			return {
-				redirectPath: '/login',
-				isRedirect: '/login' !== nowPath,
+				redirectPath: '/',
+				isRedirect: true,
 			}
 		case 'error':
 			return {
-				redirectPath: '/login',
-				isRedirect: '/login' !== nowPath,
+				redirectPath: '/',
+				isRedirect: false,
 			}
 		case 'cookie_expired':
 			return {
@@ -214,4 +213,22 @@ export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatu
 				isRedirect: nowPath === '/login',
 			}
 	}
+}
+
+export async function getAuthUser(): Promise<DPResponseData<{ user: UserType }>> {
+	const token = await getSessionToken()
+	if (!token) {
+		return {
+			errors: ['session not found'],
+		}
+	}
+
+	const res = await fetch(`${apiPrefix}/auth/user`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+
+	return NewDPResponse<{ user: UserType }>(res)
 }

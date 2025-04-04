@@ -1,79 +1,38 @@
 'use server'
 
-import HeaderPresentation from '@/app/_containers/profile/headerPresentation'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
 import HeadContent from '@/components/layout/headContent'
-import { apiPrefix, defaultUserIcon } from '@/constants/constant'
-import { getSessionToken } from '@/lib/access'
+import DPHeader from '@/components/layout/header'
+import { apiPrefix } from '@/constants/constant'
+import { getAuthUser } from '@/lib/access'
+import { NewDPResponse } from '@/lib/api'
+import { UserType } from '@/lib/model/user'
+import { redirect } from 'next/navigation'
 
 type Props = {
 	userId: string
 }
 
 export default async function ProfileContainer({ userId }: Props) {
-	const fetchUserInfo = await fetch(`${apiPrefix}/user/${userId}/`, {
+	const fetchUser = await fetch(`${apiPrefix}/user/${userId}/`, {
 		method: 'GET',
 	})
 
-	let authUserId: string
-	const token = await getSessionToken()
+	const fetchUserRes = await NewDPResponse<{ user: UserType }>(fetchUser)
 
-	if (token) {
-		const authUserInfo = await fetch(`${apiPrefix}/auth/user`, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		})
+	let authUser: UserType | null = null
+	let user: UserType | null = null
 
-		if (authUserInfo.ok) {
-			const authUserInfoData = await authUserInfo.json()
-			authUserId = authUserInfoData.user_id
-		} else {
-			authUserId = ''
-		}
-	} else {
-		authUserId = ''
+	if (fetchUserRes.data) {
+		user = fetchUserRes.data.user
 	}
 
-	const userInfoData = await fetchUserInfo.json()
+	if (!user) redirect('/404')
 
-	let userInfo = {
-		userName: '',
-		userId: userId,
-		iconName: '',
-		headerPath: '',
-		bioPath: '',
-		skillsLength: 0,
-		externalLinksLength: 0,
-		isFetch: false,
-		isDone: false,
-	}
+	const authRes = await getAuthUser()
 
-	if (fetchUserInfo.ok) {
-		userInfo = {
-			userName: userInfoData.user.name,
-			userId: userInfoData.user.user_id,
-			iconName: userInfoData.user.icon_name,
-			headerPath: userInfoData.user.header_path,
-			bioPath: userInfoData.user.bio_path,
-			skillsLength: userInfoData.user.skills.length,
-			externalLinksLength: userInfoData.user.external_service_url.length,
-			isFetch: true,
-			isDone: true,
-		}
-	} else {
-		userInfo = {
-			userName: '',
-			userId: userId,
-			iconName: defaultUserIcon,
-			headerPath: '',
-			bioPath: '',
-			skillsLength: 0,
-			externalLinksLength: 0,
-			isFetch: false,
-			isDone: true,
-		}
+	if (authRes.data) {
+		authUser = authRes.data.user
 	}
 
 	return (
@@ -83,9 +42,9 @@ export default async function ProfileContainer({ userId }: Props) {
 				des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 			/>
 			<ProfilePresentation
-				header={<HeaderPresentation userIconName={userInfo.iconName} isLogin={!!token}></HeaderPresentation>}
-				userInfo={userInfo}
-				isAuthUser={authUserId === userId}
+				header={<DPHeader userIconName={authUser === null ? '' : authUser.icon_name} isLogin={!!authUser}></DPHeader>}
+				user={user}
+				isAuthUser={authUser !== null && authUser.user_id === userId}
 			></ProfilePresentation>
 		</>
 	)

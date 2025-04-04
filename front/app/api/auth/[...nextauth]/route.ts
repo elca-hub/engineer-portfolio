@@ -1,5 +1,6 @@
 import { apiPrefix } from '@/constants/constant'
 import { loginFlow } from '@/lib/access'
+import { NewDPResponse } from '@/lib/api'
 import NextAuth, { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -38,24 +39,28 @@ export const authOptions: NextAuthOptions = {
 			}
 		},
 		signIn: async ({ user }) => {
-			const res = await fetch(`${apiPrefix}/is_exists?email=${user.email ?? ''}`, {
+			const rawRes = await fetch(`${apiPrefix}/is_exists?email=${user.email ?? ''}`, {
 				method: 'GET',
 			})
 
-			if (res.ok) {
-				const json = (await res.json()) as { is_exists: boolean; user_id: string }
-				if (json.is_exists) {
+			const res = await NewDPResponse<{ is_exists: boolean; user_id: string }>(rawRes)
+
+			if (res.data) {
+				if (res.data.is_exists) {
 					const loginRes = await loginFlow(user.email ?? '')
 					if (loginRes.errors) {
-						const errorJson = (await res.json()) as { errors: string[] }
+						const errorJson = (await rawRes.json()) as { errors: string[] }
 						errorJson.errors.forEach((value) => console.error(value))
 						return false
 					}
+					return true
+				} else {
+					return '/register'
 				}
-				return true
 			} else {
-				const errorJson = (await res.json()) as { errors: string[] }
-				errorJson.errors.forEach((value) => console.error(value))
+				if (res.errors) {
+					res.errors.forEach((value) => console.error(value))
+				}
 				return false
 			}
 		},
