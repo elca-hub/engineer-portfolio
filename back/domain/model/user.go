@@ -60,7 +60,7 @@ func NewUser(
 	}
 
 	if len(id) > MaxUserNameLen {
-		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", id, MaxUserNameLen)
+		return nil, fmt.Errorf("ID「%s」は%d字を超過しています", id, MaxUserNameLen)
 	}
 
 	if len(id) == 0 {
