@@ -121,7 +121,7 @@ export default function DPHeader({ children, userIconPath, isLogin }: Props) {
 							aria-label="menu"
 							className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
 						>
-							<Image className="rounded-xl" src={userIconPath} alt="userIcon" width={46} height={46} />
+							<Image className="w-12 h-12 rounded-xl object-cover" priority src={userIconPath} alt="userIcon" width={46} height={46} />
 						</Button>
 						<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 							<Menu className="outline-none">

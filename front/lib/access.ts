@@ -3,6 +3,7 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData } from '@/lib/api'
+import console from 'console'
 import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'
 import 'server-only'
@@ -69,8 +70,6 @@ export async function loginFlow(email: string): Promise<DPResponseData<{ isSucce
 
 	if (!res.ok) {
 		const error = await res.json()
-		console.error(error)
-
 		return {
 			errors: error.errors,
 		}
@@ -87,16 +86,25 @@ export async function loginFlow(email: string): Promise<DPResponseData<{ isSucce
 	}
 }
 
-export async function isLogin(): Promise<{ status: LoginStatus; userId?: string }> {
-	const session = await getServerSession(authOptions)
+export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatus; userId?: string }> {
+	let email: string
+	if (!inputEmail) {
+		const session = await getServerSession(authOptions)
 
-	if (!session) return { status: 'not_login' }
+		if (!session) return { status: 'not_login' }
 
-	const sessionUser = session.user
+		const sessionUser = session.user
 
-	if (!sessionUser) return { status: 'not_login' }
+		if (!sessionUser) return { status: 'not_login' }
 
-	const res = await fetch(`${apiPrefix}/is_exists?email=${sessionUser.email}`, {
+		if (sessionUser.email === '') return { status: 'not_login' }
+
+		email = sessionUser.email ?? ''
+	} else {
+		email = inputEmail
+	}
+
+	const res = await fetch(`${apiPrefix}/is_exists?email=${email}`, {
 		method: 'GET',
 	})
 

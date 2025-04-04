@@ -8,6 +8,7 @@ import (
 	"devport/adapter/validator"
 	repository2 "devport/infra/database/gorm/repository"
 	"devport/infra/email"
+	"devport/infra/file_uploader"
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
@@ -25,14 +26,15 @@ import (
 )
 
 type GinEngine struct {
-	router     *gin.Engine
-	port       Port
-	ctxTimeout time.Duration
-	sql        repository.SQL
-	noSQL      repository.NoSQL
-	validator  validator.Validator
-	log        logger.Logger
-	email      email.Email
+	router       *gin.Engine
+	port         Port
+	ctxTimeout   time.Duration
+	sql          repository.SQL
+	noSQL        repository.NoSQL
+	validator    validator.Validator
+	log          logger.Logger
+	email        email.Email
+	fileUploader file_uploader.FileUploader
 }
 
 const csrfTokenName = "dp_csrf_token"
@@ -45,16 +47,18 @@ func NewGinServer(
 	log logger.Logger,
 	session repository.NoSQL,
 	email email.Email,
+	fileUploader file_uploader.FileUploader,
 ) *GinEngine {
 	return &GinEngine{
-		router:     gin.New(),
-		port:       port,
-		ctxTimeout: t,
-		sql:        db,
-		noSQL:      session,
-		validator:  validator,
-		log:        log,
-		email:      email,
+		router:       gin.New(),
+		port:         port,
+		ctxTimeout:   t,
+		sql:          db,
+		noSQL:        session,
+		validator:    validator,
+		log:          log,
+		email:        email,
+		fileUploader: fileUploader,
 	}
 }
 
@@ -121,6 +125,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
+				userAuthRouterGroup.POST("/update", e.updateUserAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 			}
@@ -249,6 +254,23 @@ func (e *GinEngine) fetchUserInfoAction() gin.HandlerFunc {
 			)
 
 			act = action.NewFetchUserInfoAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewUpdateUserInterator(
+				repository2.NewGormUserRepository(e.sql),
+				e.fileUploader,
+				user_presenter.NewUpdateUserPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateUserAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

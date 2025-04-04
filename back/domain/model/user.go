@@ -22,6 +22,8 @@ type User struct {
 	iconPath            string
 	headerPath          string
 	bioPath             string
+	createdAt           time.Time
+	updatedAt           time.Time
 	skills              []*Skill
 	externalServiceURLs []*ExternalServiceUrl
 }
@@ -34,6 +36,8 @@ func NewUser(
 	iconPath string,
 	headerPath string,
 	bioPath string,
+	createdAt time.Time,
+	updatedAt time.Time,
 	skills []*Skill,
 	externalServiceURLs []*ExternalServiceUrl,
 ) (*User, error) {
@@ -54,7 +58,7 @@ func NewUser(
 			}
 		}
 	}
-	
+
 	if len(id) > MaxUserNameLen {
 		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", id, MaxUserNameLen)
 	}
@@ -109,9 +113,15 @@ func NewUser(
 		iconPath,
 		headerPath,
 		bioPath,
+		createdAt,
+		updatedAt,
 		skills,
 		externalServiceURLs,
 	}, nil
+}
+
+func (u *User) SetIconPath(iconPath string) {
+	u.iconPath = iconPath
 }
 
 func (u *User) ID() string {
@@ -144,6 +154,14 @@ func (u *User) HeaderPath() string {
 
 func (u *User) BioPath() string {
 	return u.bioPath
+}
+
+func (u *User) CreatedAt() time.Time {
+	return u.createdAt
+}
+
+func (u *User) UpdatedAt() time.Time {
+	return u.updatedAt
 }
 
 func (u *User) Skills() []*Skill {

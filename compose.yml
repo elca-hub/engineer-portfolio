@@ -52,7 +52,19 @@ services:
     image: redis:7.4
     ports:
       - "6379:6379"
+  minio:
+    image: minio/minio:RELEASE.2023-11-11T08-14-41Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    command: server --console-address ":9001" /data
+    volumes:
+      - minio_data:/data
 volumes:
   node_modules:
   db_data:
   mail_data:
+  minio_data:

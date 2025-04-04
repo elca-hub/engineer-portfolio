@@ -1,26 +1,30 @@
 'use client'
 
+import uploadIconApi from '@/app/_containers/profile/action'
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Button, Dialog, DialogTrigger, DropZone, FileTrigger, Heading, Modal } from 'react-aria-components'
 import { RiCloseLine, RiImageAddLine, RiImageLine } from 'react-icons/ri'
 
+type userInfoType = {
+	userName: string
+	userId: string
+	iconPath: string
+	headerPath: string
+	bioPath: string
+	skillsLength: number
+	externalLinksLength: number
+	isFetch: boolean
+	isDone: boolean
+}
+
 type Props = {
 	header: React.ReactNode
-	userInfo: {
-		userName: string
-		userId: string
-		iconPath: string
-		headerPath: string
-		bioPath: string
-		skillsLength: number
-		externalLinksLength: number
-		isFetch: boolean
-		isDone: boolean
-	}
+	userInfo: userInfoType
 	isAuthUser: boolean
 }
 
@@ -28,6 +32,7 @@ type Props = {
  * @package
  */
 export default function ProfilePresentation({ header, userInfo, isAuthUser }: Props) {
+	const router = useRouter()
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	const [iconFile, setIconFile] = useState<File>()
@@ -48,15 +53,30 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 				return
 			}
 
-			if (iconFile.size > 1024 * 1024 * 500) {
-				setCallout([...callout, { content: '画像のサイズは500MB以下にしてください', type: 'error' }])
+			if (iconFile.size > 1024 * 1024 * 50) {
+				setCallout([...callout, { content: '画像のサイズは50MB以下にしてください', type: 'error' }])
 				setIconFile(undefined)
 				return
 			}
 
-			const formData = new FormData()
-			formData.append('icon', iconFile)
-			// TODO: APIを叩く
+			const iconUploadFlow = async () => {
+				const formData = new FormData()
+				formData.append('icon', iconFile)
+
+				const res = await uploadIconApi(formData)
+
+				if (res.errors) {
+					setCallout([...callout, { content: 'アップロードに失敗しました', type: 'error' }])
+					return
+				}
+
+				setCallout([...callout, { content: 'アイコンを変更しました', type: 'info' }])
+				router.refresh()
+			}
+
+			iconUploadFlow()
+
+			setIconFile(undefined)
 		}
 	}, [iconFile])
 
@@ -66,14 +86,21 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 			<div className="relative">
 				<div className="relative w-full h-60">
 					{userInfo.headerPath ? (
-						<Image src={userInfo.headerPath} alt="header" className="object-cover rounded-lg" />
+						<Image src={userInfo.headerPath} alt="header" className="object-fit rounded-lg" />
 					) : (
 						<div className="w-full h-60 bg-gray-200" />
 					)}
 				</div>
 				<div className="z-2 absolute -bottom-1/2 left-16">
 					<div className="flex items-end gap-4">
-						<Image src={userInfo.iconPath} alt="icon" width="171" height="171" className="w-40 h-40 border-2 border-white shadow-md rounded-xl" />
+						<Image
+							src={userInfo.iconPath}
+							alt="icon"
+							width="171"
+							height="171"
+							className="w-40 h-40 border-2 border-white shadow-md rounded-xl object-cover"
+							priority
+						/>
 						<div className="flex flex-col mb-1">
 							{isAuthUser && (
 								<DialogTrigger>
@@ -92,7 +119,7 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 											</Heading>
 
 											<h3 className="text-xl font-medium text-foreground mb-2">アイコン</h3>
-											<div className="mx-auto mb-4 relative w-[120px] h-[120px]">
+											<div className="mx-auto mb-4 relative w-fit h-fit">
 												<DropZone
 													onDrop={(e) => {
 														const targetFile = e.items[0]
@@ -103,7 +130,13 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 													}}
 													className="relative rounded-xl data-[drop-target]:ring-2 data-[drop-target]:ring-primary data-[drop-target]:ring-offset-2 data-[drop-target]:ring-offset-background"
 												>
-													<Image src={userInfo.iconPath} alt="icon" width="120" height="120" className="rounded-xl object-cover brightness-50" />
+													<Image
+														src={userInfo.iconPath}
+														alt="icon"
+														width={250}
+														height={250}
+														className="w-20 h-20 rounded-xl object-cover brightness-50"
+													/>
 													<FileTrigger
 														onSelect={(e) => {
 															if (!e) return

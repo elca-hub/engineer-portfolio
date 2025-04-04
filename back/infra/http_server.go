@@ -6,6 +6,7 @@ import (
 	"devport/adapter/validator"
 	"devport/infra/database"
 	"devport/infra/email"
+	"devport/infra/file_uploader"
 	"devport/infra/log"
 	"devport/infra/router"
 	"devport/infra/validation"
@@ -23,6 +24,7 @@ type HttpServerConfig struct {
 	webServer     router.Server
 	webServerPort router.Port
 	email         email.Email
+	fileUploader  file_uploader.FileUploader
 }
 
 func NewHttpServerConfig() *HttpServerConfig {
@@ -99,6 +101,18 @@ func (c *HttpServerConfig) Email() *HttpServerConfig {
 	return c
 }
 
+func (c *HttpServerConfig) FileUploader(instance int) *HttpServerConfig {
+	uploader, err := file_uploader.NewFileUploaderFactory(instance)
+
+	if err != nil {
+		panic(err)
+	}
+
+	c.fileUploader = uploader
+
+	return c
+}
+
 func (c *HttpServerConfig) WebServer(instance int) *HttpServerConfig {
 	s, err := router.NewWebServerFactory(
 		instance,
@@ -109,6 +123,7 @@ func (c *HttpServerConfig) WebServer(instance int) *HttpServerConfig {
 		c.validator,
 		c.logger,
 		c.email,
+		c.fileUploader,
 	)
 
 	if err != nil {

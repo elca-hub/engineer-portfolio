@@ -18,4 +18,6 @@ type User struct {
 	BioPath             string               `gorm:"size:255,default''"`
 	Skills              []Skill              `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ExternalServiceUrls []ExternalServiceUrl `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	CreatedAt           time.Time            `gorm:"autoCreateTime"`
+	UpdatedAt           time.Time            `gorm:"autoUpdateTime"`
 }

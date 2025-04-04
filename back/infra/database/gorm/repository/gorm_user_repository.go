@@ -5,6 +5,7 @@ import (
 	"devport/adapter/repository"
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
+	"errors"
 	"gorm.io/gorm"
 )
 
@@ -30,11 +31,17 @@ func (r GormUserRepository) Create(ctx context.Context, user *model.User) error 
 }
 
 func (r GormUserRepository) Exists(ctx context.Context, email *model.Email) (bool, error) {
-	var counter int64
+	first := r.db.Execute(ctx).Where("email = ?", email.Email()).First(&gorm_model.User{})
 
-	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("email = ?", email.Email()).Count(&counter)
+	if errors.Is(first.Error, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
 
-	return counter > 0, nil
+	if first.Error != nil {
+		return false, first.Error
+	}
+
+	return true, nil
 }
 
 func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
@@ -68,6 +75,9 @@ func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email)
 	var gormUser gorm_model.User
 
 	if err := r.db.Execute(ctx).Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -149,6 +159,8 @@ func convertToGormModel(user model.User) gorm_model.User {
 		IconPath:            user.IconPath(),
 		HeaderPath:          user.HeaderPath(),
 		BioPath:             user.BioPath(),
+		CreatedAt:           user.CreatedAt(),
+		UpdatedAt:           user.UpdatedAt(),
 		Skills:              skills,
 		ExternalServiceUrls: externalServiceUrls,
 	}
@@ -193,6 +205,8 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 		gormUser.IconPath,
 		gormUser.HeaderPath,
 		gormUser.BioPath,
+		gormUser.CreatedAt,
+		gormUser.UpdatedAt,
 		skills,
 		externalServiceUrls,
 	)

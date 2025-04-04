@@ -13,35 +13,43 @@ import (
 	"net/http"
 )
 
-type GetUserInfoAction struct {
-	uc user.GetUserInfoUseCase
+type UpdateUserAction struct {
+	uc user.UpdateUserUseCase
 	v  validator.Validator
 	l  logger.Logger
 }
 
-func NewGetUserAction(uc user.GetUserInfoUseCase, v validator.Validator, l logger.Logger) *GetUserInfoAction {
-	return &GetUserInfoAction{
+func NewUpdateUserAction(uc user.UpdateUserUseCase, v validator.Validator, l logger.Logger) *UpdateUserAction {
+	return &UpdateUserAction{
 		uc: uc,
 		v:  v,
 		l:  l,
 	}
 }
 
-func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
-	var input user.GetUserInfoInput
-	const logKey = "get_user_info"
+func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
+	var input user.UpdateUserInput
+	const logKey = "upload_user_icon"
 
 	userContext, isExistsUserContext := c.Get("user")
 
 	if !isExistsUserContext {
-		err := errors.New("not found user")
+		err := errors.New("not found email")
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get email")
 		response.NewError(err, http.StatusBadRequest).Send(w)
 
 		return
 	}
 
-	input.Email = userContext.(*model.User).Email().Email()
+	input.UserId = userContext.(*model.User).ID()
+
+	file, fileHeader, err := r.FormFile("icon")
+
+	if err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error while getting file from form")
+		response.NewError(err, http.StatusBadRequest).Send(w)
+		return
+	}
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -50,16 +58,20 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 			response.NewError(err, http.StatusInternalServerError).Send(w)
 			return
 		}
-	}(r.Body)
+	}(file)
+
+	input.Icon = file
+
+	input.IconHeader = fileHeader
 
 	output, err := a.uc.Execute(r.Context(), input)
-
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get user info")
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when logout user")
+
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
-	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success get user info")
+	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success logout")
 }
