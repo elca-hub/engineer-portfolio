@@ -22,9 +22,22 @@ type (
 	}
 
 	GetUserInfoOutput struct {
-		Email string `json:"email"`
-		Name  string `json:"name"`
-		Age   int    `json:"age"`
+		Email      string `json:"email"`
+		UserId     string `json:"user_id"`
+		Name       string `json:"name"`
+		IconPath   string `json:"icon_path"`
+		HeaderPath string `json:"header_path"`
+		BioPath    string `json:"bio_path"`
+		Skills     []struct {
+			Name      string `json:"name"`
+			Status    string `json:"status"`
+			When      string `json:"when"`
+			SortIndex int    `json:"sort_index"`
+		} `json:"skills"`
+		ExternalServiceUrl []struct {
+			Name string `json:"name"`
+			Url  string `json:"url"`
+		} `json:"external_service_url"`
 	}
 
 	getUserInfoInterator struct {

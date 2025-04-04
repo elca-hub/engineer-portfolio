@@ -5,7 +5,6 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/nosql"
 	"devport/domain/repo/sql"
-	"errors"
 	"time"
 )
 
@@ -19,11 +18,11 @@ type (
 	}
 
 	VerifyCookieTokenPresenter interface {
-		Output(email *model.Email) VerifyCookieTokenOutput
+		Output(email *model.User) VerifyCookieTokenOutput
 	}
 
 	VerifyCookieTokenOutput struct {
-		Email string
+		User *model.User
 	}
 
 	verifyCookieTokenInterator struct {
@@ -48,10 +47,15 @@ func NewVerifyCookieTokenInterator(
 	}
 }
 
-func (i verifyCookieTokenInterator) Execute(ctx context.Context, input VerifyCookieTokenInput) (VerifyCookieTokenOutput, error) {
+func (i verifyCookieTokenInterator) Execute(cx context.Context, input VerifyCookieTokenInput) (VerifyCookieTokenOutput, error) {
 	var (
-		email *model.Email
+		user *model.User
 	)
+
+	ctx, cancel := context.WithTimeout(cx, i.ctxTimeout)
+
+	defer cancel()
+
 	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
 		email, err := i.noSqlRepository.GetSession(input.Token)
 
@@ -59,14 +63,10 @@ func (i verifyCookieTokenInterator) Execute(ctx context.Context, input VerifyCoo
 			return err
 		}
 
-		isExist, err := i.sqlRepository.Exists(tx, email)
+		user, err = i.sqlRepository.FindByEmail(tx, email)
 
 		if err != nil {
 			return err
-		}
-
-		if !isExist {
-			return errors.New("ユーザが存在しません")
 		}
 
 		return nil
@@ -76,5 +76,5 @@ func (i verifyCookieTokenInterator) Execute(ctx context.Context, input VerifyCoo
 		return VerifyCookieTokenOutput{}, err
 	}
 
-	return i.presenter.Output(email), nil
+	return i.presenter.Output(user), nil
 }

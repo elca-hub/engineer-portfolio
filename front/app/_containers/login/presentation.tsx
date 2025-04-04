@@ -3,15 +3,12 @@
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { signIn } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
 import { RiGoogleFill, RiLockLine } from 'react-icons/ri'
 
 /**
  * @package
  */
 export default function UserLoginPresentation() {
-	const callbackUrl = useSearchParams().get('callbackUrl') || '/dashboard'
-
 	return (
 		<div className="flex h-screen flex-col items-center justify-center">
 			<header className="mb-6">
@@ -21,7 +18,7 @@ export default function UserLoginPresentation() {
 			</header>
 
 			<main className="flex w-1/3 flex-col gap-4">
-				<DPButton className="flex justify-center" colormode="primary" onClick={() => signIn('google', { callbackUrl })}>
+				<DPButton className="flex justify-center" colormode="primary" onPress={() => signIn('google')}>
 					<TextWithIcon icon={<RiGoogleFill />}>メールアドレスでログイン</TextWithIcon>
 				</DPButton>
 			</main>

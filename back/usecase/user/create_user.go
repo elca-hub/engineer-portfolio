@@ -19,15 +19,21 @@ type (
 		Birthday string `json:"birthday" validate:"required"`
 		Name     string `json:"name" validate:"required,max=50,min=1"`
 		Email    string `json:"email" validate:"required,email"`
+		UserId   string `json:"user_id" validate:"required,max=50,min=1"`
 	}
 
 	CreateUserOutput struct {
-		Email string
+		Email string `json:"email"`
+	}
+
+	CreateUserPresenter interface {
+		Output(email string) CreateUserOutput
 	}
 
 	createUserInterator struct {
 		sqlRepository   sql.UserRepository
 		noSqlRepository nosql.UserRepository
+		presenter       CreateUserPresenter
 		email           email.Email
 		ctxTimeout      time.Duration
 	}
@@ -36,12 +42,14 @@ type (
 func NewCreateUserInterator(
 	sqlRepository sql.UserRepository,
 	noSqlRepository nosql.UserRepository,
+	presenter CreateUserPresenter,
 	email email.Email,
 	t time.Duration,
 ) CreateUserUseCase {
 	return createUserInterator{
 		sqlRepository:   sqlRepository,
 		noSqlRepository: noSqlRepository,
+		presenter:       presenter,
 		email:           email,
 		ctxTimeout:      t,
 	}
@@ -78,6 +86,16 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			return errors.New("ユーザ名は既に存在します")
 		}
 
+		isExistsId, err := i.sqlRepository.ExistsById(tx, input.UserId)
+
+		if err != nil {
+			return err
+		}
+
+		if isExistsId {
+			return errors.New("IDはすでに存在しています")
+		}
+
 		jst, _ := time.LoadLocation("Asia/Tokyo")
 		birthDay, err := time.ParseInLocation("2006-01-02", input.Birthday, jst)
 
@@ -85,7 +103,19 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			return err
 		}
 
-		user, err := model.NewUser(model.NewUUID(""), input.Name, birthDay, e, time.Now(), time.Now())
+		user, err := model.NewUser(
+			input.UserId,
+			input.Name,
+			birthDay,
+			e,
+			"",
+			"",
+			"",
+			time.Now(),
+			time.Now(),
+			[]*model.Skill{},
+			[]*model.ExternalServiceUrl{},
+		)
 
 		if err != nil {
 			return err
@@ -109,8 +139,8 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 
 	if err != nil {
 
-		return CreateUserOutput{}, err
+		return i.presenter.Output(""), err
 	}
 
-	return CreateUserOutput{input.Email}, nil
+	return i.presenter.Output(input.Email), nil
 }

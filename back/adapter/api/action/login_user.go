@@ -2,13 +2,11 @@ package action
 
 import (
 	"devport/adapter/api/logging"
-	"devport/adapter/api/middleware"
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 )
@@ -31,12 +29,6 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 	var input user.LoginUserInput
 
 	const logKey = "login_user"
-
-	if _, err := middleware.GetToken(r); err == nil {
-		logging.NewInfo(a.l, logKey, http.StatusOK).Log("user already login")
-		response.NewError(errors.New("user already login"), http.StatusBadRequest).Send(w)
-		return
-	}
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		logging.NewError(
@@ -71,16 +63,6 @@ func (a *LoginUserAction) Execute(w http.ResponseWriter, r *http.Request) {
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
-
-	//token, err := middleware.NewCookieToken(output.Token)
-	//
-	//if err != nil {
-	//	logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when create cookie token")
-	//	response.NewError(err, http.StatusInternalServerError).Send(w)
-	//	return
-	//}
-	//
-	//middleware.SetToken(w, token)
 
 	response.NewSuccess(output, http.StatusOK).Send(w)
 

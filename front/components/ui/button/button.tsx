@@ -1,6 +1,6 @@
-import { ButtonHTMLAttributes, DetailedHTMLProps } from 'react'
+import { Button, ButtonProps } from 'react-aria-components'
 
-interface DBButtonProps extends DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
+interface DBButtonProps extends ButtonProps, React.RefAttributes<HTMLButtonElement> {
 	colormode: 'primary' | 'secondary'
 }
 
@@ -10,7 +10,7 @@ const DPButton = ({ ...props }: DBButtonProps) => {
 	}
 
 	return (
-		<button
+		<Button
 			{...props}
 			className={`
 				${props.className}
@@ -24,7 +24,7 @@ const DPButton = ({ ...props }: DBButtonProps) => {
       `}
 		>
 			{props.children}
-		</button>
+		</Button>
 	)
 }
 

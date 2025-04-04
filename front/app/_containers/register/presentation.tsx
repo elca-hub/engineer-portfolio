@@ -1,26 +1,28 @@
 'use client'
 
-import { registerApi } from '@/app/_containers/dashboard/action'
+import { registerApi } from '@/app/_containers/register/action'
 import { CalloutContext } from '@/app/state'
 import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { loginFlow } from '@/lib/access'
 import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { RiCake2Line, RiIdCardLine, RiUserAddLine } from 'react-icons/ri'
+import { RiCake2Line, RiIdCardLine, RiUserAddLine, RiUserLine } from 'react-icons/ri'
 
 export type RegisterFormContent = {
 	name: string
+	userId: string
 	birthday: CalendarDate
 }
 
 /**
  * @package
  */
-export default function NewUserPresentation() {
+export default function RegisterPresentation() {
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	const router = useRouter()
@@ -28,6 +30,7 @@ export default function NewUserPresentation() {
 	const { control, handleSubmit, watch } = useForm<RegisterFormContent>({
 		defaultValues: {
 			name: '',
+			userId: '',
 			birthday: today('Asia/Tokyo'),
 		},
 	})
@@ -40,19 +43,35 @@ export default function NewUserPresentation() {
 				const res = await registerApi({
 					name: watch().name,
 					birthday: watch().birthday.toString(),
+					userId: watch().userId,
 				})
 
 				if (res.errors) {
 					for (const error of res.errors) {
 						setCallout([...callout, { type: 'error', content: error }])
 					}
-				} else {
-					setCallout([...callout, { type: 'success', content: 'ユーザ登録が完了しました' }])
-					router.push('/dashboard')
+
+					return
 				}
+
+				const login = await loginFlow(res.data?.email || '')
+
+				if (login.errors) {
+					for (const error of login.errors) {
+						setCallout([...callout, { type: 'error', content: error }])
+					}
+
+					return
+				}
+
+				setCallout([...callout, { type: 'success', content: '登録が完了しました' }])
+				router.push(`/${watch().userId}/profile`)
+				return
 			}
 
 			registerFlow()
+
+			setIsSubmit(false)
 		}
 	}, [isSubmit])
 
@@ -84,9 +103,35 @@ export default function NewUserPresentation() {
 								fieldState={fieldState}
 								isRequired
 								helperText="ユーザ名は50文字以下で入力してください。特殊記号は使用できません。"
-								icon={<RiIdCardLine />}
+								icon={<RiUserLine />}
 								autoComplete="off"
 								autoFocus
+								popoverContent="本名を入力する必要はありません。自分の個性的な名前をつけましょう！"
+							></InputField>
+						)}
+					></Controller>
+
+					<Controller
+						name="userId"
+						control={control}
+						rules={{
+							required: 'ユーザIDを入力してください',
+							max: {
+								value: 50,
+								message: 'IDは50文字以内で入力してください',
+							},
+						}}
+						render={({ field, fieldState }) => (
+							<InputField
+								title="ユーザID"
+								type="text"
+								field={field}
+								fieldState={fieldState}
+								isRequired
+								helperText="IDは50文字以下で入力してください。特殊記号は使用できません。"
+								icon={<RiIdCardLine />}
+								autoComplete="off"
+								popoverContent="プロフィールの共有、閲覧などに使用されます。"
 							></InputField>
 						)}
 					></Controller>

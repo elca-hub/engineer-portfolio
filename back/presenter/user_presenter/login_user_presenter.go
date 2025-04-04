@@ -4,19 +4,15 @@ import (
 	"devport/usecase/user"
 )
 
-type LoginUserResponse struct {
-	Email string `json:"email"`
-}
-
 type LoginUserPresenter struct{}
 
 func NewLoginUserPresenter() user.LoginUserPresenter {
 	return LoginUserPresenter{}
 }
 
-func (p LoginUserPresenter) Output(isExists bool, token string) user.LoginUserOutput {
+func (p LoginUserPresenter) Output(token string, userId string) user.LoginUserOutput {
 	return user.LoginUserOutput{
-		IsExists: isExists,
-		Token:    token,
+		Token:  token,
+		UserId: userId,
 	}
 }
