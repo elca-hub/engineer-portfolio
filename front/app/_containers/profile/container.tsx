@@ -26,8 +26,12 @@ export default async function ProfileContainer({ userId }: Props) {
 			},
 		})
 
-		const authUserInfoData = await authUserInfo.json()
-		authUserId = authUserInfoData.user_id
+		if (authUserInfo.ok) {
+			const authUserInfoData = await authUserInfo.json()
+			authUserId = authUserInfoData.user_id
+		} else {
+			authUserId = ''
+		}
 	} else {
 		authUserId = ''
 	}

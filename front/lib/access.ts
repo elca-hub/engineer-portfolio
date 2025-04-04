@@ -113,15 +113,67 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 
 		if (!json.is_exists) return { status: 'new_user' }
 
-		const cookieStore = await cookies()
-		const dpSession = cookieStore.get('devport_api_token')
-		return !dpSession || dpSession.value === '' ? { status: 'cookie_expired' } : { status: 'login', userId: json.user_id }
+		const dpSession = await getSessionToken()
+		if (!dpSession) {
+			return { status: 'cookie_expired' }
+		}
+
+		const sessionRes = await fetch(`${apiPrefix}/auth/health_check`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${dpSession}`,
+			},
+		})
+
+		if (sessionRes.ok) {
+			return { status: 'login', userId: json.user_id }
+		} else {
+			const errorJson = (await sessionRes.json()) as { errors: string[] }
+			errorJson.errors.forEach((value) => console.error(value))
+			return { status: 'cookie_expired' }
+		}
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
-
 		errorJson.errors.forEach((value) => console.error(value))
-
 		return { status: 'error' }
+	}
+}
+
+export async function updateSession(): Promise<DPResponseData<{ isSuccess: boolean }>> {
+	const token = await getSessionToken()
+	if (!token) {
+		return {
+			errors: ['session not found'],
+		}
+	}
+	const res = await fetch(`${apiPrefix}/auth/user/health_check`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+
+	if (res.ok) {
+		return {
+			data: { isSuccess: true },
+		}
+	} else {
+		const session = await getServerSession(authOptions)
+		if (!session) return { errors: ['session not found'] }
+		const sessionUser = session.user
+		if (!sessionUser) return { errors: ['session not found'] }
+		const loginRes = await loginFlow(sessionUser.email ?? '')
+		if (loginRes.errors) {
+			const errorJson = (await res.json()) as { errors: string[] }
+			errorJson.errors.forEach((value) => console.error(value))
+			return {
+				errors: errorJson.errors,
+			}
+		}
+
+		return {
+			data: { isSuccess: true },
+		}
 	}
 }
 
