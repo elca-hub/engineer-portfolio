@@ -9,6 +9,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 )
 
 type VerifyCookieTokenAction struct {
@@ -38,8 +39,19 @@ func (a *VerifyCookieTokenAction) Execute(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// tokenの先頭にBearerがついているので取り除く
-	input.Token = token[7:]
+	uuidRegex := regexp.MustCompile(`^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$`)
+
+	rawToken := token[7:]
+
+	if !uuidRegex.MatchString(rawToken) {
+		err := errors.New("invalid cookie token")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when login user")
+		response.NewError(err, http.StatusInternalServerError).Send(w)
+
+		return
+	}
+
+	input.Token = rawToken
 
 	output, err := a.uc.Execute(r.Context(), input)
 
