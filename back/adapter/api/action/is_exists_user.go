@@ -6,6 +6,7 @@ import (
 	"devport/adapter/logger"
 	"devport/adapter/validator"
 	"devport/usecase/user"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -34,7 +35,7 @@ func (a *IsExistsUserAction) Execute(w http.ResponseWriter, r *http.Request, ctx
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when close body")
+			logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log(fmt.Sprintf("error when close body because: %v", err))
 			response.NewError(err, http.StatusInternalServerError).Send(w)
 			return
 		}
@@ -43,7 +44,7 @@ func (a *IsExistsUserAction) Execute(w http.ResponseWriter, r *http.Request, ctx
 	output, err := a.uc.Execute(r.Context(), input)
 
 	if err != nil {
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get user info")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log(fmt.Sprintf("error when checking if user exists: %v", err))
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}

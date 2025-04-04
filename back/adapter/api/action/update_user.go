@@ -8,6 +8,7 @@ import (
 	"devport/domain/model"
 	"devport/usecase/user"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
@@ -35,7 +36,7 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 
 	if !isExistsUserContext {
 		err := errors.New("not found email")
-		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when get email")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log(fmt.Sprintf("error when email: %v", err))
 		response.NewError(err, http.StatusBadRequest).Send(w)
 
 		return
