@@ -36,7 +36,7 @@ func (p *UpdateUserPresenter) Output(user *model.User) usecase.UpdateUserOutput 
 		Email:              user.Email().Email(),
 		UserId:             user.ID(),
 		Name:               user.Name(),
-		IconPath:           user.IconPath(),
+		IconName:           user.IconName(),
 		HeaderPath:         user.HeaderPath(),
 		BioPath:            user.BioPath(),
 		Skills:             skills,

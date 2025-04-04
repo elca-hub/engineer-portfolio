@@ -4,7 +4,7 @@ type UserDTO struct {
 	Email              string                  `json:"email"`
 	UserId             string                  `json:"user_id"`
 	Name               string                  `json:"name"`
-	IconPath           string                  `json:"icon_path"`
+	IconName           string                  `json:"icon_name"`
 	HeaderPath         string                  `json:"header_path"`
 	BioPath            string                  `json:"bio_path"`
 	Skills             []SkillDTO              `json:"skills"`
@@ -15,7 +15,7 @@ func NewUserDTO(
 	email string,
 	userId string,
 	name string,
-	iconPath string,
+	iconName string,
 	headerPath string,
 	bioPath string,
 	skills []SkillDTO,
@@ -25,7 +25,7 @@ func NewUserDTO(
 		Email:              email,
 		UserId:             userId,
 		Name:               name,
-		IconPath:           iconPath,
+		IconName:           iconName,
 		HeaderPath:         headerPath,
 		BioPath:            bioPath,
 		Skills:             skills,

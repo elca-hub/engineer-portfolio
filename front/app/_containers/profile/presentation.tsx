@@ -3,6 +3,7 @@
 import uploadIconApi from '@/app/_containers/profile/action'
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
+import UserIconImage from '@/components/ui/image/userIconImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -13,7 +14,7 @@ import { RiCloseLine, RiImageAddLine, RiImageLine } from 'react-icons/ri'
 type userInfoType = {
 	userName: string
 	userId: string
-	iconPath: string
+	iconName: string
 	headerPath: string
 	bioPath: string
 	skillsLength: number
@@ -93,9 +94,9 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 				</div>
 				<div className="z-2 absolute -bottom-1/2 left-16">
 					<div className="flex items-end gap-4">
-						<Image
-							src={userInfo.iconPath}
-							alt="icon"
+						<UserIconImage
+							imageType="icon"
+							fileName={userInfo.iconName}
 							width="171"
 							height="171"
 							className="w-40 h-40 border-2 border-white shadow-md rounded-xl object-cover"
@@ -130,11 +131,11 @@ export default function ProfilePresentation({ header, userInfo, isAuthUser }: Pr
 													}}
 													className="relative rounded-xl data-[drop-target]:ring-2 data-[drop-target]:ring-primary data-[drop-target]:ring-offset-2 data-[drop-target]:ring-offset-background"
 												>
-													<Image
-														src={userInfo.iconPath}
-														alt="icon"
-														width={250}
-														height={250}
+													<UserIconImage
+														imageType="icon"
+														fileName={userInfo.iconName}
+														width="250"
+														height="250"
 														className="w-20 h-20 rounded-xl object-cover brightness-50"
 													/>
 													<FileTrigger

@@ -1,8 +1,10 @@
 package user_presenter
 
 import (
+	"devport/domain/dto"
 	usermodel "devport/domain/model"
 	"devport/usecase/user"
+	usecase "devport/usecase/user"
 )
 
 type FetchUserInfoPresenter struct{}
@@ -11,29 +13,11 @@ func NewFetchUserInfoPresenter() *FetchUserInfoPresenter {
 	return &FetchUserInfoPresenter{}
 }
 
-func (p *FetchUserInfoPresenter) Output(model usermodel.User) user.FetchUserInfoOutput {
-	emailModel := model.Email()
-	var email string
-	if emailModel == nil {
-		email = ""
-	} else {
-		email = emailModel.Email()
-	}
+func (p *FetchUserInfoPresenter) Output(user usermodel.User) user.FetchUserInfoOutput {
+	skills := make([]dto.SkillDTO, 0, len(user.Skills()))
 
-	skillOutput := make([]struct {
-		Name      string `json:"name"`
-		Status    string `json:"status"`
-		When      string `json:"when"`
-		SortIndex int    `json:"sort_index"`
-	}, 0, len(model.Skills()))
-
-	for _, skill := range model.Skills() {
-		skillOutput = append(skillOutput, struct {
-			Name      string `json:"name"`
-			Status    string `json:"status"`
-			When      string `json:"when"`
-			SortIndex int    `json:"sort_index"`
-		}{
+	for _, skill := range user.Skills() {
+		skills = append(skills, dto.SkillDTO{
 			Name:      skill.Name(),
 			Status:    skill.Status(),
 			When:      skill.When().String(),
@@ -41,29 +25,26 @@ func (p *FetchUserInfoPresenter) Output(model usermodel.User) user.FetchUserInfo
 		})
 	}
 
-	externalserviceurlOutput := make([]struct {
-		Name string `json:"name"`
-		Url  string `json:"url"`
-	}, 0, len(model.ExternalServiceURLs()))
-
-	for _, externalserviceurl := range model.ExternalServiceURLs() {
-		externalserviceurlOutput = append(externalserviceurlOutput, struct {
-			Name string `json:"name"`
-			Url  string `json:"url"`
-		}{
-			Name: externalserviceurl.Name(),
-			Url:  externalserviceurl.Url(),
+	externalServiceURLs := make([]dto.ExternalServiceUrlDTO, 0, len(user.ExternalServiceURLs()))
+	for _, externalServiceURL := range user.ExternalServiceURLs() {
+		externalServiceURLs = append(externalServiceURLs, dto.ExternalServiceUrlDTO{
+			Name: externalServiceURL.Name(),
+			Url:  externalServiceURL.Url(),
 		})
 	}
 
-	return user.FetchUserInfoOutput{
-		Email:              email,
-		UserId:             model.ID(),
-		Name:               model.Name(),
-		IconPath:           model.IconPath(),
-		HeaderPath:         model.HeaderPath(),
-		BioPath:            model.BioPath(),
-		Skills:             skillOutput,
-		ExternalServiceUrl: externalserviceurlOutput,
+	userDto := dto.UserDTO{
+		Email:              user.Email().Email(),
+		UserId:             user.ID(),
+		Name:               user.Name(),
+		IconName:           user.IconName(),
+		HeaderPath:         user.HeaderPath(),
+		BioPath:            user.BioPath(),
+		Skills:             skills,
+		ExternalServiceUrl: externalServiceURLs,
+	}
+
+	return usecase.FetchUserInfoOutput{
+		User: userDto,
 	}
 }

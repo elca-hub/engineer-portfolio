@@ -19,7 +19,7 @@ type User struct {
 	birthday            time.Time
 	age                 int
 	email               *Email
-	iconPath            string
+	iconName            string
 	headerPath          string
 	bioPath             string
 	createdAt           time.Time
@@ -33,7 +33,7 @@ func NewUser(
 	name string,
 	birthDay time.Time,
 	email *Email,
-	iconPath string,
+	iconName string,
 	headerPath string,
 	bioPath string,
 	createdAt time.Time,
@@ -110,7 +110,7 @@ func NewUser(
 		birthDay,
 		age,
 		email,
-		iconPath,
+		iconName,
 		headerPath,
 		bioPath,
 		createdAt,
@@ -120,8 +120,8 @@ func NewUser(
 	}, nil
 }
 
-func (u *User) SetIconPath(iconPath string) {
-	u.iconPath = iconPath
+func (u *User) SetIconName(iconName string) {
+	u.iconName = iconName
 }
 
 func (u *User) ID() string {
@@ -144,8 +144,8 @@ func (u *User) Birthday() time.Time {
 	return u.birthday
 }
 
-func (u *User) IconPath() string {
-	return u.iconPath
+func (u *User) IconName() string {
+	return u.iconName
 }
 
 func (u *User) HeaderPath() string {

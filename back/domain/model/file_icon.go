@@ -3,6 +3,8 @@ package model
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"mime/multipart"
 )
@@ -12,8 +14,8 @@ const (
 )
 
 type FileIcon struct {
-	file      *bytes.Buffer
-	extension string
+	file     []byte
+	fileName *FileIconName
 }
 
 func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIcon, error) {
@@ -42,16 +44,24 @@ func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIc
 		return nil, err
 	}
 
+	fileNameUUID, err := uuid.NewUUID()
+
+	if err != nil {
+		return nil, err
+	}
+
+	fileName := fmt.Sprintf("%s.%s", fileNameUUID.String(), extension)
+
 	return &FileIcon{
-		file:      buf,
-		extension: extension,
+		file:     buf.Bytes(),
+		fileName: NewFileIconName(fileName),
 	}, nil
 }
 
-func (f *FileIcon) GetFile() *bytes.Buffer {
+func (f *FileIcon) GetFile() []byte {
 	return f.file
 }
 
-func (f *FileIcon) GetExtension() string {
-	return f.extension
+func (f *FileIcon) GetFileName() *FileIconName {
+	return f.fileName
 }

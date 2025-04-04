@@ -2,6 +2,7 @@
 
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
+import UserIconImage from '@/components/ui/image/userIconImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { logoutFlow } from '@/lib/access'
 import { signOut } from 'next-auth/react'
@@ -14,7 +15,7 @@ import { RiLockLine, RiLoginBoxLine, RiUserLine, RiUserSearchLine } from 'react-
 
 type Props = {
 	children?: React.ReactNode
-	userIconPath: string
+	userIconName: string
 	isLogin: boolean
 }
 
@@ -27,7 +28,7 @@ export type SearchUserFormContent = {
 	name: string
 }
 
-export default function DPHeader({ children, userIconPath, isLogin }: Props) {
+export default function DPHeader({ children, userIconName, isLogin }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const [isLogout, setIsLogout] = useState(false)
 
@@ -121,7 +122,7 @@ export default function DPHeader({ children, userIconPath, isLogin }: Props) {
 							aria-label="menu"
 							className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
 						>
-							<Image className="w-12 h-12 rounded-xl object-cover" priority src={userIconPath} alt="userIcon" width={46} height={46} />
+							<UserIconImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
 						</Button>
 						<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 							<Menu className="outline-none">

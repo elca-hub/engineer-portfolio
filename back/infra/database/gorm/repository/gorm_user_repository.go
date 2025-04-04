@@ -156,7 +156,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 		Name:                user.Name(),
 		Birthday:            user.Birthday(),
 		Email:               email.Email(),
-		IconPath:            user.IconPath(),
+		IconPath:            user.IconName(),
 		HeaderPath:          user.HeaderPath(),
 		BioPath:             user.BioPath(),
 		CreatedAt:           user.CreatedAt(),

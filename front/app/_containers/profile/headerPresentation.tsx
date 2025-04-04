@@ -1,10 +1,10 @@
 import DPHeader from '@/components/layout/header'
 
 type Props = {
-	userIconPath: string
+	userIconName: string
 	isLogin: boolean
 }
 
-export default function HeaderPresentation({ userIconPath, isLogin }: Props) {
-	return <DPHeader userIconPath={userIconPath} isLogin={isLogin}></DPHeader>
+export default function HeaderPresentation({ userIconName, isLogin }: Props) {
+	return <DPHeader userIconName={userIconName} isLogin={isLogin}></DPHeader>
 }

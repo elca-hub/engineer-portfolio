@@ -6,8 +6,6 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/sql"
 	"devport/infra/file_uploader"
-	"fmt"
-	"github.com/google/uuid"
 	"mime/multipart"
 	"time"
 )
@@ -64,20 +62,18 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 	}
 
 	err = i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
+		// TODO: Delete作業はバッチ作業
+
 		iconFile, err := model.NewFileIcon(input.Icon, input.IconHeader)
 		if err != nil {
 			return err
 		}
 
-		fileName, _ := uuid.NewUUID()
-
-		iconPathName, err := i.fileUploader.UploadFile(iconFile.GetFile().Bytes(), "devport", fmt.Sprintf("%s/%s.%s", user.ID(), fileName.String(), iconFile.GetExtension()))
-
-		if err != nil {
+		if err := i.fileUploader.UploadFile(iconFile.GetFile(), iconFile.GetFileName().GetObjectName()); err != nil {
 			return err
 		}
 
-		user.SetIconPath(iconPathName)
+		user.SetIconName(iconFile.GetFileName().GetFileName())
 
 		if err := i.sqlRepository.Update(tx, user); err != nil {
 			return err

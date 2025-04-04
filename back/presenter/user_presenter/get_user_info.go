@@ -60,7 +60,7 @@ func (p *GetUserInfoPresenter) Output(model usermodel.User) user.GetUserInfoOutp
 		Email:              email,
 		UserId:             model.ID(),
 		Name:               model.Name(),
-		IconPath:           model.IconPath(),
+		IconPath:           model.IconName(),
 		HeaderPath:         model.HeaderPath(),
 		BioPath:            model.BioPath(),
 		Skills:             skillOutput,

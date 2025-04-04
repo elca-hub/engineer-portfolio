@@ -37,7 +37,7 @@ export default async function ProfileContainer({ userId }: Props) {
 	let userInfo = {
 		userName: '',
 		userId: userId,
-		iconPath: '',
+		iconName: '',
 		headerPath: '',
 		bioPath: '',
 		skillsLength: 0,
@@ -48,13 +48,13 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	if (fetchUserInfo.ok) {
 		userInfo = {
-			userName: userInfoData.name,
-			userId: userInfoData.user_id,
-			iconPath: userInfoData.icon_path === '' ? defaultUserIcon : userInfoData.icon_path,
-			headerPath: userInfoData.header_path,
-			bioPath: userInfoData.bio_path,
-			skillsLength: userInfoData.skills.length,
-			externalLinksLength: userInfoData.external_service_url.length,
+			userName: userInfoData.user.name,
+			userId: userInfoData.user.user_id,
+			iconName: userInfoData.user.icon_name,
+			headerPath: userInfoData.user.header_path,
+			bioPath: userInfoData.user.bio_path,
+			skillsLength: userInfoData.user.skills.length,
+			externalLinksLength: userInfoData.user.external_service_url.length,
 			isFetch: true,
 			isDone: true,
 		}
@@ -62,7 +62,7 @@ export default async function ProfileContainer({ userId }: Props) {
 		userInfo = {
 			userName: '',
 			userId: userId,
-			iconPath: defaultUserIcon,
+			iconName: defaultUserIcon,
 			headerPath: '',
 			bioPath: '',
 			skillsLength: 0,
@@ -79,7 +79,7 @@ export default async function ProfileContainer({ userId }: Props) {
 				des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
 			/>
 			<ProfilePresentation
-				header={<HeaderPresentation userIconPath={userInfo.iconPath} isLogin={!!token}></HeaderPresentation>}
+				header={<HeaderPresentation userIconName={userInfo.iconName} isLogin={!!token}></HeaderPresentation>}
 				userInfo={userInfo}
 				isAuthUser={authUserId === userId}
 			></ProfilePresentation>
