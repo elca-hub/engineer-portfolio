@@ -9,7 +9,7 @@ import { signIn, signOut } from 'next-auth/react'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
-import { Button, Input, Label, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
+import { Button, Input, Label, Link, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
 import { RiGoogleFill, RiLockLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
@@ -78,13 +78,15 @@ export default function DPHeader({ children, userIconName, isLogin }: Props) {
 
 	return (
 		<header className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
-			<div className="flex items-center gap-4">
-				<Image src="/logo.webp" alt="logo" width={40} height={40} />
-				<p className={`${pacifico.className} text-2xl`}>
-					<span className="text-primary">Dev</span>
-					<span className="text-secondary">Port</span>
-				</p>
-			</div>
+			<Link href="/" className="outline-none">
+				<div className="flex items-center gap-4">
+					<Image src="/logo.webp" alt="logo" width={40} height={40} />
+					<p className={`${pacifico.className} text-2xl`}>
+						<span className="text-primary">Dev</span>
+						<span className="text-secondary">Port</span>
+					</p>
+				</div>
+			</Link>
 
 			<div className="h-full">
 				<form onSubmit={handleSubmit(() => setIsSubmit(true))} className="h-full">
