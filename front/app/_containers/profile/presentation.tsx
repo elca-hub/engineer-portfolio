@@ -88,7 +88,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 								<DialogTrigger>
 									<DPButton colormode="primary">
 										<p className="text-sm">
-											<TextWithIcon icon={<RiImageLine />}>画像を編集</TextWithIcon>
+											<TextWithIcon icon={<RiImageLine />}>アイコンを編集</TextWithIcon>
 										</p>
 									</DPButton>
 									<Modal className="fixed inset-0 z-50 flex items-center justify-center bg-black/30  entering:animate-in entering:fade-in entering:duration-200 exiting:animate-out exiting:fade-out exiting:duration-200">
@@ -97,7 +97,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 												<RiCloseLine className="w-8 h-8 hover:scale-90 transition-all duration-200" />
 											</Button>
 											<Heading slot="title" className="text-2xl font-bold text-foreground mb-4">
-												<TextWithIcon icon={<RiImageLine />}>画像を編集</TextWithIcon>
+												<TextWithIcon icon={<RiImageLine />}>アイコンを編集</TextWithIcon>
 											</Heading>
 
 											<h3 className="text-xl font-medium text-foreground mb-2">アイコン</h3>
