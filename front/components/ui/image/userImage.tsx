@@ -5,7 +5,7 @@ interface Props extends Omit<ImageProps, 'src' | 'alt'> {
 	fileName: string
 }
 
-export default function UserIconImage(props: Props) {
+export default function UserImage(props: Props) {
 	const { imageType, fileName, ...rest } = props
 	const host = process.env.NEXT_PUBLIC_S3_IMAGE_HOST
 	const imagePath = `${host}/${imageType}/${fileName}`

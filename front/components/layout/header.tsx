@@ -2,7 +2,7 @@
 
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
-import UserIconImage from '@/components/ui/image/userIconImage'
+import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { logoutFlow } from '@/lib/access'
 import { signIn, signOut } from 'next-auth/react'
@@ -136,7 +136,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 								aria-label="menu"
 								className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
 							>
-								<UserIconImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
+								<UserImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
 							</Button>
 							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 								<Menu className="outline-none">

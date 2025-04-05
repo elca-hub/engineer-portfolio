@@ -3,7 +3,7 @@
 import uploadIconApi from '@/app/_containers/profile/action'
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
-import UserIconImage from '@/components/ui/image/userIconImage'
+import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { UserType } from '@/lib/model/user'
 import Image from 'next/image'
@@ -75,7 +75,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 				</div>
 				<div className="z-2 absolute -bottom-1/2 left-16">
 					<div className="flex items-end gap-4">
-						<UserIconImage
+						<UserImage
 							imageType="icon"
 							fileName={user.icon_name}
 							width="171"
@@ -112,7 +112,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 													}}
 													className="relative rounded-xl data-[drop-target]:ring-2 data-[drop-target]:ring-primary data-[drop-target]:ring-offset-2 data-[drop-target]:ring-offset-background"
 												>
-													<UserIconImage
+													<UserImage
 														imageType="icon"
 														fileName={user.icon_name}
 														width="250"
