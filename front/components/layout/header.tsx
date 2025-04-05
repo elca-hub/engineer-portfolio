@@ -11,12 +11,13 @@ import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
 import { Button, Input, Label, Link, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiGoogleFill, RiLockLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
+import { RiGoogleFill, RiLockLine, RiProfileLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
 type Props = {
 	children?: React.ReactNode
 	userIconName: string
 	isLogin: boolean
+	userId?: string
 }
 
 const pacifico = Pacifico({
@@ -28,7 +29,7 @@ export type SearchUserFormContent = {
 	name: string
 }
 
-export default function DPHeader({ children, userIconName, isLogin }: Props) {
+export default function DPHeader({ children, userIconName, isLogin, userId }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const [isLogout, setIsLogout] = useState(false)
 
@@ -117,26 +118,38 @@ export default function DPHeader({ children, userIconName, isLogin }: Props) {
 			</div>
 
 			<div className="flex items-center gap-4">
-				{children}
 				{isLogin ? (
-					<MenuTrigger>
-						<Button
-							aria-label="menu"
-							className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
-						>
-							<UserIconImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
-						</Button>
-						<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
-							<Menu className="outline-none">
-								<MyMenuItem id="user-setting">
-									<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
-								</MyMenuItem>
-								<MyMenuItem id="signout" onAction={() => setIsLogout(true)}>
-									<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
-								</MyMenuItem>
-							</Menu>
-						</Popover>
-					</MenuTrigger>
+					<>
+						{children ? (
+							{ children }
+						) : userId ? (
+							<Link href={`/${userId}/profile`} className="outline-none">
+								<DPButton colormode="primary">
+									<TextWithIcon icon={<RiProfileLine />}>プロフィールへ</TextWithIcon>
+								</DPButton>
+							</Link>
+						) : (
+							<></>
+						)}
+						<MenuTrigger>
+							<Button
+								aria-label="menu"
+								className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
+							>
+								<UserIconImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
+							</Button>
+							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
+								<Menu className="outline-none">
+									<MyMenuItem id="user-setting">
+										<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
+									</MyMenuItem>
+									<MyMenuItem id="signout" onAction={() => setIsLogout(true)}>
+										<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
+									</MyMenuItem>
+								</Menu>
+							</Popover>
+						</MenuTrigger>
+					</>
 				) : (
 					<DPButton colormode="primary" onPress={() => signIn('google')}>
 						<TextWithIcon icon={<RiGoogleFill />}>ログイン</TextWithIcon>
