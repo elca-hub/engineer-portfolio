@@ -11,11 +11,6 @@ import 'server-only'
 
 type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error' | 'cookie_expired'
 
-type RedirectStatus = {
-	redirectPath: string
-	isRedirect: boolean
-}
-
 export async function getSessionToken(): Promise<string | null> {
 	const cookie = await cookies()
 	const dpSession = cookie.get('devport_api_token')
@@ -125,11 +120,10 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 				Authorization: `Bearer ${dpSession}`,
 			},
 		})
-		console.log('sessionRes', sessionRes)
 		if (sessionRes.ok) {
 			return { status: 'login', userId: json.user_id }
 		} else {
-			return { status: 'cookie_expired' }
+			return { status: 'not_login' }
 		}
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
@@ -138,81 +132,25 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 	}
 }
 
-export async function updateSession(): Promise<DPResponseData<{ isSuccess: boolean }>> {
-	const token = await getSessionToken()
-	if (!token) {
-		return {
-			errors: ['session not found'],
-		}
-	}
-	const res = await fetch(`${apiPrefix}/auth/user/health_check`, {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	})
-
-	if (res.ok) {
-		return {
-			data: { isSuccess: true },
-		}
-	} else {
-		const session = await getServerSession(authOptions)
-		if (!session) return { errors: ['session not found'] }
-		const sessionUser = session.user
-		if (!sessionUser) return { errors: ['session not found'] }
-		const loginRes = await loginFlow(sessionUser.email ?? '')
-		if (loginRes.errors) {
-			const errorJson = (await res.json()) as { errors: string[] }
-			errorJson.errors.forEach((value) => console.error(value))
-			return {
-				errors: errorJson.errors,
-			}
-		}
-
-		return {
-			data: { isSuccess: true },
-		}
-	}
-}
-
-export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatus> {
+export async function handleAuthRedirect(type: 'public' | 'register' | 'auth' | 'error' | 'expired-cookie'): Promise<string | null> {
 	const login = await isLogin()
 
-	switch (login.status) {
-		case 'login':
-			if (login.userId) {
-				return {
-					redirectPath: `/${login.userId}/profile`,
-					isRedirect: '/login' === nowPath || '/register' === nowPath || '/auth-cookie' === nowPath,
-				}
-			} else {
-				return {
-					redirectPath: '/',
-					isRedirect: false,
-				}
-			}
-		case 'new_user':
-			return {
-				redirectPath: '/register',
-				isRedirect: '/register' !== nowPath,
-			}
-		case 'not_login':
-			return {
-				redirectPath: '/',
-				isRedirect: true,
-			}
-		case 'error':
-			return {
-				redirectPath: '/',
-				isRedirect: false,
-			}
-		case 'cookie_expired':
-			return {
-				redirectPath: '/auth-cookie',
-				isRedirect: nowPath === '/login',
-			}
+	const statusToTypeMap: Record<string, { status: LoginStatus; expectedType: string }> = {
+		'/error': { status: 'error', expectedType: 'error' },
+		'/register': { status: 'new_user', expectedType: 'register' },
+		'/auth-cookie': { status: 'cookie_expired', expectedType: 'expired-cookie' },
 	}
+
+	for (const [pathName, obj] of Object.entries(statusToTypeMap)) {
+		if (login.status === obj.status && type !== obj.expectedType) return pathName
+		else if (type === obj.expectedType && login.status !== obj.status) return '/'
+	}
+
+	if (type === 'auth' && login.status === 'not_login') {
+		return '/'
+	}
+
+	return null
 }
 
 export async function getAuthUser(): Promise<DPResponseData<{ user: UserType }>> {

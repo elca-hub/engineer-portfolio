@@ -2,10 +2,14 @@
 
 import HomePresentation from '@/app/_containers/home/presentation'
 import DPHeader from '@/components/layout/header'
-import { getAuthUser } from '@/lib/access'
+import { getAuthUser, handleAuthRedirect } from '@/lib/access'
 import { UserType } from '@/lib/model/user'
+import { redirect } from 'next/navigation'
 
 export default async function HomeContainer() {
+	const authRedirectPath = await handleAuthRedirect('public')
+	if (authRedirectPath) redirect(authRedirectPath)
+
 	let authUser: UserType | null = null
 
 	const authRes = await getAuthUser()

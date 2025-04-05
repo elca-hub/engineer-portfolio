@@ -1,10 +1,9 @@
 'use server'
 
 import ProfilePresentation from '@/app/_containers/profile/presentation'
-import HeadContent from '@/components/layout/headContent'
 import DPHeader from '@/components/layout/header'
 import { apiPrefix } from '@/constants/constant'
-import { getAuthUser } from '@/lib/access'
+import { getAuthUser, handleAuthRedirect } from '@/lib/access'
 import { NewDPResponse } from '@/lib/api'
 import { UserType } from '@/lib/model/user'
 import { redirect } from 'next/navigation'
@@ -14,6 +13,9 @@ type Props = {
 }
 
 export default async function ProfileContainer({ userId }: Props) {
+	const authRedirectPath = await handleAuthRedirect('public')
+	if (authRedirectPath) redirect(authRedirectPath)
+
 	const fetchUser = await fetch(`${apiPrefix}/user/${userId}/`, {
 		method: 'GET',
 	})
@@ -37,10 +39,6 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	return (
 		<>
-			<HeadContent
-				title="ダッシュボード"
-				des="DevPortは全てのエンジニアのためのポートフォリオサイトです。学生から社会人まで、幅広い層の方にご利用いただけます。"
-			/>
 			<ProfilePresentation
 				header={<DPHeader userIconName={authUser === null ? '' : authUser.icon_name} isLogin={!!authUser}></DPHeader>}
 				user={user}
