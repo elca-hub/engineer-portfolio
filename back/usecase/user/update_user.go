@@ -82,6 +82,9 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 		var iconName string
 		var headerIconName string
 
+		iconNameChan := make(chan string, 1)
+		headerIconNameChan := make(chan string, 1)
+
 		// アイコン画像のアップロード
 		if input.Icon != nil && input.IconHeader != nil {
 			g.Go(func() error {
@@ -93,11 +96,9 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 				if err := i.fileUploader.UploadFile(iconFile.GetFile(), iconFile.GetFileName().GetObjectName()); err != nil {
 					return err
 				}
-				iconName = iconFile.GetFileName().GetFileName()
+				iconNameChan <- iconFile.GetFileName().GetFileName()
 				return nil
 			})
-		} else {
-			iconName = user.IconName()
 		}
 
 		// ヘッダー画像のアップロード
@@ -111,16 +112,26 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 				if err := i.fileUploader.UploadFile(headerFile.GetFile(), headerFile.GetFileName().GetObjectName()); err != nil {
 					return err
 				}
-				headerIconName = headerFile.GetFileName().GetFileName()
+				headerIconNameChan <- headerFile.GetFileName().GetFileName()
 				return nil
 			})
-		} else {
-			headerIconName = user.HeaderIconName()
 		}
 
 		// 並行処理の完了を待機
 		if err := g.Wait(); err != nil {
 			return err
+		}
+
+		select {
+		case iconName = <-iconNameChan:
+		default:
+			iconName = user.IconName()
+		}
+
+		select {
+		case headerIconName = <-headerIconNameChan:
+		default:
+			headerIconName = user.HeaderIconName()
 		}
 
 		jst, _ := time.LoadLocation("Asia/Tokyo")
