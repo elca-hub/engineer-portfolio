@@ -21,6 +21,7 @@ const DPButton = ({ ...props }: DBButtonProps) => {
         transition-all duration-300
         hover:scale-[0.98] hover:opacity-80
         focus:outline-none focus:ring-2 focus:ring-sky-500
+				disabled:opacity-50
       `}
 		>
 			{props.children}

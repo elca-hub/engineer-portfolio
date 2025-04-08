@@ -5,9 +5,8 @@ import { handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
 export default async function RegisterContainer() {
-	const res = await handleAuthRedirect('/register')
-
-	if (res.isRedirect) redirect(res.redirectPath)
+	const authRedirectPath = await handleAuthRedirect('register')
+	if (authRedirectPath) redirect(authRedirectPath)
 
 	return (
 		<>

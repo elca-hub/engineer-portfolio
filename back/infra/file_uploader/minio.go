@@ -10,8 +10,9 @@ import (
 )
 
 type Minio struct {
-	uploader *manager.Uploader
-	client   *s3.Client
+	uploader   *manager.Uploader
+	client     *s3.Client
+	bucketName string
 }
 
 func NewMinio(fileUploaderConfig *FileUploaderConfig) (*Minio, error) {
@@ -37,36 +38,30 @@ func NewMinio(fileUploaderConfig *FileUploaderConfig) (*Minio, error) {
 	})
 
 	return &Minio{
-		uploader: uploader,
-		client:   s3Client,
+		uploader:   uploader,
+		client:     s3Client,
+		bucketName: fileUploaderConfig.bucketName,
 	}, nil
 }
 
-func (m *Minio) UploadFile(fileBytes []byte, bucketName string, objectName string) (string, error) {
-	res, err := m.uploader.Upload(context.TODO(), &s3.PutObjectInput{
-		Bucket: &bucketName,
+func (m *Minio) UploadFile(fileBytes []byte, objectName string) error {
+	_, err := m.uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: &m.bucketName,
 		Key:    &objectName,
 		Body:   bytes.NewReader(fileBytes),
 	})
 
-	if err != nil {
-		return "", err
-	}
-
-	return res.Location, nil
+	return err
 }
 
-func (m *Minio) CrateBucket(bucketName string) error {
-	_, err := m.client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
-		Bucket: &bucketName,
+func (m *Minio) DeleteFile(objectName string) error {
+	_, err := m.client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
+		Bucket: &m.bucketName,
+		Key:    &objectName,
 	})
 
 	if err != nil {
-		if err.Error() != "BucketAlreadyOwnedByYou: Your previous request to create the named bucket succeeded and you already own it." {
-			return err
-		}
-
-		return nil
+		return err
 	}
 
 	return nil

@@ -21,7 +21,7 @@ export default function AuthCookiePresentation({ email }: Props) {
 			const loginLogic = async () => {
 				const res = await loginFlow(email)
 				if (res.data?.isSuccess) {
-					router.push('/dashboard')
+					router.back()
 				} else {
 					setCallout([...callout, { content: 'ログイン情報の取得に失敗しました。再度ログインしてください', type: 'error' }])
 				}

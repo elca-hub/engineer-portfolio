@@ -1,19 +1,15 @@
 'use server'
 
+import { UserType } from '@/action/type/user'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/constant'
-import { DPResponseData } from '@/lib/api'
+import { DPResponseData, NewDPResponse } from '@/lib/api'
 import console from 'console'
 import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'
 import 'server-only'
 
 type LoginStatus = 'login' | 'not_login' | 'new_user' | 'error' | 'cookie_expired'
-
-type RedirectStatus = {
-	redirectPath: string
-	isRedirect: boolean
-}
 
 export async function getSessionToken(): Promise<string | null> {
 	const cookie = await cookies()
@@ -113,53 +109,64 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 
 		if (!json.is_exists) return { status: 'new_user' }
 
-		const cookieStore = await cookies()
-		const dpSession = cookieStore.get('devport_api_token')
-		return !dpSession || dpSession.value === '' ? { status: 'cookie_expired' } : { status: 'login', userId: json.user_id }
+		const dpSession = await getSessionToken()
+		if (!dpSession) {
+			return { status: 'cookie_expired' }
+		}
+
+		const sessionRes = await fetch(`${apiPrefix}/auth/health_check`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${dpSession}`,
+			},
+		})
+		if (sessionRes.ok) {
+			return { status: 'login', userId: json.user_id }
+		} else {
+			return { status: 'not_login' }
+		}
 	} else {
 		const errorJson = (await res.json()) as { errors: string[] }
-
 		errorJson.errors.forEach((value) => console.error(value))
-
 		return { status: 'error' }
 	}
 }
 
-export async function handleAuthRedirect(nowPath: string): Promise<RedirectStatus> {
+export async function handleAuthRedirect(type: 'public' | 'register' | 'auth' | 'error' | 'expired-cookie'): Promise<string | null> {
 	const login = await isLogin()
 
-	switch (login.status) {
-		case 'login':
-			if (login.userId) {
-				return {
-					redirectPath: `/${login.userId}/profile`,
-					isRedirect: '/login' === nowPath || '/register' === nowPath || '/auth-cookie' === nowPath,
-				}
-			} else {
-				return {
-					redirectPath: '/login',
-					isRedirect: '/login' !== nowPath,
-				}
-			}
-		case 'new_user':
-			return {
-				redirectPath: '/register',
-				isRedirect: '/register' !== nowPath,
-			}
-		case 'not_login':
-			return {
-				redirectPath: '/login',
-				isRedirect: '/login' !== nowPath,
-			}
-		case 'error':
-			return {
-				redirectPath: '/login',
-				isRedirect: '/login' !== nowPath,
-			}
-		case 'cookie_expired':
-			return {
-				redirectPath: '/auth-cookie',
-				isRedirect: nowPath === '/login',
-			}
+	const statusToTypeMap: Record<string, { status: LoginStatus; expectedType: string }> = {
+		'/error': { status: 'error', expectedType: 'error' },
+		'/register': { status: 'new_user', expectedType: 'register' },
+		'/auth-cookie': { status: 'cookie_expired', expectedType: 'expired-cookie' },
 	}
+
+	for (const [pathName, obj] of Object.entries(statusToTypeMap)) {
+		if (login.status === obj.status && type !== obj.expectedType) return pathName
+		else if (type === obj.expectedType && login.status !== obj.status) return '/'
+	}
+
+	if (type === 'auth' && login.status === 'not_login') {
+		return '/'
+	}
+
+	return null
+}
+
+export async function getAuthUser(): Promise<DPResponseData<{ user: UserType }>> {
+	const token = await getSessionToken()
+	if (!token) {
+		return {
+			errors: ['session not found'],
+		}
+	}
+
+	const res = await fetch(`${apiPrefix}/auth/user`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	})
+
+	return NewDPResponse<{ user: UserType }>(res)
 }

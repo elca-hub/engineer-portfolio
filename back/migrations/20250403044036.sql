@@ -1,6 +1,4 @@
--- Modify "users" table
-ALTER TABLE `users` MODIFY COLUMN `id` varchar(255) NOT NULL, ADD UNIQUE INDEX `uni_users_id` (`id`);
--- Modify "external_service_urls" table
-ALTER TABLE `external_service_urls` MODIFY COLUMN `user_id` varchar(255) NULL;
--- Modify "skills" table
-ALTER TABLE `skills` MODIFY COLUMN `user_id` varchar(255) NULL;
+-- MIGRATION MOVED
+-- The modifications originally planned for this migration were moved to 
+-- migration 20250408113224.sql to properly handle foreign key constraints.
+-- This migration file is kept as a placeholder to maintain version history.

@@ -3,20 +3,23 @@ package model
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"mime/multipart"
+
+	"github.com/google/uuid"
 )
 
 const (
-	MAX_FILE_SIZE = 500 * 1024 * 1024
+	MAX_FILE_SIZE = 50 * 1024 * 1024
 )
 
 type FileIcon struct {
-	file      *bytes.Buffer
-	extension string
+	file     []byte
+	fileName *FileIconName
 }
 
-func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIcon, error) {
+func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
 		return nil, errors.New("file size exceeds the limit")
 	}
@@ -42,16 +45,30 @@ func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIc
 		return nil, err
 	}
 
+	fileNameUUID, err := uuid.NewUUID()
+
+	if err != nil {
+		return nil, err
+	}
+
+	fileName := fmt.Sprintf("%s.%s", fileNameUUID.String(), extension)
+
+	iconName, err := NewFileIconName(fileName, path)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &FileIcon{
-		file:      buf,
-		extension: extension,
+		file:     buf.Bytes(),
+		fileName: iconName,
 	}, nil
 }
 
-func (f *FileIcon) GetFile() *bytes.Buffer {
+func (f *FileIcon) GetFile() []byte {
 	return f.file
 }
 
-func (f *FileIcon) GetExtension() string {
-	return f.extension
+func (f *FileIcon) GetFileName() *FileIconName {
+	return f.fileName
 }
