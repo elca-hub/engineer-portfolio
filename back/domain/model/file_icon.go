@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"mime/multipart"
+
+	"github.com/google/uuid"
 )
 
 const (
-	MAX_FILE_SIZE = 500 * 1024 * 1024
+	MAX_FILE_SIZE = 50 * 1024 * 1024
 )
 
 type FileIcon struct {
@@ -18,7 +19,7 @@ type FileIcon struct {
 	fileName *FileIconName
 }
 
-func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIcon, error) {
+func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
 		return nil, errors.New("file size exceeds the limit")
 	}
@@ -52,9 +53,15 @@ func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader) (*FileIc
 
 	fileName := fmt.Sprintf("%s.%s", fileNameUUID.String(), extension)
 
+	iconName, err := NewFileIconName(fileName, path)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &FileIcon{
 		file:     buf.Bytes(),
-		fileName: NewFileIconName(fileName),
+		fileName: iconName,
 	}, nil
 }
 

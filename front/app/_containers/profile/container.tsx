@@ -1,11 +1,10 @@
 'use server'
 
+import { UserType } from '@/action/type/user'
+import fetchById from '@/action/usecase/user/fetchById'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
 import DPHeader from '@/components/layout/header'
-import { apiPrefix } from '@/constants/constant'
 import { getAuthUser, handleAuthRedirect } from '@/lib/access'
-import { NewDPResponse } from '@/lib/api'
-import { UserType } from '@/lib/model/user'
 import { redirect } from 'next/navigation'
 
 type Props = {
@@ -16,17 +15,13 @@ export default async function ProfileContainer({ userId }: Props) {
 	const authRedirectPath = await handleAuthRedirect('public')
 	if (authRedirectPath) redirect(authRedirectPath)
 
-	const fetchUser = await fetch(`${apiPrefix}/user/${userId}/`, {
-		method: 'GET',
-	})
-
-	const fetchUserRes = await NewDPResponse<{ user: UserType }>(fetchUser)
+	const fetchUser = await fetchById(userId)
 
 	let authUser: UserType | null = null
 	let user: UserType | null = null
 
-	if (fetchUserRes.data) {
-		user = fetchUserRes.data.user
+	if (fetchUser) {
+		user = fetchUser
 	}
 
 	if (!user) redirect('/404')

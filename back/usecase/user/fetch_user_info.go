@@ -22,7 +22,7 @@ type (
 	}
 
 	FetchUserInfoOutput struct {
-		User dto.UserDTO `json:"user"`
+		User *dto.UserDTO `json:"user"`
 	}
 
 	fetchUserInfoInterator struct {

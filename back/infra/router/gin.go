@@ -12,14 +12,15 @@ import (
 	user_presenter "devport/presenter/user_presenter"
 	"devport/usecase/user"
 	"fmt"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -126,7 +127,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			authRouterGroup.GET("/health_check", e.healthCheckAction())
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
-				userAuthRouterGroup.POST("/update", e.updateUserAction())
+				userAuthRouterGroup.PUT("/", e.updateUserAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 			}

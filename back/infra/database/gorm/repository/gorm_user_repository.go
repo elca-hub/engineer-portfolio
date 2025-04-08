@@ -6,8 +6,13 @@ import (
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
 	"errors"
+
 	"gorm.io/gorm"
 )
+
+type transactionKey struct{}
+
+var transactionContextKey = transactionKey{}
 
 type GormUserRepository struct {
 	db repository.SQL
@@ -20,7 +25,7 @@ func NewGormUserRepository(db repository.SQL) *GormUserRepository {
 }
 
 func (r GormUserRepository) Create(ctx context.Context, user *model.User) error {
-	tx, ok := ctx.Value("TransactionContextKey").(*gorm.DB)
+	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
 	gormUser := convertToGormModel(*user)
 
 	if !ok {
@@ -61,7 +66,7 @@ func (r GormUserRepository) ExistsById(ctx context.Context, id string) (bool, er
 }
 
 func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
-	tx, ok := ctx.Value("TransactionContextKey").(*gorm.DB)
+	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
 	gormUser := convertToGormModel(*user)
 
 	if !ok {
@@ -113,11 +118,10 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 		return err
 	}
 
-	transactionCtx := context.WithValue(ctx, "TransactionContextKey", tx.Tx())
+	transactionCtx := context.WithValue(ctx, transactionContextKey, tx.Tx())
 
 	if err := fn(transactionCtx); err != nil {
 		tx.Tx().Rollback()
-
 		return err
 	}
 
@@ -157,7 +161,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 		Birthday:            user.Birthday(),
 		Email:               email.Email(),
 		IconPath:            user.IconName(),
-		HeaderPath:          user.HeaderPath(),
+		HeaderPath:          user.HeaderIconName(),
 		BioPath:             user.BioPath(),
 		CreatedAt:           user.CreatedAt(),
 		UpdatedAt:           user.UpdatedAt(),

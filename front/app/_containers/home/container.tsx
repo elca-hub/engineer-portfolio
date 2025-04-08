@@ -1,9 +1,9 @@
 'use server'
 
+import { UserType } from '@/action/type/user'
 import HomePresentation from '@/app/_containers/home/presentation'
 import DPHeader from '@/components/layout/header'
 import { getAuthUser, handleAuthRedirect } from '@/lib/access'
-import { UserType } from '@/lib/model/user'
 import { redirect } from 'next/navigation'
 
 export default async function HomeContainer() {

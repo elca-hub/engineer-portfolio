@@ -1,9 +1,9 @@
 'use server'
 
+import { UserType } from '@/action/type/user'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
-import { UserType } from '@/lib/model/user'
 import console from 'console'
 import { getServerSession } from 'next-auth'
 import { cookies } from 'next/headers'

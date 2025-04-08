@@ -1,16 +1,34 @@
 package model
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type FileIconName struct {
 	fileName   string
 	objectName string
 }
 
-func NewFileIconName(fileName string) *FileIconName {
-	return &FileIconName{
-		fileName:   fileName,
-		objectName: fmt.Sprintf("%s/%s", "icon", fileName),
+const (
+	ICON_PATH = iota
+	HEADER_PATH
+)
+
+func NewFileIconName(fileName string, path int) (*FileIconName, error) {
+	switch path {
+	case ICON_PATH:
+		return &FileIconName{
+			fileName:   fileName,
+			objectName: fmt.Sprintf("%s/%s", "icon", fileName),
+		}, nil
+	case HEADER_PATH:
+		return &FileIconName{
+			fileName:   fileName,
+			objectName: fmt.Sprintf("%s/%s", "header", fileName),
+		}, nil
+	default:
+		return nil, errors.New("invalid path")
 	}
 }
 

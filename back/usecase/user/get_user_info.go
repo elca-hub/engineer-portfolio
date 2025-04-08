@@ -23,7 +23,7 @@ type (
 	}
 
 	GetUserInfoOutput struct {
-		User dto.UserDTO `json:"user"`
+		User *dto.UserDTO `json:"user"`
 	}
 
 	getUserInfoInterator struct {

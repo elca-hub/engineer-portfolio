@@ -4,6 +4,7 @@ import (
 	"context"
 	"devport/adapter/repository"
 	"fmt"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,7 +16,7 @@ type GormHandler struct {
 
 func NewGormHandler(c *MysqlConfig) (*GormHandler, error) {
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True",
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FTokyo",
 		c.user,
 		c.password,
 		c.host,
@@ -23,7 +24,11 @@ func NewGormHandler(c *MysqlConfig) (*GormHandler, error) {
 		c.database,
 	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		NowFunc: func() time.Time {
+			return time.Now().In(time.FixedZone("Asia/Tokyo", 9*60*60))
+		},
+	})
 
 	if err != nil {
 		return nil, err
