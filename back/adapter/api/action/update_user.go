@@ -101,6 +101,10 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 	processFile := func(fieldName string) (multipart.File, *multipart.FileHeader, error) {
 		file, header, err := r.FormFile(fieldName)
 		if err != nil && errors.Is(err, http.ErrMissingFile) {
+			if errors.Is(err, http.ErrMissingFile) {
+				return nil, nil, nil
+			}
+
 			return nil, nil, err
 		}
 		return file, header, nil
