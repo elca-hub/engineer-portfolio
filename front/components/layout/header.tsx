@@ -82,7 +82,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 			<Link href="/" className="outline-none">
 				<div className="flex items-center gap-4">
 					<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
-					<p className={`${pacifico.className} text-2xl`}>
+					<p className={`${pacifico.className} hidden md:block md:text-2xl`}>
 						<span className="text-primary">Dev</span>
 						<span className="text-secondary">Port</span>
 					</p>
@@ -102,14 +102,14 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 							},
 						}}
 						render={({ field }) => (
-							<SearchField className="relative">
+							<SearchField className="relative h-full">
 								<Label className="sr-only">ユーザを検索</Label>
 								<RiUserSearchLine className="absolute top-1/2 -translate-y-1/2 text-xl text-gray-600 left-2" />
 								<Input
 									type="text"
 									{...field}
 									placeholder="ユーザを検索"
-									className="w-full p-2 pl-9 bg-gray-200 text-gray-600 rounded placeholder-gray-600 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+									className="h-full w-full p-2 pl-9 bg-gray-200 text-gray-600 rounded placeholder-gray-600 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
 								/>
 							</SearchField>
 						)}
