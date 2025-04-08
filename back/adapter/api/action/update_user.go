@@ -100,7 +100,7 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 	// ファイルの取得と処理を行うヘルパー関数
 	processFile := func(fieldName string) (multipart.File, *multipart.FileHeader, error) {
 		file, header, err := r.FormFile(fieldName)
-		if err != nil && err != http.ErrMissingFile {
+		if err != nil && errors.Is(err, http.ErrMissingFile) {
 			return nil, nil, err
 		}
 		return file, header, nil
