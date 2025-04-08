@@ -37,7 +37,7 @@ function UserIconComponent({
 	type: 'icon' | 'header'
 	setIconFile: (file: { file: File; type: 'icon' | 'header' }) => void
 }) {
-	const iconClass = type === 'icon' ? 'size-[6rem] md:size-40' : 'w-full md:h-40 h-[8rem]'
+	const iconClass = type === 'icon' ? 'size-[6rem] md:size-[8rem]' : 'w-full md:h-40 h-[8rem]'
 
 	const iconOnlyClass = type === 'icon' ? 'absolute -bottom-10 left-4 z-10' : 'relative'
 
@@ -70,7 +70,7 @@ function UserIconComponent({
 					acceptedFileTypes={['image/*']}
 				>
 					<Button
-						className={`absolute top-1/2 ${type === 'icon' ? 'left-1/2 -translate-x-1/2' : 'right-1/3'} -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-md hover:scale-95 transition-all duration-200`}
+						className={`absolute top-1/2 ${type === 'icon' ? 'left-1/2 -translate-x-1/2' : 'right-1/3 md:right-[40%]'} -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-md hover:scale-95 transition-all duration-200`}
 					>
 						<RiImageAddLine className="text-xl md:text-2xl" />
 					</Button>
