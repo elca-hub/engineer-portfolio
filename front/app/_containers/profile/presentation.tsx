@@ -37,7 +37,7 @@ function UserIconComponent({
 	type: 'icon' | 'header'
 	setIconFile: (file: { file: File; type: 'icon' | 'header' }) => void
 }) {
-	const iconClass = type === 'icon' ? 'size-40' : 'w-full h-40'
+	const iconClass = type === 'icon' ? 'size-[6rem] md:size-40' : 'w-full md:h-40 h-[8rem]'
 
 	const iconOnlyClass = type === 'icon' ? 'absolute -bottom-10 left-4 z-10' : 'relative'
 
@@ -72,7 +72,7 @@ function UserIconComponent({
 					<Button
 						className={`absolute top-1/2 ${type === 'icon' ? 'left-1/2 -translate-x-1/2' : 'right-1/3'} -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-md hover:scale-95 transition-all duration-200`}
 					>
-						<RiImageAddLine className="text-2xl" />
+						<RiImageAddLine className="text-xl md:text-2xl" />
 					</Button>
 				</FileTrigger>
 			</DropZone>
@@ -184,17 +184,17 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 						height={1000}
 					/>
 				</div>
-				<div className="z-2 absolute -bottom-1/2 left-16">
+				<div className="z-2 absolute -bottom-1/4 md:-bottom-1/2 left-2 md:left-16">
 					<div className="flex items-end gap-4">
 						<UserImage
 							imageType="icon"
 							fileName={user.icon_name}
 							width="171"
 							height="171"
-							className="w-40 h-40 border-2 border-white shadow-md rounded-xl object-cover"
+							className="size-[120px] md:size-[170px] border-2 border-white shadow-md rounded-xl object-cover"
 							priority
 						/>
-						<div className="flex flex-col mb-1">
+						<div className="flex flex-col mb-1 bg-white/70 rounded-lg p-2 md:bg-transparent">
 							{isAuthUser && (
 								<DialogTrigger>
 									<DPButton colormode="primary">

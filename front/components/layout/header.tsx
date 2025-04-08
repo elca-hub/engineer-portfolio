@@ -89,7 +89,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 				</div>
 			</Link>
 
-			<div className="h-full">
+			<div className="h-full hidden md:block">
 				<form onSubmit={handleSubmit(() => setIsSubmit(true))} className="h-full">
 					<Controller
 						name="name"
