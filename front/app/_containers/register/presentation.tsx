@@ -4,14 +4,16 @@ import { registerApi } from '@/app/_containers/register/action'
 import { CalloutContext } from '@/app/state'
 import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'
+import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { loginFlow } from '@/lib/access'
 import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
+import { DialogTrigger } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiCake2Line, RiIdCardLine, RiUserAddLine, RiUserLine } from 'react-icons/ri'
+import { RiAlarmWarningLine, RiCake2Line, RiCheckLine, RiIdCardLine, RiUserAddLine, RiUserLine } from 'react-icons/ri'
 
 export type RegisterFormContent = {
 	name: string
@@ -27,7 +29,7 @@ export default function RegisterPresentation() {
 
 	const router = useRouter()
 
-	const { control, handleSubmit, watch } = useForm<RegisterFormContent>({
+	const { control, handleSubmit, watch, formState } = useForm<RegisterFormContent>({
 		defaultValues: {
 			name: '',
 			userId: '',
@@ -148,11 +150,24 @@ export default function RegisterPresentation() {
 						)}
 					></Controller>
 
-					<div className="mt-6 flex justify-center">
-						<DPButton colormode="primary" type="submit">
-							<TextWithIcon icon={<RiUserAddLine />}>新規登録</TextWithIcon>
-						</DPButton>
-					</div>
+					<DialogTrigger>
+						<div className="flex justify-center mt-6">
+							<DPButton colormode="primary" isDisabled={!formState.isValid}>
+								<TextWithIcon icon={<RiUserAddLine />}>新規登録</TextWithIcon>
+							</DPButton>
+						</div>
+						<DPModal header={{ title: '注意', icon: <RiAlarmWarningLine /> }}>
+							<p>以下のIDは今後変更することができません。</p>
+							<p className="text-xl text-yellow-600">@{watch().userId}</p>
+							<p>このIDでよろしいですか？</p>
+
+							<div className="mt-6 flex justify-center">
+								<DPButton colormode="secondary" type="submit" onPress={() => setIsSubmit(true)}>
+									<TextWithIcon icon={<RiCheckLine />}>登録</TextWithIcon>
+								</DPButton>
+							</div>
+						</DPModal>
+					</DialogTrigger>
 				</form>
 			</main>
 		</div>

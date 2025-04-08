@@ -5,6 +5,7 @@ import userUpdate from '@/action/usecase/user/update'
 import { CalloutContext } from '@/app/state'
 import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'
+import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
@@ -12,9 +13,9 @@ import { getSessionToken } from '@/lib/access'
 import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
-import { Button, Dialog, DialogTrigger, DropZone, FileTrigger, Heading, Modal } from 'react-aria-components'
+import { Button, DialogTrigger, DropZone, FileTrigger } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiCake2Line, RiCloseLine, RiImageAddLine, RiUserLine } from 'react-icons/ri'
+import { RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -199,72 +200,57 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 											<TextWithIcon icon={<RiUserLine />}>プロフィール編集</TextWithIcon>
 										</p>
 									</DPButton>
-									<Modal className="fixed inset-0 z-50 flex items-center justify-center bg-black/30  entering:animate-in entering:fade-in entering:duration-200 exiting:animate-out exiting:fade-out exiting:duration-200">
-										<Dialog className="outline-none bg-white rounded-lg shadow-lg p-6 w-1/2 relative">
-											<Button slot="close" className="absolute top-4 right-4">
-												<RiCloseLine className="w-8 h-8 hover:scale-90 transition-all duration-200" />
-											</Button>
-											<Heading slot="title" className="text-2xl font-bold text-foreground mb-4">
-												<TextWithIcon icon={<RiUserLine />}>プロフィール編集</TextWithIcon>
-											</Heading>
+									<DPModal header={{ title: 'プロフィール編集', icon: <RiUserLine /> }}>
+										<div className="relative mb-14">
+											<UserIconComponent user={user} type="icon" setIconFile={setIconFile} />
+											<UserIconComponent user={user} type="header" setIconFile={setIconFile} />
+										</div>
 
-											<div className="relative mb-14">
-												<UserIconComponent user={user} type="icon" setIconFile={setIconFile} />
-												<UserIconComponent user={user} type="header" setIconFile={setIconFile} />
+										<form onSubmit={handleSubmit(() => setIsSubmit(true))}>
+											<Controller
+												name="name"
+												control={control}
+												rules={{
+													required: 'ユーザ名を入力してください',
+													max: {
+														value: 50,
+														message: 'ユーザ名は50文字以内で入力してください',
+													},
+												}}
+												render={({ field, fieldState }) => (
+													<InputField
+														title="ユーザ名"
+														type="text"
+														field={field}
+														fieldState={fieldState}
+														isRequired
+														helperText="ユーザ名は50文字以下で入力してください。特殊記号は使用できません。"
+														icon={<RiUserLine />}
+														autoComplete="off"
+														popoverContent="本名を入力する必要はありません。自分の個性的な名前をつけましょう！"
+													></InputField>
+												)}
+											></Controller>
+
+											<Controller
+												name="birthday"
+												control={control}
+												rules={{
+													required: '生年月日が未入力です',
+													validate: (value) => value.compare(today(getLocalTimeZone())) < 0 || '未来の日付は指定できません',
+												}}
+												render={({ field, fieldState }) => (
+													<DatePickerField title="生年月日" field={field} fieldState={fieldState} isRequired icon={<RiCake2Line />}></DatePickerField>
+												)}
+											></Controller>
+
+											<div className="flex justify-center mt-4">
+												<DPButton colormode="primary" type="submit">
+													<TextWithIcon icon={<RiUserLine />}>変更する</TextWithIcon>
+												</DPButton>
 											</div>
-
-											<form onSubmit={handleSubmit(() => setIsSubmit(true))}>
-												<Controller
-													name="name"
-													control={control}
-													rules={{
-														required: 'ユーザ名を入力してください',
-														max: {
-															value: 50,
-															message: 'ユーザ名は50文字以内で入力してください',
-														},
-													}}
-													render={({ field, fieldState }) => (
-														<InputField
-															title="ユーザ名"
-															type="text"
-															field={field}
-															fieldState={fieldState}
-															isRequired
-															helperText="ユーザ名は50文字以下で入力してください。特殊記号は使用できません。"
-															icon={<RiUserLine />}
-															autoComplete="off"
-															popoverContent="本名を入力する必要はありません。自分の個性的な名前をつけましょう！"
-														></InputField>
-													)}
-												></Controller>
-
-												<Controller
-													name="birthday"
-													control={control}
-													rules={{
-														required: '生年月日が未入力です',
-														validate: (value) => value.compare(today(getLocalTimeZone())) < 0 || '未来の日付は指定できません',
-													}}
-													render={({ field, fieldState }) => (
-														<DatePickerField
-															title="生年月日"
-															field={field}
-															fieldState={fieldState}
-															isRequired
-															icon={<RiCake2Line />}
-														></DatePickerField>
-													)}
-												></Controller>
-
-												<div className="flex justify-center mt-4">
-													<DPButton colormode="primary" type="submit">
-														<TextWithIcon icon={<RiUserLine />}>変更する</TextWithIcon>
-													</DPButton>
-												</div>
-											</form>
-										</Dialog>
-									</Modal>
+										</form>
+									</DPModal>
 								</DialogTrigger>
 							)}
 							<h1 className="text-3xl font-bold tracking-wide text-foreground">{user.name}</h1>
