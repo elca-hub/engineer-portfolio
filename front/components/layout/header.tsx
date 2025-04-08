@@ -81,7 +81,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 		<header className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
 			<Link href="/" className="outline-none">
 				<div className="flex items-center gap-4">
-					<Image src="/logo.webp" alt="logo" width={40} height={40} />
+					<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
 					<p className={`${pacifico.className} text-2xl`}>
 						<span className="text-primary">Dev</span>
 						<span className="text-secondary">Port</span>
@@ -121,7 +121,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 				{isLogin ? (
 					<>
 						{children ? (
-							{ children }
+							children
 						) : userId ? (
 							<Link href={`/${userId}/profile`} className="outline-none">
 								<DPButton colormode="primary">
@@ -136,7 +136,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 								aria-label="menu"
 								className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
 							>
-								<UserImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} />
+								<UserImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} priority />
 							</Button>
 							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 								<Menu className="outline-none">

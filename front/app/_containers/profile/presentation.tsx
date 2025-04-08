@@ -37,7 +37,7 @@ function UserIconComponent({
 	type: 'icon' | 'header'
 	setIconFile: (file: { file: File; type: 'icon' | 'header' }) => void
 }) {
-	const iconClass = type === 'icon' ? 'size-20' : 'w-full h-40'
+	const iconClass = type === 'icon' ? 'size-40' : 'w-full h-40'
 
 	const iconOnlyClass = type === 'icon' ? 'absolute -bottom-10 left-4 z-10' : 'relative'
 
@@ -56,8 +56,8 @@ function UserIconComponent({
 				<UserImage
 					imageType={type}
 					fileName={type === 'icon' ? user.icon_name : user.header_icon_name}
-					width="1000"
-					height="1000"
+					width={type === 'icon' ? 500 : 1000}
+					height={type === 'icon' ? 500 : 1000}
 					className={`${iconClass} ${type === 'icon' ? 'border-2 border-white shadow-md rounded-xl object-cover' : ''} rounded-xl object-cover brightness-50`}
 				/>
 				<FileTrigger
@@ -69,8 +69,10 @@ function UserIconComponent({
 					}}
 					acceptedFileTypes={['image/*']}
 				>
-					<Button className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-md hover:scale-95 transition-all duration-200">
-						<RiImageAddLine className="text-lg" />
+					<Button
+						className={`absolute top-1/2 ${type === 'icon' ? 'left-1/2 -translate-x-1/2' : 'right-1/3'} -translate-y-1/2 rounded-full bg-white/80 p-3 shadow-md hover:scale-95 transition-all duration-200`}
+					>
+						<RiImageAddLine className="text-2xl" />
 					</Button>
 				</FileTrigger>
 			</DropZone>
