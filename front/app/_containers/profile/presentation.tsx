@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Button, DialogTrigger, DropZone, FileTrigger } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiBuilding2Line, RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
+import { RiBriefcaseLine, RiBuilding2Line, RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -27,6 +27,7 @@ export type UserUpdateFormType = {
 	name: string
 	birthday: CalendarDate
 	organizationName: string
+	occupationName: string
 }
 
 function UserIconComponent({
@@ -95,6 +96,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 			name: user.name,
 			birthday: parseDate(user.birthday),
 			organizationName: user.organization_name,
+			occupationName: user.occupation_name,
 		},
 	})
 
@@ -105,6 +107,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 			const name = watch('name')
 			const birthday = watch('birthday')
 			const organizationName = watch('organizationName')
+			const occupationName = watch('occupationName')
 			const updateFlow = async () => {
 				const token = await getSessionToken()
 				if (!token) {
@@ -112,7 +115,9 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					return
 				}
 
-				const res = await userUpdate(token, { userData: { name, birthday: birthday.toString(), organization_name: organizationName } })
+				const res = await userUpdate(token, {
+					userData: { name, birthday: birthday.toString(), organization_name: organizationName, occupation_name: occupationName },
+				})
 				if (res === null) {
 					setCallout([...callout, { content: '変更に失敗しました', type: 'error' }])
 					return
@@ -264,8 +269,30 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 														type="text"
 														field={field}
 														fieldState={fieldState}
-														helperText="組織名は50文字以内で入力してください。"
+														helperText="組織名は50文字以内で入力してください"
 														icon={<RiBuilding2Line />}
+														autoComplete="off"
+													></InputField>
+												)}
+											></Controller>
+
+											<Controller
+												name="occupationName"
+												control={control}
+												rules={{
+													max: {
+														value: 50,
+														message: '職業は50文字以内で入力してください',
+													},
+												}}
+												render={({ field, fieldState }) => (
+													<InputField
+														title="職業"
+														type="text"
+														field={field}
+														fieldState={fieldState}
+														helperText="職業は50文字以内で入力してください"
+														icon={<RiBriefcaseLine />}
 														autoComplete="off"
 													></InputField>
 												)}
@@ -287,10 +314,15 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 				</div>
 			</div>
 			<main className="px-4 md:px-16 mt-[70px] md:mt-[130px]">
-				<section>
+				<section className="flex justify-start gap-4">
 					{user.organization_name && (
 						<p className="text-subtext">
 							<TextWithIcon icon={<RiBuilding2Line />}>{user.organization_name}</TextWithIcon>
+						</p>
+					)}
+					{user.occupation_name && (
+						<p className="text-subtext">
+							<TextWithIcon icon={<RiBriefcaseLine />}>{user.occupation_name}</TextWithIcon>
 						</p>
 					)}
 				</section>

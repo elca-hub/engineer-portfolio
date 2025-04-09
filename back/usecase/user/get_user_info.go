@@ -19,7 +19,7 @@ type (
 	}
 
 	GetUserInfoPresenter interface {
-		Output(user model.User) GetUserInfoOutput
+		Output(user *model.User) GetUserInfoOutput
 	}
 
 	GetUserInfoOutput struct {
@@ -73,5 +73,5 @@ func (i getUserInfoInterator) Execute(tx context.Context, input GetUserInfoInput
 		return GetUserInfoOutput{}, err
 	}
 
-	return i.presenter.Output(*userModel), nil
+	return i.presenter.Output(userModel), nil
 }

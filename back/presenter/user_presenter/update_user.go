@@ -32,18 +32,7 @@ func (p *UpdateUserPresenter) Output(user *model.User) usecase.UpdateUserOutput 
 		})
 	}
 
-	userDto := dto.NewUserDTO(
-		user.Email().Email(),
-		user.ID(),
-		user.Name(),
-		user.Birthday(),
-		user.IconName(),
-		user.HeaderIconName(),
-		user.BioPath(),
-		user.OrganizationName(),
-		skills,
-		externalServiceURLs,
-	)
+	userDto := dto.NewUserDTO(user)
 
 	return usecase.UpdateUserOutput{
 		User: userDto,

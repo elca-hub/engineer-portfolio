@@ -18,7 +18,7 @@ type (
 	}
 
 	FetchUserInfoPresenter interface {
-		Output(user model.User) FetchUserInfoOutput
+		Output(user *model.User) FetchUserInfoOutput
 	}
 
 	FetchUserInfoOutput struct {
@@ -54,5 +54,5 @@ func (i fetchUserInfoInterator) Execute(tx context.Context, input FetchUserInfoI
 		return FetchUserInfoOutput{}, err
 	}
 
-	return i.presenter.Output(*user), nil
+	return i.presenter.Output(user), nil
 }
