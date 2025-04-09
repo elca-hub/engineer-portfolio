@@ -1,4 +1,0 @@
--- MIGRATION MOVED
--- The modifications originally planned for this migration were moved to 
--- migration 20250408113224.sql to properly handle foreign key constraints.
--- This migration file is kept as a placeholder to maintain version history.
