@@ -11,6 +11,7 @@ export type UserType = {
 	bio_path: string
 	organization_name: string
 	occupation_name: string
+	place: string
 	skills: SkillType[]
 	external_service_url: ExternalServiceUrlType[]
 }
