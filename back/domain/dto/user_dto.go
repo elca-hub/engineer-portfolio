@@ -25,7 +25,7 @@ func NewUserDTO(userModel *model.User) *UserDTO {
 		skillsDto[i] = NewSkillDTO(skillModel)
 	}
 
-externalDto := make([]*ExternalServiceUrlDTO, len(userModel.ExternalServiceURLs()))
+	externalDto := make([]*ExternalServiceUrlDTO, len(userModel.ExternalServiceURLs()))
 
 	for i, externalModel := range userModel.ExternalServiceURLs() {
 		externalDto[i] = NewExternalServiceUrlDTO(externalModel)
