@@ -2,8 +2,8 @@
 
 import { UserType } from '@/action/type/user'
 import fetchById from '@/action/usecase/user/fetchById'
+import HeaderPresentation from '@/app/_containers/profile/headerPresentation'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
-import DPHeader from '@/components/layout/header'
 import { getAuthUser, handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
 
@@ -35,7 +35,7 @@ export default async function ProfileContainer({ userId }: Props) {
 	return (
 		<>
 			<ProfilePresentation
-				header={<DPHeader userIconName={authUser === null ? '' : authUser.icon_name} isLogin={!!authUser}></DPHeader>}
+				header={<HeaderPresentation user={authUser ?? undefined} isLogin={!!authUser}></HeaderPresentation>}
 				user={user}
 				isAuthUser={authUser !== null && authUser.user_id === userId}
 			></ProfilePresentation>

@@ -35,6 +35,7 @@ type UpdateUserRequest struct {
 	Birthday            string `json:"birthday"`
 	Email               string `json:"email"`
 	BioPath             string `json:"bio_path"`
+	OrganizationName    string `json:"organization_name"`
 	Skills              []*model.Skill
 	ExternalServiceURLs []*model.ExternalServiceUrl
 }
@@ -57,6 +58,7 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 		Birthday:            currentUser.Birthday().Format("2006-01-02"),
 		Email:               currentUser.Email().Email(),
 		BioPath:             currentUser.BioPath(),
+		OrganizationName:    currentUser.OrganizationName(),
 		Skills:              currentUser.Skills(),
 		ExternalServiceURLs: currentUser.ExternalServiceURLs(),
 	}
@@ -89,6 +91,11 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 		if jsonRequest.BioPath != "" {
 			input.BioPath = jsonRequest.BioPath
 		}
+
+		if jsonRequest.OrganizationName != "" {
+			input.OrganizationName = jsonRequest.OrganizationName
+		}
+
 		if jsonRequest.Skills != nil {
 			input.Skills = jsonRequest.Skills
 		}

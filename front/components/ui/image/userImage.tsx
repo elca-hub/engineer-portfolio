@@ -10,8 +10,8 @@ export default function UserImage(props: Props) {
 	const { imageType, fileName, ...rest } = props
 	const alt = imageType === 'icon' ? 'ユーザアイコン' : 'ユーザヘッダー'
 
-	if (fileName === defaultUserIcon || fileName === defaultUserHeaderImage) {
-		return <Image {...rest} alt={alt} src={fileName} />
+	if (fileName === '' || fileName === '') {
+		return <Image {...rest} alt={alt} src={imageType === 'icon' ? defaultUserIcon : defaultUserHeaderImage} />
 	}
 
 	const host = process.env.NEXT_PUBLIC_S3_IMAGE_HOST

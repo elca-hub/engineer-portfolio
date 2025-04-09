@@ -22,6 +22,7 @@ type (
 		Name                string `validate:"required,max=50"`
 		Birthday            string `json:"birthday" validate:"required"`
 		Email               string `validate:"required,email"`
+		OrganizationName    string `validate:"max=50"`
 		Icon                multipart.File
 		IconHeader          *multipart.FileHeader
 		Header              multipart.File
@@ -141,6 +142,8 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 			return err
 		}
 
+		println(input.OrganizationName)
+
 		updatedUser, err := model.NewUser(
 			user.ID(),
 			input.Name,
@@ -149,6 +152,7 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 			iconName,
 			headerIconName,
 			input.BioPath,
+			input.OrganizationName,
 			user.CreatedAt(),
 			time.Now(),
 			input.Skills,

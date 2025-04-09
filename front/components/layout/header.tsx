@@ -1,5 +1,6 @@
 'use client'
 
+import { UserType } from '@/action/type/user'
 import { CalloutContext } from '@/app/state'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
@@ -15,9 +16,8 @@ import { RiGoogleFill, RiLockLine, RiProfileLine, RiUserLine, RiUserSearchLine }
 
 type Props = {
 	children?: React.ReactNode
-	userIconName: string
+	user?: UserType
 	isLogin: boolean
-	userId?: string
 }
 
 const pacifico = Pacifico({
@@ -29,7 +29,7 @@ export type SearchUserFormContent = {
 	name: string
 }
 
-export default function DPHeader({ children, userIconName, isLogin, userId }: Props) {
+export default function DPHeader({ children, user, isLogin }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const [isLogout, setIsLogout] = useState(false)
 
@@ -118,12 +118,12 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 			</div>
 
 			<div className="flex items-center gap-4">
-				{isLogin ? (
+				{isLogin && user ? (
 					<>
 						{children ? (
 							children
-						) : userId ? (
-							<Link href={`/${userId}/profile`} className="outline-none">
+						) : user ? (
+							<Link href={`/${user.user_id}/profile`} className="outline-none">
 								<DPButton colormode="primary">
 									<TextWithIcon icon={<RiProfileLine />}>プロフィールへ</TextWithIcon>
 								</DPButton>
@@ -136,7 +136,7 @@ export default function DPHeader({ children, userIconName, isLogin, userId }: Pr
 								aria-label="menu"
 								className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
 							>
-								<UserImage imageType="icon" fileName={userIconName} className="w-12 h-12 rounded-xl object-cover" width={46} height={46} priority />
+								<UserImage imageType="icon" fileName={user.icon_name} className="w-12 h-12 rounded-xl object-cover" width={47} height={47} priority />
 							</Button>
 							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 								<Menu className="outline-none">

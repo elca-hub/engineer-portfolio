@@ -1,10 +1,14 @@
+import { UserType } from '@/action/type/user'
 import DPHeader from '@/components/layout/header'
 
 type Props = {
-	userIconName: string
+	user: UserType | undefined
 	isLogin: boolean
 }
 
-export default function HeaderPresentation({ userIconName, isLogin }: Props) {
-	return <DPHeader userIconName={userIconName} isLogin={isLogin}></DPHeader>
+/**
+ * @package
+ */
+export default function HeaderPresentation({ user, isLogin }: Props) {
+	return <DPHeader user={user} isLogin={isLogin}></DPHeader>
 }

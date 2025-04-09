@@ -9,6 +9,7 @@ type UserDTO struct {
 	IconName           string                  `json:"icon_name"`
 	HeaderIconName     string                  `json:"header_icon_name"`
 	BioPath            string                  `json:"bio_path"`
+	OrganizationName   string                  `json:"organization_name"`
 	Skills             []SkillDTO              `json:"skills"`
 	Birthday           string                  `json:"birthday"`
 	ExternalServiceUrl []ExternalServiceUrlDTO `json:"external_service_url"`
@@ -22,6 +23,7 @@ func NewUserDTO(
 	iconName string,
 	headerIconName string,
 	bioPath string,
+	organizationName string,
 	skills []SkillDTO,
 	externalServiceUrl []ExternalServiceUrlDTO,
 ) *UserDTO {
@@ -33,6 +35,7 @@ func NewUserDTO(
 		IconName:           iconName,
 		HeaderIconName:     headerIconName,
 		BioPath:            bioPath,
+		OrganizationName:   organizationName,
 		Skills:             skills,
 		ExternalServiceUrl: externalServiceUrl,
 	}
