@@ -333,8 +333,8 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					</div>
 				</div>
 			</div>
-			<main className="px-4 md:px-16 mt-[70px] md:mt-[130px]">
-				<section className="flex justify-start gap-4">
+			<main className="px-4 md:px-16 mt-[80px] md:mt-[130px]">
+				<section className="flex justify-start gap-x-4 gap-y-2 flex-wrap">
 					{user.organization_name && (
 						<p className="text-subtext">
 							<TextWithIcon icon={<RiBuilding2Line />}>{user.organization_name}</TextWithIcon>
