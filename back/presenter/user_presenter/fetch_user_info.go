@@ -13,7 +13,7 @@ func NewFetchUserInfoPresenter() *FetchUserInfoPresenter {
 	return &FetchUserInfoPresenter{}
 }
 
-func (p *FetchUserInfoPresenter) Output(user usermodel.User) user.FetchUserInfoOutput {
+func (p *FetchUserInfoPresenter) Output(user *usermodel.User) user.FetchUserInfoOutput {
 	skills := make([]dto.SkillDTO, 0, len(user.Skills()))
 
 	for _, skill := range user.Skills() {
@@ -33,18 +33,7 @@ func (p *FetchUserInfoPresenter) Output(user usermodel.User) user.FetchUserInfoO
 		})
 	}
 
-	userDto := dto.NewUserDTO(
-		user.Email().Email(),
-		user.ID(),
-		user.Name(),
-		user.Birthday(),
-		user.IconName(),
-		user.HeaderIconName(),
-		user.BioPath(),
-		user.OrganizationName(),
-		skills,
-		externalServiceURLs,
-	)
+	userDto := dto.NewUserDTO(user)
 
 	return usecase.FetchUserInfoOutput{
 		User: userDto,

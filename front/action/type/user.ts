@@ -10,6 +10,7 @@ export type UserType = {
 	header_icon_name: string
 	bio_path: string
 	organization_name: string
+	occupation_name: string
 	skills: SkillType[]
 	external_service_url: ExternalServiceUrlType[]
 }

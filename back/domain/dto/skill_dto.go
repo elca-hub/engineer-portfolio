@@ -1,5 +1,7 @@
 package dto
 
+import "devport/domain/model"
+
 type SkillDTO struct {
 	Name      string `json:"name"`
 	Status    string `json:"status"`
@@ -7,11 +9,11 @@ type SkillDTO struct {
 	SortIndex int    `json:"sort_index"`
 }
 
-func NewSkillDTO(name string, status string, when string, sortIndex int) *SkillDTO {
+func NewSkillDTO(skill *model.Skill) *SkillDTO {
 	return &SkillDTO{
-		Name:      name,
-		Status:    status,
-		When:      when,
-		SortIndex: sortIndex,
+		Name:      skill.Name(),
+		Status:    skill.Status(),
+		When:      skill.When().Format("2006-01-02"),
+		SortIndex: skill.SortIndex(),
 	}
 }

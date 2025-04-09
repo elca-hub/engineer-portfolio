@@ -12,6 +12,7 @@ const (
 	MaxUserSkillsLen              = 50
 	MaxUserExternalServiceURLsLen = 5
 	MaxOrganizationName           = 50
+	MaxOccupationNameLen          = 50
 )
 
 type User struct {
@@ -24,6 +25,7 @@ type User struct {
 	headerIconName      string
 	bioPath             string
 	organizationName    string
+	occupationName      string
 	createdAt           time.Time
 	updatedAt           time.Time
 	skills              []*Skill
@@ -39,6 +41,7 @@ func NewUser(
 	headerIconName string,
 	bioPath string,
 	organizationName string,
+	occupationName string,
 	createdAt time.Time,
 	updatedAt time.Time,
 	skills []*Skill,
@@ -103,6 +106,10 @@ func NewUser(
 		return nil, fmt.Errorf("組織名は%d字を超過しています", MaxOrganizationName)
 	}
 
+	if len(occupationName) > MaxOccupationNameLen {
+		return nil, fmt.Errorf("職業名は%d字を超過しています", MaxOccupationNameLen)
+	}
+
 	if len(skills) > MaxUserSkillsLen {
 		return nil, fmt.Errorf("スキルは%d個まで登録できます", MaxUserSkillsLen)
 	}
@@ -121,6 +128,7 @@ func NewUser(
 		headerIconName,
 		bioPath,
 		organizationName,
+		occupationName,
 		createdAt,
 		updatedAt,
 		skills,
@@ -166,6 +174,10 @@ func (u *User) BioPath() string {
 
 func (u *User) OrganizationName() string {
 	return u.organizationName
+}
+
+func (u *User) OccupationName() string {
+	return u.occupationName
 }
 
 func (u *User) CreatedAt() time.Time {

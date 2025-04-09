@@ -23,6 +23,7 @@ type (
 		Birthday            string `json:"birthday" validate:"required"`
 		Email               string `validate:"required,email"`
 		OrganizationName    string `validate:"max=50"`
+		OccupationName      string `validate:"max=50"`
 		Icon                multipart.File
 		IconHeader          *multipart.FileHeader
 		Header              multipart.File
@@ -153,6 +154,7 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 			headerIconName,
 			input.BioPath,
 			input.OrganizationName,
+			input.OccupationName,
 			user.CreatedAt(),
 			time.Now(),
 			input.Skills,

@@ -13,7 +13,7 @@ func NewGetUserInfoPresenter() *GetUserInfoPresenter {
 	return &GetUserInfoPresenter{}
 }
 
-func (p *GetUserInfoPresenter) Output(user usermodel.User) user.GetUserInfoOutput {
+func (p *GetUserInfoPresenter) Output(user *usermodel.User) user.GetUserInfoOutput {
 	skills := make([]dto.SkillDTO, 0, len(user.Skills()))
 
 	for _, skill := range user.Skills() {
@@ -33,18 +33,7 @@ func (p *GetUserInfoPresenter) Output(user usermodel.User) user.GetUserInfoOutpu
 		})
 	}
 
-	userDto := dto.NewUserDTO(
-		user.Email().Email(),
-		user.ID(),
-		user.Name(),
-		user.Birthday(),
-		user.IconName(),
-		user.HeaderIconName(),
-		user.BioPath(),
-		user.OrganizationName(),
-		skills,
-		externalServiceURLs,
-	)
+	userDto := dto.NewUserDTO(user)
 
 	return usecase.GetUserInfoOutput{
 		User: userDto,
