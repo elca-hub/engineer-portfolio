@@ -40,6 +40,7 @@ func (p *UpdateUserPresenter) Output(user *model.User) usecase.UpdateUserOutput 
 		user.IconName(),
 		user.HeaderIconName(),
 		user.BioPath(),
+		user.OrganizationName(),
 		skills,
 		externalServiceURLs,
 	)

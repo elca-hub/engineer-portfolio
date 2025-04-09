@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Button, DialogTrigger, DropZone, FileTrigger } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
+import { RiBuilding2Line, RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -26,6 +26,7 @@ type Props = {
 export type UserUpdateFormType = {
 	name: string
 	birthday: CalendarDate
+	organizationName: string
 }
 
 function UserIconComponent({
@@ -93,6 +94,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 		defaultValues: {
 			name: user.name,
 			birthday: parseDate(user.birthday),
+			organizationName: user.organization_name,
 		},
 	})
 
@@ -102,6 +104,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 		if (isSubmit) {
 			const name = watch('name')
 			const birthday = watch('birthday')
+			const organizationName = watch('organizationName')
 			const updateFlow = async () => {
 				const token = await getSessionToken()
 				if (!token) {
@@ -109,7 +112,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					return
 				}
 
-				const res = await userUpdate(token, { userData: { name, birthday: birthday.toString() } })
+				const res = await userUpdate(token, { userData: { name, birthday: birthday.toString(), organization_name: organizationName } })
 				if (res === null) {
 					setCallout([...callout, { content: '変更に失敗しました', type: 'error' }])
 					return
@@ -246,6 +249,28 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 												)}
 											></Controller>
 
+											<Controller
+												name="organizationName"
+												control={control}
+												rules={{
+													max: {
+														value: 50,
+														message: '組織名は50文字以内で入力してください',
+													},
+												}}
+												render={({ field, fieldState }) => (
+													<InputField
+														title="組織・企業名"
+														type="text"
+														field={field}
+														fieldState={fieldState}
+														helperText="組織名は50文字以内で入力してください。"
+														icon={<RiBuilding2Line />}
+														autoComplete="off"
+													></InputField>
+												)}
+											></Controller>
+
 											<div className="flex justify-center mt-4">
 												<DPButton colormode="primary" type="submit">
 													<TextWithIcon icon={<RiUserLine />}>変更する</TextWithIcon>
@@ -261,7 +286,15 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					</div>
 				</div>
 			</div>
-			<main className="px-10 mt-2"></main>
+			<main className="px-4 md:px-16 mt-[70px] md:mt-[130px]">
+				<section>
+					{user.organization_name && (
+						<p className="text-subtext">
+							<TextWithIcon icon={<RiBuilding2Line />}>{user.organization_name}</TextWithIcon>
+						</p>
+					)}
+				</section>
+			</main>
 		</div>
 	)
 }

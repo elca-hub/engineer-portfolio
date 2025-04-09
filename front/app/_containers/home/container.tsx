@@ -20,15 +20,7 @@ export default async function HomeContainer() {
 
 	return (
 		<>
-			<HomePresentation
-				header={
-					<DPHeader
-						userId={authUser === null ? undefined : authUser.user_id}
-						userIconName={authUser === null ? '' : authUser.icon_name}
-						isLogin={!!authUser}
-					></DPHeader>
-				}
-			></HomePresentation>
+			<HomePresentation header={<DPHeader user={authUser ?? undefined} isLogin={!!authUser}></DPHeader>}></HomePresentation>
 		</>
 	)
 }

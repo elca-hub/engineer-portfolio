@@ -1,7 +1,7 @@
 'use server'
 
 import { UserType } from '@/action/type/user'
-import { apiPrefix, defaultUserHeaderImage, defaultUserIcon } from '@/constants/constant'
+import { apiPrefix } from '@/constants/constant'
 import { NewDPResponse } from '@/lib/api'
 
 export default async function fetchById(userId: string): Promise<UserType | null> {
@@ -19,16 +19,6 @@ export default async function fetchById(userId: string): Promise<UserType | null
 
 	if (!user) {
 		return null
-	}
-
-	if (user.icon_name === '') {
-		user.icon_name = defaultUserIcon
-	}
-
-	console.log(user.header_icon_name)
-
-	if (user.header_icon_name === '') {
-		user.header_icon_name = defaultUserHeaderImage
 	}
 
 	return user

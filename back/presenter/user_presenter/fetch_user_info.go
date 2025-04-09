@@ -41,6 +41,7 @@ func (p *FetchUserInfoPresenter) Output(user usermodel.User) user.FetchUserInfoO
 		user.IconName(),
 		user.HeaderIconName(),
 		user.BioPath(),
+		user.OrganizationName(),
 		skills,
 		externalServiceURLs,
 	)
