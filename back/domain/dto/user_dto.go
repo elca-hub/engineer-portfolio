@@ -13,6 +13,7 @@ type UserDTO struct {
 	BioPath            string                   `json:"bio_path"`
 	OrganizationName   string                   `json:"organization_name"`
 	OccupationName     string                   `json:"occupation_name"`
+	Place              string                   `json:"place"`
 	Skills             []*SkillDTO              `json:"skills"`
 	Birthday           string                   `json:"birthday"`
 	ExternalServiceUrl []*ExternalServiceUrlDTO `json:"external_service_url"`
@@ -41,6 +42,7 @@ func NewUserDTO(userModel *model.User) *UserDTO {
 		BioPath:            userModel.BioPath(),
 		OrganizationName:   userModel.OrganizationName(),
 		OccupationName:     userModel.OccupationName(),
+		Place:              userModel.Place(),
 		Skills:             skillsDto,
 		ExternalServiceUrl: externalDto,
 	}

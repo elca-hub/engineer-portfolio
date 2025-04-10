@@ -37,6 +37,7 @@ type UpdateUserRequest struct {
 	BioPath             string `json:"bio_path"`
 	OrganizationName    string `json:"organization_name"`
 	OccupationName      string `json:"occupation_name"`
+	Place               string `json:"place"`
 	Skills              []*model.Skill
 	ExternalServiceURLs []*model.ExternalServiceUrl
 }
@@ -95,6 +96,7 @@ func (a *UpdateUserAction) Execute(w http.ResponseWriter, r *http.Request, c *gi
 
 		input.OrganizationName = jsonRequest.OrganizationName
 		input.OccupationName = jsonRequest.OccupationName
+		input.Place = jsonRequest.Place
 
 		if jsonRequest.Skills != nil {
 			input.Skills = jsonRequest.Skills

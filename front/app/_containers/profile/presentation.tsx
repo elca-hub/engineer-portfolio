@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { Button, DialogTrigger, DropZone, FileTrigger } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiBriefcaseLine, RiBuilding2Line, RiCake2Line, RiImageAddLine, RiUserLine } from 'react-icons/ri'
+import { RiBriefcaseLine, RiBuilding2Line, RiCake2Line, RiImageAddLine, RiMapPinLine, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -28,6 +28,7 @@ export type UserUpdateFormType = {
 	birthday: CalendarDate
 	organizationName: string
 	occupationName: string
+	place: string
 }
 
 function UserIconComponent({
@@ -97,6 +98,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 			birthday: parseDate(user.birthday),
 			organizationName: user.organization_name,
 			occupationName: user.occupation_name,
+			place: user.place,
 		},
 	})
 
@@ -108,6 +110,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 			const birthday = watch('birthday')
 			const organizationName = watch('organizationName')
 			const occupationName = watch('occupationName')
+			const place = watch('place')
 			const updateFlow = async () => {
 				const token = await getSessionToken()
 				if (!token) {
@@ -116,7 +119,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 				}
 
 				const res = await userUpdate(token, {
-					userData: { name, birthday: birthday.toString(), organization_name: organizationName, occupation_name: occupationName },
+					userData: { name, birthday: birthday.toString(), organization_name: organizationName, occupation_name: occupationName, place: place },
 				})
 				if (res === null) {
 					setCallout([...callout, { content: '変更に失敗しました', type: 'error' }])
@@ -298,6 +301,23 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 												)}
 											></Controller>
 
+											<Controller
+												name="place"
+												control={control}
+												rules={{ max: { value: 50, message: '場所は50文字以内で入力してください' } }}
+												render={({ field, fieldState }) => (
+													<InputField
+														title="場所"
+														type="text"
+														field={field}
+														fieldState={fieldState}
+														helperText="場所は50文字以内で入力してください"
+														icon={<RiMapPinLine />}
+														autoComplete="off"
+													></InputField>
+												)}
+											></Controller>
+
 											<div className="flex justify-center mt-4">
 												<DPButton colormode="primary" type="submit">
 													<TextWithIcon icon={<RiUserLine />}>変更する</TextWithIcon>
@@ -313,8 +333,8 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					</div>
 				</div>
 			</div>
-			<main className="px-4 md:px-16 mt-[70px] md:mt-[130px]">
-				<section className="flex justify-start gap-4">
+			<main className="px-4 md:px-16 mt-[80px] md:mt-[130px]">
+				<section className="flex justify-start gap-x-4 gap-y-2 flex-wrap">
 					{user.organization_name && (
 						<p className="text-subtext">
 							<TextWithIcon icon={<RiBuilding2Line />}>{user.organization_name}</TextWithIcon>
@@ -323,6 +343,11 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 					{user.occupation_name && (
 						<p className="text-subtext">
 							<TextWithIcon icon={<RiBriefcaseLine />}>{user.occupation_name}</TextWithIcon>
+						</p>
+					)}
+					{user.place && (
+						<p className="text-subtext">
+							<TextWithIcon icon={<RiMapPinLine />}>{user.place}</TextWithIcon>
 						</p>
 					)}
 				</section>

@@ -47,6 +47,7 @@ func TestUser(t *testing.T) {
 		email            *Email
 		organizationName string
 		occupationName   string
+		place            string
 		isError          bool
 	}{
 		"success": {
@@ -56,6 +57,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: makeId(50),
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          false,
 		},
 		"emptyId": {
@@ -65,6 +67,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"overflowId": {
@@ -74,6 +77,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"irregularCharacterId": {
@@ -83,6 +87,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"emptyName": {
@@ -92,6 +97,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"overflowName": {
@@ -101,6 +107,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"irregularCharacterName": {
@@ -110,6 +117,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"emptyEmail": {
@@ -119,6 +127,7 @@ func TestUser(t *testing.T) {
 			email:            nil,
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"futureBirthday": {
@@ -128,6 +137,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "testCompany",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"overflowOrganizationName": {
@@ -137,6 +147,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: makeId(51),
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          true,
 		},
 		"emptyOrganizationName": {
@@ -146,6 +157,7 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: "",
 			occupationName:   makeId(50),
+			place:            makeId(50),
 			isError:          false,
 		},
 		"overflowOccupationName": {
@@ -164,6 +176,27 @@ func TestUser(t *testing.T) {
 			email:            fetchEmail(),
 			organizationName: makeId(50),
 			occupationName:   "",
+			place:            makeId(50),
+			isError:          false,
+		},
+		"overflowPlace": {
+			id:               makeId(50),
+			name:             "test",
+			birthday:         makeBirthday("2000-01-01"),
+			email:            fetchEmail(),
+			organizationName: makeId(50),
+			occupationName:   makeId(50),
+			place:            makeId(51),
+			isError:          true,
+		},
+		"emptyPlace": {
+			id:               makeId(50),
+			name:             "test",
+			birthday:         makeBirthday("2000-01-01"),
+			email:            fetchEmail(),
+			organizationName: makeId(50),
+			occupationName:   makeId(50),
+			place:            "",
 			isError:          false,
 		},
 	}
@@ -181,6 +214,7 @@ func TestUser(t *testing.T) {
 				"",
 				c.organizationName,
 				c.occupationName,
+				c.place,
 				time.Now(),
 				time.Now(),
 				[]*Skill{},
