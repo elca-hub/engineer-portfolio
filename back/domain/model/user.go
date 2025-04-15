@@ -17,21 +17,21 @@ const (
 )
 
 type User struct {
-	id                  string
-	name                string
-	birthday            time.Time
-	age                 int
-	email               *Email
-	iconName            string
-	headerIconName      string
-	bioPath             string
-	organizationName    string
-	occupationName      string
-	place               string
-	createdAt           time.Time
-	updatedAt           time.Time
-	skills              []*Skill
-	externalServiceURLs []*ExternalServiceUrl
+	id                    string
+	name                  string
+	birthday              time.Time
+	age                   int
+	email                 *Email
+	iconName              string
+	headerIconName        string
+	bioPath               string
+	organizationName      string
+	occupationName        string
+	place                 string
+	createdAt             time.Time
+	updatedAt             time.Time
+	skillIds              []uint
+	externalServiceUrlIds []uint
 }
 
 func updateBirthdayLogic(birthday time.Time) (time.Time, int, error) {
@@ -151,8 +151,8 @@ func NewUser(
 	place string,
 	createdAt time.Time,
 	updatedAt time.Time,
-	skills []*Skill,
-	externalServiceURLs []*ExternalServiceUrl,
+	skillIds []uint,
+	externalServiceUrlIds []uint,
 ) (*User, error) {
 	name, err := updateNameLogic(name)
 
@@ -194,18 +194,6 @@ func NewUser(
 		return nil, err
 	}
 
-	skills, err = updateSkillsLogic(skills)
-
-	if err != nil {
-		return nil, err
-	}
-
-	externalServiceURLs, err = updateExternalServiceURLsLogic(externalServiceURLs)
-
-	if err != nil {
-		return nil, err
-	}
-
 	return &User{
 		id,
 		name,
@@ -220,8 +208,8 @@ func NewUser(
 		place,
 		createdAt,
 		updatedAt,
-		skills,
-		externalServiceURLs,
+		skillIds,
+		externalServiceUrlIds,
 	}, nil
 }
 
@@ -343,12 +331,4 @@ func (u *User) CreatedAt() time.Time {
 
 func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
-}
-
-func (u *User) Skills() []*Skill {
-	return u.skills
-}
-
-func (u *User) ExternalServiceURLs() []*ExternalServiceUrl {
-	return u.externalServiceURLs
 }

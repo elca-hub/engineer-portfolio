@@ -116,8 +116,8 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			"",
 			time.Now(),
 			time.Now(),
-			[]*model.Skill{},
-			[]*model.ExternalServiceUrl{},
+			[]uint{},
+			[]uint{},
 		)
 
 		if err != nil {

@@ -217,8 +217,8 @@ func TestUser(t *testing.T) {
 				c.place,
 				time.Now(),
 				time.Now(),
-				[]*Skill{},
-				[]*ExternalServiceUrl{},
+				[]uint{},
+				[]uint{},
 			)
 
 			if c.isError {

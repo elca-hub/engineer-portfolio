@@ -131,45 +131,19 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 func (r GormUserRepository) convertToGormModel(user model.User) gorm_model.User {
 	email := user.Email()
 
-	modelSkills := user.Skills()
-
-	skills := make([]gorm_model.Skill, len(modelSkills))
-
-	for i, modelSkill := range modelSkills {
-		skills[i] = gorm_model.Skill{
-			Name:      modelSkill.Name(),
-			Status:    modelSkill.Status(),
-			When:      modelSkill.When(),
-			SortIndex: modelSkill.SortIndex(),
-		}
-	}
-
-	modelExternalServiceUrls := user.ExternalServiceURLs()
-
-	externalServiceUrls := make([]gorm_model.ExternalServiceUrl, len(modelExternalServiceUrls))
-
-	for i, modelExternalServiceUrl := range modelExternalServiceUrls {
-		externalServiceUrls[i] = gorm_model.ExternalServiceUrl{
-			UserId: user.ID(),
-			Url:    modelExternalServiceUrl.Url(),
-		}
-	}
-
 	return gorm_model.User{
-		ID:                  user.ID(),
-		Name:                user.Name(),
-		Birthday:            user.Birthday(),
-		Email:               email.Email(),
-		IconPath:            user.IconName(),
-		HeaderPath:          user.HeaderIconName(),
-		BioPath:             user.BioPath(),
-		OrganizationName:    user.OrganizationName(),
-		OccupationName:      user.OccupationName(),
-		Place:               user.Place(),
-		CreatedAt:           user.CreatedAt(),
-		UpdatedAt:           user.UpdatedAt(),
-		Skills:              skills,
-		ExternalServiceUrls: externalServiceUrls,
+		ID:               user.ID(),
+		Name:             user.Name(),
+		Birthday:         user.Birthday(),
+		Email:            email.Email(),
+		IconPath:         user.IconName(),
+		HeaderPath:       user.HeaderIconName(),
+		BioPath:          user.BioPath(),
+		OrganizationName: user.OrganizationName(),
+		OccupationName:   user.OccupationName(),
+		Place:            user.Place(),
+		CreatedAt:        user.CreatedAt(),
+		UpdatedAt:        user.UpdatedAt(),
 	}
 }
 
@@ -182,26 +156,18 @@ func (r GormUserRepository) convertToDomainModel(gormUser gorm_model.User) (*mod
 
 	gormSkills := gormUser.Skills
 
-	skills := make([]*model.Skill, len(gormSkills))
+	skills := make([]uint, len(gormSkills))
 
 	for i, gormSkill := range gormSkills {
-		skills[i], err = model.NewSkill(gormSkill.Name, gormSkill.Status, gormSkill.When, gormSkill.SortIndex)
-
-		if err != nil {
-			return nil, err
-		}
+		skills[i] = gormSkill.ID
 	}
 
 	gormExternalServiceUrl := gormUser.ExternalServiceUrls
 
-	externalServiceUrls := make([]*model.ExternalServiceUrl, len(gormExternalServiceUrl))
+	externalServiceUrls := make([]uint, len(gormExternalServiceUrl))
 
 	for i, gormExternalServiceUrl := range gormExternalServiceUrl {
-		externalServiceUrls[i], err = model.NewExternalServiceUrl(gormExternalServiceUrl.ServiceType, gormExternalServiceUrl.Url)
-
-		if err != nil {
-			return nil, err
-		}
+		externalServiceUrls[i] = gormExternalServiceUrl.ID
 	}
 
 	user, err := model.NewUser(
