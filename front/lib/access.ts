@@ -99,7 +99,6 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 	} else {
 		email = inputEmail
 	}
-
 	const res = await fetch(`${apiPrefix}/is_exists?email=${email}`, {
 		method: 'GET',
 	})

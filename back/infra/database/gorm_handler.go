@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"devport/adapter/repository"
 	"fmt"
 	"time"
@@ -45,6 +46,10 @@ func (h GormHandler) BeginTx(ctx context.Context) (repository.Tx, error) {
 
 func (h GormHandler) Execute(ctx context.Context) *gorm.DB {
 	return h.db.WithContext(ctx)
+}
+
+func (h GormHandler) ScanRows(ctx context.Context, rows *sql.Rows, dest interface{}) error {
+	return h.db.WithContext(ctx).ScanRows(rows, dest)
 }
 
 type gormTx struct {

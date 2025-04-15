@@ -26,7 +26,7 @@ func NewGormUserRepository(db repository.SQL) *GormUserRepository {
 
 func (r GormUserRepository) Create(ctx context.Context, user *model.User) error {
 	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
-	gormUser := convertToGormModel(*user)
+	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
 		return r.db.Execute(ctx).Create(&gormUser).Error
@@ -67,7 +67,7 @@ func (r GormUserRepository) ExistsById(ctx context.Context, id string) (bool, er
 
 func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
 	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
-	gormUser := convertToGormModel(*user)
+	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
 		return r.db.Execute(ctx).Save(&gormUser).Error
@@ -86,7 +86,7 @@ func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email)
 		return nil, err
 	}
 
-	user, err := convertToDomainModel(gormUser)
+	user, err := r.convertToDomainModel(gormUser)
 
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.Use
 		return nil, err
 	}
 
-	user, err := convertToDomainModel(gormUser)
+	user, err := r.convertToDomainModel(gormUser)
 
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 	return tx.Tx().Commit().Error
 }
 
-func convertToGormModel(user model.User) gorm_model.User {
+func (r GormUserRepository) convertToGormModel(user model.User) gorm_model.User {
 	email := user.Email()
 
 	modelSkills := user.Skills()
@@ -150,8 +150,9 @@ func convertToGormModel(user model.User) gorm_model.User {
 
 	for i, modelExternalServiceUrl := range modelExternalServiceUrls {
 		externalServiceUrls[i] = gorm_model.ExternalServiceUrl{
-			Name: modelExternalServiceUrl.Name(),
-			Url:  modelExternalServiceUrl.Url(),
+			UserId:      user.ID(),
+			ServiceType: modelExternalServiceUrl.ServiceTypeToInt(),
+			Url:         modelExternalServiceUrl.Url(),
 		}
 	}
 
@@ -173,7 +174,7 @@ func convertToGormModel(user model.User) gorm_model.User {
 	}
 }
 
-func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
+func (r GormUserRepository) convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 	userEmail, err := model.NewEmail(gormUser.Email)
 
 	if err != nil {
@@ -197,7 +198,7 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 	externalServiceUrls := make([]*model.ExternalServiceUrl, len(gormExternalServiceUrl))
 
 	for i, gormExternalServiceUrl := range gormExternalServiceUrl {
-		externalServiceUrls[i], err = model.NewExternalServiceUrl(gormExternalServiceUrl.Name, gormExternalServiceUrl.Url)
+		externalServiceUrls[i], err = model.NewExternalServiceUrl(gormExternalServiceUrl.ServiceType, gormExternalServiceUrl.Url)
 
 		if err != nil {
 			return nil, err

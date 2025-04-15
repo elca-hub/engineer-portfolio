@@ -34,10 +34,114 @@ type User struct {
 	externalServiceURLs []*ExternalServiceUrl
 }
 
+func updateBirthdayLogic(birthday time.Time) (time.Time, int, error) {
+	nowDate := time.Now()
+
+	if birthday.After(nowDate) {
+		return time.Time{}, 0, errors.New("誕生日は未来の日付を指定できません")
+	}
+
+	// ageは満何歳かを計算する
+	age := nowDate.Year() - birthday.Year()
+
+	if nowDate.Month() < birthday.Month() || (nowDate.Month() == birthday.Month() && nowDate.Day() < birthday.Day()) {
+		age--
+	}
+
+	if age < 0 {
+		return time.Time{}, 0, errors.New("年齢は0歳以上である必要があります")
+	}
+
+	return birthday, age, nil
+}
+
+func updateNameLogic(name string) (string, error) {
+	excludeStrings := []string{" ", "@", "#", "$", "%", "&", "", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/", "~", "`", "\n", "\t", "/", "?", "%", "#", "&", "=", "--", "/", "*/"}
+
+	if len(name) > MaxUserNameLen {
+		return "", fmt.Errorf("名前は%d字を超過しています", MaxUserNameLen)
+	}
+
+	if len(name) == 0 {
+		return "", errors.New("名前は必ず入力してください")
+	}
+
+	for _, excludeString := range excludeStrings {
+		for _, char := range name {
+			if string(char) == excludeString {
+				return "", errors.New("名前に使用できない文字が含まれています")
+			}
+		}
+	}
+
+	return name, nil
+}
+
+func updateIDLogic(id string) (string, error) {
+	excludeStrings := []string{" ", "@", "#", "$", "%", "&", "", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/", "~", "`", "\n", "\t", "/", "?", "%", "#", "&", "=", "--", "/", "*/"}
+	if len(id) > MaxUserNameLen {
+		return "", fmt.Errorf("IDは%d字を超過しています", MaxUserNameLen)
+	}
+
+	if len(id) == 0 {
+		return "", errors.New("IDは必ず入力してください")
+	}
+
+	for _, excludeString := range excludeStrings {
+		for _, char := range id {
+			if string(char) == excludeString {
+				return "", errors.New("IDに使用できない文字が含まれています")
+			}
+		}
+	}
+
+	return id, nil
+}
+
+func updateOccupationNameLogic(occupationName string) (string, error) {
+	if len(occupationName) > MaxOccupationNameLen {
+		return "", fmt.Errorf("職業名は%d字を超過しています", MaxOccupationNameLen)
+	}
+
+	return occupationName, nil
+}
+
+func updateOrganizationNameLogic(organizationName string) (string, error) {
+	if len(organizationName) > MaxOrganizationName {
+		return "", fmt.Errorf("組織名は%d字を超過しています", MaxOrganizationName)
+	}
+
+	return organizationName, nil
+}
+
+func updatePlaceLogic(place string) (string, error) {
+	if len(place) > MaxPlaceLen {
+		return "", fmt.Errorf("場所は%d字を超過しています", MaxPlaceLen)
+	}
+
+	return place, nil
+}
+
+func updateSkillsLogic(skills []*Skill) ([]*Skill, error) {
+	if len(skills) > MaxUserSkillsLen {
+		return nil, fmt.Errorf("スキルは%d個まで登録できます", MaxUserSkillsLen)
+	}
+
+	return skills, nil
+}
+
+func updateExternalServiceURLsLogic(externalServiceURLs []*ExternalServiceUrl) ([]*ExternalServiceUrl, error) {
+	if len(externalServiceURLs) > MaxUserExternalServiceURLsLen {
+		return nil, fmt.Errorf("外部サービスURLは%d個まで登録できます", MaxUserExternalServiceURLsLen)
+	}
+
+	return externalServiceURLs, nil
+}
+
 func NewUser(
 	id string,
 	name string,
-	birthDay time.Time,
+	birthday time.Time,
 	email *Email,
 	iconName string,
 	headerIconName string,
@@ -50,85 +154,62 @@ func NewUser(
 	skills []*Skill,
 	externalServiceURLs []*ExternalServiceUrl,
 ) (*User, error) {
-	excludeStrings := []string{" ", "@", "#", "$", "%", "&", "", "(", ")", "+", "=", "{", "}", "[", "]", "|", "\\", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/", "~", "`", "\n", "\t", "/", "?", "%", "#", "&", "=", "--", "/", "*/"}
+	name, err := updateNameLogic(name)
 
-	if len(name) > MaxUserNameLen {
-		return nil, fmt.Errorf("名前「%s」は%d字を超過しています", name, MaxUserNameLen)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(name) == 0 {
-		return nil, errors.New("名前は必ず入力してください")
+	id, err = updateIDLogic(id)
+
+	if err != nil {
+		return nil, err
 	}
 
-	for _, excludeString := range excludeStrings {
-		for _, char := range name {
-			if string(char) == excludeString {
-				return nil, errors.New("名前に使用できない文字が含まれています")
-			}
-		}
-	}
+	birthday, age, err := updateBirthdayLogic(birthday)
 
-	if len(id) > MaxUserNameLen {
-		return nil, fmt.Errorf("ID「%s」は%d字を超過しています", id, MaxUserNameLen)
-	}
-
-	if len(id) == 0 {
-		return nil, errors.New("IDは必ず入力してください")
-	}
-
-	for _, excludeString := range excludeStrings {
-		for _, char := range id {
-			if string(char) == excludeString {
-				return nil, errors.New("IDに使用できない文字が含まれています")
-			}
-		}
-	}
-
-	nowDate := time.Now()
-
-	if birthDay.After(nowDate) {
-		return nil, errors.New("誕生日は未来の日付を指定できません")
-	}
-
-	// ageは満何歳かを計算する
-	age := nowDate.Year() - birthDay.Year()
-
-	if nowDate.Month() < birthDay.Month() || (nowDate.Month() == birthDay.Month() && nowDate.Day() < birthDay.Day()) {
-		age--
-	}
-
-	if age < 0 {
-		return nil, errors.New("年齢は0歳以上である必要があります")
+	if err != nil {
+		return nil, err
 	}
 
 	if email == nil {
 		return nil, errors.New("メールアドレスが指定されていません")
 	}
 
-	if len(organizationName) > MaxOrganizationName {
-		return nil, fmt.Errorf("組織名は%d字を超過しています", MaxOrganizationName)
+	organizationName, err = updateOrganizationNameLogic(organizationName)
+
+	if err != nil {
+		return nil, err
 	}
 
-	if len(occupationName) > MaxOccupationNameLen {
-		return nil, fmt.Errorf("職業名は%d字を超過しています", MaxOccupationNameLen)
+	occupationName, err = updateOccupationNameLogic(occupationName)
+
+	if err != nil {
+		return nil, err
 	}
 
-	if len(place) > MaxPlaceLen {
-		return nil, fmt.Errorf("場所は%d字を超過しています", MaxPlaceLen)
+	place, err = updatePlaceLogic(place)
+
+	if err != nil {
+		return nil, err
 	}
 
-	if len(skills) > MaxUserSkillsLen {
-		return nil, fmt.Errorf("スキルは%d個まで登録できます", MaxUserSkillsLen)
+	skills, err = updateSkillsLogic(skills)
+
+	if err != nil {
+		return nil, err
 	}
 
-	if len(externalServiceURLs) > MaxUserExternalServiceURLsLen {
-		return nil, fmt.Errorf("外部サービスURLは%d個まで登録できます", MaxUserExternalServiceURLsLen)
+	externalServiceURLs, err = updateExternalServiceURLsLogic(externalServiceURLs)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &User{
 		id,
 		name,
-		birthDay,
+		birthday,
 		age,
 		email,
 		iconName,
@@ -156,6 +237,17 @@ func (u *User) Name() string {
 	return u.name
 }
 
+func (u *User) UpdateName(name string) error {
+	name, err := updateNameLogic(name)
+
+	if err != nil {
+		return err
+	}
+
+	u.name = name
+	return nil
+}
+
 func (u *User) Age() int {
 	return u.age
 }
@@ -168,12 +260,32 @@ func (u *User) Birthday() time.Time {
 	return u.birthday
 }
 
+func (u *User) UpdateBirthday(birthday time.Time) error {
+	birthday, age, err := updateBirthdayLogic(birthday)
+
+	if err != nil {
+		return err
+	}
+
+	u.birthday = birthday
+	u.age = age
+	return nil
+}
+
 func (u *User) IconName() string {
 	return u.iconName
 }
 
+func (u *User) UpdateIconName(iconName string) {
+	u.iconName = iconName
+}
+
 func (u *User) HeaderIconName() string {
 	return u.headerIconName
+}
+
+func (u *User) UpdateHeaderIconName(headerIconName string) {
+	u.headerIconName = headerIconName
 }
 
 func (u *User) BioPath() string {
@@ -184,12 +296,45 @@ func (u *User) OrganizationName() string {
 	return u.organizationName
 }
 
+func (u *User) UpdateOrganizationName(organizationName string) error {
+	organizationName, err := updateOrganizationNameLogic(organizationName)
+
+	if err != nil {
+		return err
+	}
+
+	u.organizationName = organizationName
+	return nil
+}
+
 func (u *User) OccupationName() string {
 	return u.occupationName
 }
 
+func (u *User) UpdateOccupationName(occupationName string) error {
+	occupationName, err := updateOccupationNameLogic(occupationName)
+
+	if err != nil {
+		return err
+	}
+
+	u.occupationName = occupationName
+	return nil
+}
+
 func (u *User) Place() string {
 	return u.place
+}
+
+func (u *User) UpdatePlace(place string) error {
+	place, err := updatePlaceLogic(place)
+
+	if err != nil {
+		return err
+	}
+
+	u.place = place
+	return nil
 }
 
 func (u *User) CreatedAt() time.Time {

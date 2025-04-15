@@ -128,6 +128,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
 				userAuthRouterGroup.PUT("/", e.updateUserAction())
+				userAuthRouterGroup.PUT("/image", e.uploadUserImageAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 			}
@@ -267,12 +268,28 @@ func (e *GinEngine) updateUserAction() gin.HandlerFunc {
 		var (
 			uc = user.NewUpdateUserInterator(
 				repository2.NewGormUserRepository(e.sql),
-				e.fileUploader,
+				repository2.NewGormExternalServiceRepository(e.sql),
 				user_presenter.NewUpdateUserPresenter(),
 				e.ctxTimeout,
 			)
 
 			act = action.NewUpdateUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) uploadUserImageAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewUploadUserImageInterator(
+				e.fileUploader,
+				user_presenter.NewUploadUserImagePresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUploadUserImageAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)
