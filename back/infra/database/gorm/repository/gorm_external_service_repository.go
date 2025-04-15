@@ -37,10 +37,10 @@ func (r GormExternalServiceRepository) Delete(ctx context.Context, user *model.U
 	gormExternalServiceUrl := r.convertToGormModel(externalServiceUrl, user.ID())
 
 	if !ok {
-		return r.db.Execute(ctx).Where("user_id = ?", user.ID()).Where("service_type = ?", externalServiceUrl.ServiceTypeToInt()).Delete(&gormExternalServiceUrl).Error
+		return r.db.Execute(ctx).Where("user_id = ?", user.ID()).Where("id = ?", externalServiceUrl.ID()).Delete(&gormExternalServiceUrl).Error
 	}
 
-	return tx.Where("user_id = ?", user.ID()).Where("service_type = ?", externalServiceUrl.ServiceTypeToInt()).Delete(&gormExternalServiceUrl).Error
+	return tx.Where("user_id = ?", user.ID()).Where("id = ?", externalServiceUrl.ID()).Delete(&gormExternalServiceUrl).Error
 }
 
 func (r GormExternalServiceRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.ExternalServiceUrl, error) {
@@ -58,7 +58,7 @@ func (r GormExternalServiceRepository) FindByUserId(ctx context.Context, user *m
 			return nil, err
 		}
 
-		externalServiceUrl, err := model.NewExternalServiceUrl(gormExternalServiceUrl.ServiceType, gormExternalServiceUrl.Url)
+		externalServiceUrl, err := model.NewExternalServiceUrl(gormExternalServiceUrl.Url, gormExternalServiceUrl.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -88,8 +88,7 @@ func (r GormExternalServiceRepository) WithTransaction(ctx context.Context, fn f
 
 func (r GormExternalServiceRepository) convertToGormModel(externalServiceUrl *model.ExternalServiceUrl, userId string) gorm_model.ExternalServiceUrl {
 	return gorm_model.ExternalServiceUrl{
-		UserId:      userId,
-		ServiceType: externalServiceUrl.ServiceTypeToInt(),
-		Url:         externalServiceUrl.Url(),
+		UserId: userId,
+		Url:    externalServiceUrl.Url(),
 	}
 }

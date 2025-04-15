@@ -13,7 +13,7 @@ type (
 	}
 
 	CreateExternalServiceUrlInput struct {
-		ServiceId int    `json:"service_id" validate:"required"`
+		ServiceId uint   `json:"service_id" validate:"required"`
 		Url       string `json:"url" validate:"required"`
 		UserId    string `json:"user_id" validate:"required"`
 	}
@@ -50,7 +50,7 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 	defer cancel()
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		externalServiceUrl, err := model.NewExternalServiceUrl(input.ServiceId, input.Url)
+		externalServiceUrl, err := model.NewExternalServiceUrl(input.Url, input.ServiceId)
 
 		if err != nil {
 			return err

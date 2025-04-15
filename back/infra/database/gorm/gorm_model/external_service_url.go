@@ -7,8 +7,6 @@ import (
 type ExternalServiceUrl struct {
 	gorm.Model
 
-	ServiceType int    `gorm:"not null"`
-	Url         string `gorm:"size:255;not null"`
-
+	Url    string `gorm:"size:255;not null"`
 	UserId string
 }

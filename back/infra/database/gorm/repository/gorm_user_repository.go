@@ -150,9 +150,8 @@ func (r GormUserRepository) convertToGormModel(user model.User) gorm_model.User 
 
 	for i, modelExternalServiceUrl := range modelExternalServiceUrls {
 		externalServiceUrls[i] = gorm_model.ExternalServiceUrl{
-			UserId:      user.ID(),
-			ServiceType: modelExternalServiceUrl.ServiceTypeToInt(),
-			Url:         modelExternalServiceUrl.Url(),
+			UserId: user.ID(),
+			Url:    modelExternalServiceUrl.Url(),
 		}
 	}
 
