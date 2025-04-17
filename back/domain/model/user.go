@@ -31,7 +31,7 @@ type User struct {
 	createdAt             time.Time
 	updatedAt             time.Time
 	skillIds              []uint
-	externalServiceUrlIds []uint
+	externalServiceUrlIds []string
 }
 
 func updateBirthdayLogic(birthday time.Time) (time.Time, int, error) {
@@ -152,7 +152,7 @@ func NewUser(
 	createdAt time.Time,
 	updatedAt time.Time,
 	skillIds []uint,
-	externalServiceUrlIds []uint,
+	externalServiceUrlIds []string,
 ) (*User, error) {
 	name, err := updateNameLogic(name)
 

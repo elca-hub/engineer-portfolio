@@ -1,7 +1,9 @@
 'use client'
 
+import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { UserType } from '@/action/type/user'
 import BasicSettingTabPresentation from '@/app/_containers/profile/tabs/BasicSettingTabPresentation'
+import LinksSettingTabPresentation from '@/app/_containers/profile/tabs/LinksSettingTabPresentation'
 import ProfileImageTabPresentation from '@/app/_containers/profile/tabs/ProfileImageTabPresentation'
 import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
@@ -14,13 +16,14 @@ type Props = {
 	header: React.ReactNode
 	user: UserType
 	isAuthUser: boolean
+	externalServiceUrls: ExternalServiceUrlType[]
 }
 
 /**
  * @package
  */
-export default function ProfilePresentation({ header, user, isAuthUser }: Props) {
-	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-none data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
+export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls }: Props) {
+	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-border outline-primary data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
 
 	return (
 		<div className="flex flex-col h-screen">
@@ -56,7 +59,7 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 									</DPButton>
 									<DPModal header={{ title: 'プロフィール編集', icon: <RiUserLine /> }}>
 										<Tabs>
-											<TabList aria-label="プロフィール編集" className="flex justify-center gap-x-4 mb-4">
+											<TabList aria-label="プロフィール編集" className="flex justify-center gap-x-4 mb-4 ">
 												<Tab id="image" className={tabItemClassName}>
 													画像
 												</Tab>
@@ -75,7 +78,9 @@ export default function ProfilePresentation({ header, user, isAuthUser }: Props)
 											<TabPanel id="basic">
 												<BasicSettingTabPresentation user={user} />
 											</TabPanel>
-											<TabPanel id="links"></TabPanel>
+											<TabPanel id="links">
+												<LinksSettingTabPresentation externalServiceUrls={externalServiceUrls} />
+											</TabPanel>
 										</Tabs>
 									</DPModal>
 								</DialogTrigger>

@@ -9,7 +9,9 @@ import (
 	repository2 "devport/infra/database/gorm/repository"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
+	external_presenter "devport/presenter/external_presenter"
 	user_presenter "devport/presenter/user_presenter"
+	"devport/usecase/external_service_url"
 	"devport/usecase/user"
 	"fmt"
 	"log"
@@ -131,6 +133,12 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 				userAuthRouterGroup.PUT("/image", e.uploadUserImageAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
+
+				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url")
+				{
+					externalServiceUrlAuthRouterGroup.POST("/", e.createExternalServiceUrlAction())
+					externalServiceUrlAuthRouterGroup.PUT("/:id", e.updateExternalServiceUrlAction())
+				}
 			}
 		}
 	}
@@ -290,6 +298,40 @@ func (e *GinEngine) uploadUserImageAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUploadUserImageAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewCreateExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewCreateExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewUpdateExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewUpdateExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateExternalServiceUrlAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

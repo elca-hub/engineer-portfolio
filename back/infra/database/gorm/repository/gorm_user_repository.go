@@ -164,7 +164,7 @@ func (r GormUserRepository) convertToDomainModel(gormUser gorm_model.User) (*mod
 
 	gormExternalServiceUrl := gormUser.ExternalServiceUrls
 
-	externalServiceUrls := make([]uint, len(gormExternalServiceUrl))
+	externalServiceUrls := make([]string, len(gormExternalServiceUrl))
 
 	for i, gormExternalServiceUrl := range gormExternalServiceUrl {
 		externalServiceUrls[i] = gormExternalServiceUrl.ID

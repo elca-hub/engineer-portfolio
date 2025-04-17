@@ -117,7 +117,7 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			time.Now(),
 			time.Now(),
 			[]uint{},
-			[]uint{},
+			[]string{},
 		)
 
 		if err != nil {

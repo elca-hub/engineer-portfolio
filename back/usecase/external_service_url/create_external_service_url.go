@@ -1,10 +1,14 @@
-package user
+package external_service_url
 
 import (
 	"context"
+	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/sql"
+	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -13,16 +17,19 @@ type (
 	}
 
 	CreateExternalServiceUrlInput struct {
-		ServiceId uint   `json:"service_id" validate:"required"`
-		Url       string `json:"url" validate:"required"`
-		UserId    string `json:"user_id" validate:"required"`
+		ServiceType int    `json:"service_type" validate:"required"`
+		Url         string `json:"url" validate:"required"`
+		UserId      string `validate:"required"`
 	}
 
-	CreateExternalServiceUrlOutput struct{}
+	CreateExternalServiceUrlOutput struct {
+		ExternalServiceUrl *dto.ExternalServiceUrlDTO `json:"external_service_url"`
+	}
 
 	CreateExternalServiceUrlPresenter interface {
-		Output(email string) CreateExternalServiceUrlOutput
+		Output(esu *model.ExternalServiceUrl) CreateExternalServiceUrlOutput
 	}
+
 	createExternalServiceUrlInteractor struct {
 		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
 		userRepository                sql.UserRepository
@@ -49,8 +56,16 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
+	var externalServiceUrl *model.ExternalServiceUrl
+
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		externalServiceUrl, err := model.NewExternalServiceUrl(input.Url, input.ServiceId)
+		id, err := uuid.NewRandom()
+
+		if err != nil {
+			return err
+		}
+
+		externalServiceUrl, err = model.NewExternalServiceUrl(id.String(), input.ServiceType, input.Url)
 
 		if err != nil {
 			return err
@@ -62,6 +77,16 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return err
 		}
 
+		fetchByServiceType, err := i.externalServiceUrlsRepository.FindByServiceType(ctx, user, input.ServiceType)
+
+		if err != nil {
+			return err
+		}
+
+		if fetchByServiceType != nil {
+			return fmt.Errorf("既に登録されています: %d", input.ServiceType)
+		}
+
 		return i.externalServiceUrlsRepository.Create(ctx, user, externalServiceUrl)
 	})
 
@@ -69,5 +94,5 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 		return CreateExternalServiceUrlOutput{}, err
 	}
 
-	return CreateExternalServiceUrlOutput{}, nil
+	return i.presenter.Output(externalServiceUrl), nil
 }

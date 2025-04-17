@@ -1,8 +1,9 @@
 package gorm_model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Skill struct {

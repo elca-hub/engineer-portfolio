@@ -1,5 +1,5 @@
 export type ExternalServiceUrlType = {
-	service_type: 'qiita' | 'zenn' | 'note' | 'x' | 'github' | 'other'
-	service_id: number
+	id: string
+	service_type: number
 	url: string
 }

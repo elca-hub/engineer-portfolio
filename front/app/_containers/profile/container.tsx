@@ -1,6 +1,8 @@
 'use server'
 
+import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { UserType } from '@/action/type/user'
+import fetchExternalServiceUrlByUserId from '@/action/usecase/externalServiceUrl/fetchByUserId'
 import fetchById from '@/action/usecase/user/fetchById'
 import HeaderPresentation from '@/app/_containers/profile/headerPresentation'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
@@ -19,6 +21,7 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	let authUser: UserType | null = null
 	let user: UserType | null = null
+	let externalServiceUrls: ExternalServiceUrlType[] = []
 
 	if (fetchUser) {
 		user = fetchUser
@@ -30,6 +33,12 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	if (authRes.data) {
 		authUser = authRes.data.user
+
+		const externalServiceUrlsRes = await fetchExternalServiceUrlByUserId(userId)
+
+		if (externalServiceUrlsRes) {
+			externalServiceUrls = externalServiceUrlsRes
+		}
 	}
 
 	return (
@@ -38,6 +47,7 @@ export default async function ProfileContainer({ userId }: Props) {
 				header={<HeaderPresentation user={authUser ?? undefined} isLogin={!!authUser}></HeaderPresentation>}
 				user={user}
 				isAuthUser={authUser !== null && authUser.user_id === userId}
+				externalServiceUrls={externalServiceUrls}
 			></ProfilePresentation>
 		</>
 	)
