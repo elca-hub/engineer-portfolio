@@ -10,7 +10,7 @@ export default async function updateExternalServiceUrl(
 ): Promise<ExternalServiceUrlType | null> {
 	const updateUser = await fetch(`${apiPrefix}/auth/user/external-service-url/${externalServiceUrl.id}`, {
 		method: 'PUT',
-		body: JSON.stringify({ external_service_url: externalServiceUrl }),
+		body: JSON.stringify({url: externalServiceUrl.url}),
 		headers: {
 			Authorization: `Bearer ${token}`,
 			'Content-Type': 'application/json',

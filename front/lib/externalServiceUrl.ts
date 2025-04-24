@@ -9,6 +9,8 @@ const (
 )
  */
 
+export const MAX_SERVICE_TYPE_LEN = 5
+
 export function ServiceTypeToString(serviceType: number) {
 	switch (serviceType) {
 		case 0:
@@ -45,19 +47,34 @@ export function StringToServiceType(serviceType: string) {
 	}
 }
 
-export function ConvertToExternalServiceUrl(serviceType: number): string {
+export function ConvertToExternalServiceUrl(serviceType: number, name: string): string {
 	switch (serviceType) {
 		case 1:
-			return `https://github.com/${serviceType}`
+			return `https://github.com/${name}`
 		case 2:
-			return `https://x.com/${serviceType}`
+			return `https://x.com/${name}`
 		case 3:
-			return `https://qiita.com/${serviceType}`
+			return `https://qiita.com/${name}`
 		case 4:
-			return `https://zenn.dev/${serviceType}`
+			return `https://zenn.dev/${name}`
 		case 5:
-			return `https://note.com/${serviceType}`
+			return `https://note.com/${name}`
 		default:
 			return ''
 	}
+}
+
+export function ConvertUrlToServiceUserName(url: string): string {
+	if (url.includes('github.com')) {
+		return url.split('/')[3]
+	} else if (url.includes('x.com')) {
+		return url.split('/')[3]
+	} else if (url.includes('qiita.com')) {
+		return url.split('/')[3]
+	} else if (url.includes('zenn.dev')) {
+		return url.split('/')[3]
+	} else if (url.includes('note.com')) {
+		return url.split('/')[3]
+	}
+	return url
 }

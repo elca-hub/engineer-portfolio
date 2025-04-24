@@ -69,7 +69,7 @@ func (a *CreateExternalServiceUrlAction) Execute(w http.ResponseWriter, r *http.
 			return
 		}
 	}(r.Body)
-
+	
 	if err := a.v.Validate(input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
 		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)

@@ -59,7 +59,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 									</DPButton>
 									<DPModal header={{ title: 'プロフィール編集', icon: <RiUserLine /> }}>
 										<Tabs>
-											<TabList aria-label="プロフィール編集" className="flex justify-center gap-x-4 mb-4 ">
+											<TabList aria-label="プロフィール編集" className="flex justify-center gap-x-4 mb-4">
 												<Tab id="image" className={tabItemClassName}>
 													画像
 												</Tab>

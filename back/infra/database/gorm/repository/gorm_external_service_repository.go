@@ -45,26 +45,20 @@ func (r GormExternalServiceRepository) Delete(ctx context.Context, user *model.U
 }
 
 func (r GormExternalServiceRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.ExternalServiceUrl, error) {
-	gormExternalServiceUrls, err := r.db.Execute(ctx).Where("user_id = ?", user.ID()).Find(&gorm_model.ExternalServiceUrl{}).Rows()
+	var gormExternalServiceUrls []gorm_model.ExternalServiceUrl
+	err := r.db.Execute(ctx).Where("user_id = ?", user.ID()).Find(&gormExternalServiceUrls).Error
+
 	if err != nil {
 		return nil, err
 	}
 
-	externalServiceUrls := make([]*model.ExternalServiceUrl, 0)
-
-	for gormExternalServiceUrls.Next() {
-		var gormExternalServiceUrl gorm_model.ExternalServiceUrl
-		err = r.db.ScanRows(ctx, gormExternalServiceUrls, &gormExternalServiceUrl)
+	externalServiceUrls := make([]*model.ExternalServiceUrl, len(gormExternalServiceUrls))
+	for i, gormExternalServiceUrl := range gormExternalServiceUrls {
+		externalServiceUrl, err := r.convertToModel(&gormExternalServiceUrl)
 		if err != nil {
 			return nil, err
 		}
-
-		externalServiceUrl, err := model.NewExternalServiceUrl(gormExternalServiceUrl.ID, gormExternalServiceUrl.ServiceType, gormExternalServiceUrl.Url)
-		if err != nil {
-			return nil, err
-		}
-
-		externalServiceUrls = append(externalServiceUrls, externalServiceUrl)
+		externalServiceUrls[i] = externalServiceUrl
 	}
 
 	return externalServiceUrls, nil

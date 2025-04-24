@@ -17,7 +17,7 @@ type (
 	}
 
 	CreateExternalServiceUrlInput struct {
-		ServiceType int    `json:"service_type" validate:"required"`
+		ServiceType int    `json:"service_type" validate:"min=0,max=5"`
 		Url         string `json:"url" validate:"required"`
 		UserId      string `validate:"required"`
 	}

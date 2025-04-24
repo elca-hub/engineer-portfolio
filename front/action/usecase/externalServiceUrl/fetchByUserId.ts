@@ -12,13 +12,13 @@ export default async function fetchExternalServiceUrlByUserId(userId: string): P
 		},
 	})
 
-	const fetchUserRes = await NewDPResponse<{ external_service_url: ExternalServiceUrlType[] }>(fetchUser)
+	const fetchUserRes = await NewDPResponse<{ external_service_urls: ExternalServiceUrlType[] }>(fetchUser)
 
 	if (fetchUserRes.errors) {
 		return null
 	}
 
-	const externalServiceUrl = fetchUserRes.data?.external_service_url ?? null
+	const externalServiceUrl = fetchUserRes.data?.external_service_urls ?? null
 
 	if (!externalServiceUrl) {
 		return null

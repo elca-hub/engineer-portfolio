@@ -121,6 +121,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		userRouterGroup := apiRouterGroup.Group("/user/:userId")
 		{
 			userRouterGroup.GET("/", e.fetchUserInfoAction())
+
+			externalServiceUrlsRouterGroup := userRouterGroup.Group("/external-service-url")
+			{
+				externalServiceUrlsRouterGroup.GET("/", e.findExternalServiceUrlByUser())
+			}
 		}
 
 		authRouterGroup := apiRouterGroup.Group("/auth")
@@ -332,6 +337,23 @@ func (e *GinEngine) updateExternalServiceUrlAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUpdateExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findExternalServiceUrlByUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewFindByUserExternalServiceUrlInterator(
+				repository2.NewGormUserRepository(e.sql),
+				repository2.NewGormExternalServiceRepository(e.sql),
+				external_presenter.NewFindByUserExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindByUserExternalServiceUrlAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)
