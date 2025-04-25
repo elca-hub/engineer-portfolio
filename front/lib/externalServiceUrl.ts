@@ -30,6 +30,23 @@ export function ServiceTypeToString(serviceType: number) {
 	}
 }
 
+export function ServiceTypeToServiceName(serviceType: number) {
+	switch (serviceType) {
+		case 1:
+			return 'GitHub'
+		case 2:
+			return 'X'
+		case 3:
+			return 'Qiita'
+		case 4:
+			return 'Zenn'
+		case 5:
+			return 'note'
+		default:
+			return 'other'
+	}
+}
+
 export function StringToServiceType(serviceType: string) {
 	switch (serviceType) {
 		case 'github':
@@ -47,7 +64,25 @@ export function StringToServiceType(serviceType: string) {
 	}
 }
 
+export function ImageNameByServiceType(serviceType: number) {
+	switch (serviceType) {
+		case 1:
+			return 'github.png'
+		case 2:
+			return 'x.png'
+		case 3:
+			return 'qiita.png'
+		case 4:
+			return 'zenn.svg'
+		case 5:
+			return 'note.png'
+		default:
+			return 'other.svg'
+	}
+}
+
 export function ConvertToExternalServiceUrl(serviceType: number, name: string): string {
+	if (name === '') return ''
 	switch (serviceType) {
 		case 1:
 			return `https://github.com/${name}`

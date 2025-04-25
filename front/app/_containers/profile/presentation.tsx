@@ -11,6 +11,9 @@ import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { DialogTrigger, Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import { RiBriefcaseLine, RiBuilding2Line, RiMapPinLine, RiUserLine } from 'react-icons/ri'
+import Link from 'next/link'
+import { ImageNameByServiceType, ServiceTypeToServiceName, ServiceTypeToString } from '@/lib/externalServiceUrl'
+import Image from 'next/image'
 
 type Props = {
 	header: React.ReactNode
@@ -109,7 +112,24 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						</p>
 					)}
 				</section>
+				<section className="flex justify-start gap-x-4 gap-y-2 flex-wrap">
+					{externalServiceUrls.map((url) => (
+						<PofileLinkComponent url={url.url} serviceType={url.service_type} key={url.id} />
+					))}
+				</section>
 			</main>
 		</div>
+	)
+}
+
+function PofileLinkComponent({ url, serviceType }: { url: string; serviceType: number }) {
+	let text = ServiceTypeToServiceName(serviceType) as string
+	if (text === 'other') text = url
+
+	return (
+		<Link href={url} className="flex items-center flex-row gap-2 text-subtext" target="_blank" rel="noreferrer">
+			<Image src={`/external_service/${ImageNameByServiceType(serviceType)}`} alt={`icon of ${text}`} width={16} height={16}  className="size-[12px]" />
+			<p>{text}</p>
+		</Link>
 	)
 }

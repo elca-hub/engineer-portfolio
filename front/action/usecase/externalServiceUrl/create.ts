@@ -2,13 +2,13 @@
 
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { apiPrefix } from '@/constants/constant'
-import { NewDPResponse } from '@/lib/api'
+import { DPResponseData, NewDPResponse } from '@/lib/api'
 
 export default async function createExternalServiceUrl(
 	token: string,
 	serviceType: number,
 	url: string,
-): Promise<ExternalServiceUrlType | null> {
+): Promise<DPResponseData<{external_service_url: ExternalServiceUrlType}>> {
 	const apiRes = await fetch(`${apiPrefix}/auth/user/external-service-url/`, {
 		method: 'POST',
 		body: JSON.stringify({
@@ -21,11 +21,5 @@ export default async function createExternalServiceUrl(
 		},
 	})
 
-	const res = await NewDPResponse<{ external_service_url: ExternalServiceUrlType }>(apiRes)
-
-	if (res.errors) {
-		return null
-	}
-
-	return res.data?.external_service_url ?? null
+	return await NewDPResponse<{ external_service_url: ExternalServiceUrlType }>(apiRes)
 }

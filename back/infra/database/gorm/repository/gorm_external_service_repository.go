@@ -46,7 +46,8 @@ func (r GormExternalServiceRepository) Delete(ctx context.Context, user *model.U
 
 func (r GormExternalServiceRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.ExternalServiceUrl, error) {
 	var gormExternalServiceUrls []gorm_model.ExternalServiceUrl
-	err := r.db.Execute(ctx).Where("user_id = ?", user.ID()).Find(&gormExternalServiceUrls).Error
+	// urlが存在するかどうか
+	err := r.db.Execute(ctx).Where("user_id = ?", user.ID()).Where("url <> ''").Find(&gormExternalServiceUrls).Error
 
 	if err != nil {
 		return nil, err

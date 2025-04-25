@@ -142,7 +142,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url")
 				{
 					externalServiceUrlAuthRouterGroup.POST("/", e.createExternalServiceUrlAction())
-					externalServiceUrlAuthRouterGroup.PUT("/:id", e.updateExternalServiceUrlAction())
+					externalServiceUrlAuthItemRouterGroup := externalServiceUrlAuthRouterGroup.Group("/:externalServiceUrlId")
+					{
+						externalServiceUrlAuthItemRouterGroup.PUT("/", e.updateExternalServiceUrlAction())
+						externalServiceUrlAuthItemRouterGroup.DELETE("/", e.deleteExternalServiceUrlAction())
+					}
 				}
 			}
 		}
@@ -337,6 +341,23 @@ func (e *GinEngine) updateExternalServiceUrlAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUpdateExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) deleteExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewDeleteExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewDeleteExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewDeleteExternalServiceUrlAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

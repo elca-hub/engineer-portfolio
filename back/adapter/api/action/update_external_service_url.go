@@ -45,7 +45,7 @@ func (a *UpdateExternalServiceUrlAction) Execute(w http.ResponseWriter, r *http.
 	currentUser := userContext.(*model.User)
 
 	input.UserId = currentUser.ID()
-	input.Id = c.Param("id")
+	input.Id = c.Param("externalServiceUrlId")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when decode update external service url request")

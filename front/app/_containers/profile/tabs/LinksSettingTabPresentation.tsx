@@ -41,6 +41,8 @@ import {
 	RiUserLine,
 } from 'react-icons/ri'
 import { before } from 'node:test'
+import deleteExternalServiceUrl from '@/action/usecase/externalServiceUrl/delete'
+import { DPResponseData } from '@/lib/api'
 
 type LinkFormType = {
 	values: {url: string}[]
@@ -120,17 +122,43 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 	useEffect(() => {
 		if (!isSubmit) return
 
-		const updateData: {serviceType: number, url: string}[] = []
+		setIsSubmit(false)
+
+		type updateType = {serviceType: number, url: string, id?: string, isDelete: boolean, isExist: boolean}
+
+		const updateData: updateType[] = []
 
 		for (let i = 0; i <= MAX_SERVICE_TYPE_LEN; i++) {
+			const url = ServiceTypeToString(i) === 'other' ? watch().values[i].url : ConvertToExternalServiceUrl(i, watch().values[i].url)
+
+			const isExist = externalServiceUrls.some((url) => url.service_type === i)
+			const isDelete = url === ''
+
+			if (isDelete && !isExist) continue
+
+			let id = undefined
+
+			if (isExist) {
+				const tar = externalServiceUrls.find((val) => val.service_type === i)
+
+				if (tar === undefined) {
+					setCallout([...callout, { content: 'データ変換中にエラーが発生しました', type: 'error' }])
+					return
+				}
+
+				id = tar.id
+			}
+
 			updateData[i] = {
 				serviceType: i,
-				url: ServiceTypeToString(i) === 'other' ? watch().values[i].url : ConvertToExternalServiceUrl(i, watch().values[i].url),
+				url,
+				isExist,
+				id,
+				isDelete,
 			}
 		}
 
-		// 既に同じサービスが存在する場合は更新
-		const changeFlow = async (updateData: {serviceType: number, url: string}[]) => {
+		const changeFlow = async (updateData: updateType[]) => {
 			const token = await getSessionToken()
 
 			if (!token) {
@@ -138,52 +166,46 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 				return
 			}
 
-			let isError = false
-			for (let i = 0; i < updateData.length; i++) {
-				const userSelectedData = updateData[i]
-				const isExist = externalServiceUrls.some((url) => url.service_type === userSelectedData.serviceType)
-
-
-				if (isExist) {
-					const updateTarget = externalServiceUrls.find((val) => val.service_type === userSelectedData.serviceType)
-
-					if (updateTarget === undefined) {
-						setCallout([...callout, { content: 'データ変換中にエラーが発生しました', type: 'error' }])
-						isError = true
-						break
-					}
-
-					const res = await updateExternalServiceUrl(token, {
-						url: userSelectedData.url,
-						service_type: userSelectedData.serviceType,
-						id: updateTarget.id,
-					})
-
-					if (!res) {
-						setCallout([...callout, { content: 'データ更新に失敗しました', type: 'error' }])
-						isError = true
-						break
+			const promiseList = updateData.map(async (item) => {
+				let errors: string[] | undefined
+				if (item.isExist && item.id) {
+					if (item.isDelete) {
+						const res = await deleteExternalServiceUrl(token, item.id)
+						errors = res.errors
+					} else {
+						const res = await updateExternalServiceUrl(token, {
+							id: item.id,
+							service_type: item.serviceType,
+							url: item.url,
+						})
+						errors = res.errors
 					}
 				} else {
-					const res = await createExternalServiceUrl(token,userSelectedData.serviceType, userSelectedData.url)
+					const res = await createExternalServiceUrl(token, item.serviceType, item.url)
+					errors = res.errors
+				}
 
-					if (!res) {
-						setCallout([...callout, { content: 'データ登録に失敗しました', type: 'error' }])
-						isError = true
-						break
-					}
+				return errors
+			})
 
+			const resList = await Promise.all(promiseList)
+
+			for (const err of resList) {
+				if (err) {
+					console.error(err)
 				}
 			}
 
-			if (isError) return
+			if (resList.filter(err => !!err).length > 0) {
+				setCallout([...callout, { content: 'エラーが発生しました。再度試してください。', type: 'error' }])
+			} else {
+				setCallout([...callout, { content: '外部サービスリンクのデータ更新に成功しました!', type: 'success' }])
+			}
 
-			setCallout([...callout, { content: '外部サービスリンクのデータ更新に成功しました!', type: 'success' }])
 			router.refresh()
 		}
 
 		changeFlow(updateData)
-
 	}, [isSubmit])
 
 	return (
