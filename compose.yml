@@ -25,6 +25,16 @@ services:
       - ./back:/devport
     ports:
       - "5050:5050"
+  batch:
+    build:
+      context: ./batch
+    tty: true
+    env_file:
+      - back/.env
+    volumes:
+      - ./batch:/devport
+    ports:
+      - "5051:5051"
   mysql:
     image: mysql:8.4
     environment:

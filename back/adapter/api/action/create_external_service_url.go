@@ -59,7 +59,7 @@ func (a *CreateExternalServiceUrlAction) Execute(w http.ResponseWriter, r *http.
 		response.NewError(err, http.StatusBadRequest).Send(w)
 		return
 	}
-	
+
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {

@@ -111,6 +111,48 @@ func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.Use
 	return user, nil
 }
 
+func (r GormUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+	var gormUsers []gorm_model.User
+
+	if err := r.db.Execute(ctx).Where("icon_path <> ''").Find(&gormUsers).Error; err != nil {
+		return nil, err
+	}
+
+	res := make([]*model.FileIconName, len(gormUsers))
+
+	for i, user := range gormUsers {
+		var err error
+		res[i], err = model.NewFileIconName(user.IconPath, model.ICON_PATH)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+
+func (r GormUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+	var gormUsers []gorm_model.User
+
+	if err := r.db.Execute(ctx).Where("header_path <> ''").Find(&gormUsers).Error; err != nil {
+		return nil, err
+	}
+
+	res := make([]*model.FileIconName, len(gormUsers))
+
+	for i, user := range gormUsers {
+		var err error
+		res[i], err = model.NewFileIconName(user.HeaderPath, model.HEADER_PATH)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+
 func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
 	tx, err := r.db.BeginTx(ctx)
 
