@@ -8,7 +8,7 @@ export default async function createExternalServiceUrl(
 	token: string,
 	serviceType: number,
 	url: string,
-): Promise<DPResponseData<{external_service_url: ExternalServiceUrlType}>> {
+): Promise<DPResponseData<{ external_service_url: ExternalServiceUrlType }>> {
 	const apiRes = await fetch(`${apiPrefix}/auth/user/external-service-url/`, {
 		method: 'POST',
 		body: JSON.stringify({

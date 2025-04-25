@@ -1,5 +1,6 @@
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import createExternalServiceUrl from '@/action/usecase/externalServiceUrl/create'
+import deleteExternalServiceUrl from '@/action/usecase/externalServiceUrl/delete'
 import updateExternalServiceUrl from '@/action/usecase/externalServiceUrl/update'
 import { CalloutContext } from '@/app/state'
 import InputField from '@/components/layout/input/inputField'
@@ -8,7 +9,8 @@ import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { getSessionToken } from '@/lib/access'
 import {
 	ConvertToExternalServiceUrl,
-	ConvertUrlToServiceUserName, MAX_SERVICE_TYPE_LEN,
+	ConvertUrlToServiceUserName,
+	MAX_SERVICE_TYPE_LEN,
 	ServiceTypeToString,
 	StringToServiceType,
 } from '@/lib/externalServiceUrl'
@@ -31,21 +33,10 @@ import {
 	ValidationResult,
 } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import {
-	RiArrowDownWideLine, RiAtLine,
-	RiBuilding2Line,
-	RiLink,
-	RiPencilLine,
-	RiUser2Fill,
-	RiUser2Line,
-	RiUserLine,
-} from 'react-icons/ri'
-import { before } from 'node:test'
-import deleteExternalServiceUrl from '@/action/usecase/externalServiceUrl/delete'
-import { DPResponseData } from '@/lib/api'
+import { RiArrowDownWideLine, RiAtLine, RiLink, RiPencilLine } from 'react-icons/ri'
 
 type LinkFormType = {
-	values: {url: string}[]
+	values: { url: string }[]
 }
 
 type Props = {
@@ -57,11 +48,11 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 
 	const { callout, setCallout } = useContext(CalloutContext)
 
-	function initServiceValue(): {url: string}[] {
-		const serviceValue: {url: string}[] = []
+	function initServiceValue(): { url: string }[] {
+		const serviceValue: { url: string }[] = []
 		for (let i = 0; i <= MAX_SERVICE_TYPE_LEN; i++) {
 			const service = externalServiceUrls.find((val) => val.service_type === i)
-			serviceValue[i] = {url: service ? ConvertUrlToServiceUserName(service.url) : ''}
+			serviceValue[i] = { url: service ? ConvertUrlToServiceUserName(service.url) : '' }
 		}
 
 		return serviceValue
@@ -69,12 +60,12 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 
 	const { control, watch, handleSubmit } = useForm<LinkFormType>({
 		defaultValues: {
-			values: initServiceValue()
+			values: initServiceValue(),
 		},
 	})
 
 	const { fields } = useFieldArray<LinkFormType>({
-		name: "values",
+		name: 'values',
 		control,
 	})
 
@@ -124,7 +115,7 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 
 		setIsSubmit(false)
 
-		type updateType = {serviceType: number, url: string, id?: string, isDelete: boolean, isExist: boolean}
+		type updateType = { serviceType: number; url: string; id?: string; isDelete: boolean; isExist: boolean }
 
 		const updateData: updateType[] = []
 
@@ -196,7 +187,7 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 				}
 			}
 
-			if (resList.filter(err => !!err).length > 0) {
+			if (resList.filter((err) => !!err).length > 0) {
 				setCallout([...callout, { content: 'エラーが発生しました。再度試してください。', type: 'error' }])
 			} else {
 				setCallout([...callout, { content: '外部サービスリンクのデータ更新に成功しました!', type: 'success' }])
@@ -216,7 +207,7 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 					label="サービス"
 					items={serviceItems}
 					selectedKey={service}
-					onSelectionChange={service => setService(service)}
+					onSelectionChange={(service) => setService(service)}
 				>
 					{(item) => (
 						<MyListBoxItem id={item.name} textValue={item.name}>
@@ -225,35 +216,32 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 					)}
 				</MySelect>
 				<div>
-					{fields.map((field, index) => (
-						index === StringToServiceType(service.toString()) ?
-						<div key={index}>
-							<Controller
-								name={`values.${index}.url`}
-								control={control}
-								render={({field, fieldState}) => (
-									service === 'other' ?
-										<InputField
-											title="URL"
-											type="url"
-											field={field}
-											fieldState={fieldState}
-											icon={<RiLink />}
-											helperText=""
-										></InputField>
-										:
-										<InputField
-											title="ユーザ名"
-											type="text"
-											field={field}
-											fieldState={fieldState}
-											helperText="@マークなどは削除してください"
-											icon={<RiAtLine />}
-										></InputField>
-								)}
-							></Controller>
-						</div> : <div key={index}></div>
-					))}
+					{fields.map((field, index) =>
+						index === StringToServiceType(service.toString()) ? (
+							<div key={index}>
+								<Controller
+									name={`values.${index}.url`}
+									control={control}
+									render={({ field, fieldState }) =>
+										service === 'other' ? (
+											<InputField title="URL" type="url" field={field} fieldState={fieldState} icon={<RiLink />} helperText=""></InputField>
+										) : (
+											<InputField
+												title="ユーザ名"
+												type="text"
+												field={field}
+												fieldState={fieldState}
+												helperText="@マークなどは削除してください"
+												icon={<RiAtLine />}
+											></InputField>
+										)
+									}
+								></Controller>
+							</div>
+						) : (
+							<div key={index}></div>
+						),
+					)}
 				</div>
 			</div>
 			<div className="flex justify-center">

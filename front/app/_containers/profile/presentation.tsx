@@ -9,11 +9,11 @@ import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import { ImageNameByServiceType, ServiceTypeToServiceName } from '@/lib/externalServiceUrl'
+import Image from 'next/image'
+import Link from 'next/link'
 import { DialogTrigger, Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import { RiBriefcaseLine, RiBuilding2Line, RiMapPinLine, RiUserLine } from 'react-icons/ri'
-import Link from 'next/link'
-import { ImageNameByServiceType, ServiceTypeToServiceName, ServiceTypeToString } from '@/lib/externalServiceUrl'
-import Image from 'next/image'
 
 type Props = {
 	header: React.ReactNode
@@ -128,7 +128,13 @@ function PofileLinkComponent({ url, serviceType }: { url: string; serviceType: n
 
 	return (
 		<Link href={url} className="flex items-center flex-row gap-2 text-subtext" target="_blank" rel="noreferrer">
-			<Image src={`/external_service/${ImageNameByServiceType(serviceType)}`} alt={`icon of ${text}`} width={16} height={16}  className="size-[12px]" />
+			<Image
+				src={`/external_service/${ImageNameByServiceType(serviceType)}`}
+				alt={`icon of ${text}`}
+				width={16}
+				height={16}
+				className="size-[12px]"
+			/>
 			<p>{text}</p>
 		</Link>
 	)
