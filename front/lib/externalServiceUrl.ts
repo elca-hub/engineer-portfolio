@@ -101,22 +101,13 @@ export function ConvertToExternalServiceUrl(serviceType: number, name: string): 
 
 export function ConvertUrlToServiceUserName(url: string): string {
 	try {
-		const parsedUrl = new URL(url);
-		const host = parsedUrl.host;
-		if (host === 'github.com') {
-			return parsedUrl.pathname.split('/')[1];
-		} else if (host === 'x.com') {
-			return parsedUrl.pathname.split('/')[1];
-		} else if (host === 'qiita.com') {
-			return parsedUrl.pathname.split('/')[1];
-		} else if (host === 'zenn.dev') {
-			return parsedUrl.pathname.split('/')[1];
-		} else if (host === 'note.com') {
-			return parsedUrl.pathname.split('/')[1];
+		const parsedUrl = new URL(url)
+		const allowedHosts = ['github.com', 'x.com', 'qiita.com', 'zenn.dev', 'note.com']
+		if (allowedHosts.includes(parsedUrl.host)) {
+			return parsedUrl.pathname.split('/')[1] || ''
 		}
 	} catch (e) {
-		// Handle invalid URL
-		console.error('Invalid URL:', e);
+		console.error('Invalid URL:', e)
 	}
-	return url;
+	return url
 }
