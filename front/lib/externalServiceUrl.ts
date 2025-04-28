@@ -100,16 +100,23 @@ export function ConvertToExternalServiceUrl(serviceType: number, name: string): 
 }
 
 export function ConvertUrlToServiceUserName(url: string): string {
-	if (url.includes('github.com')) {
-		return url.split('/')[3]
-	} else if (url.includes('x.com')) {
-		return url.split('/')[3]
-	} else if (url.includes('qiita.com')) {
-		return url.split('/')[3]
-	} else if (url.includes('zenn.dev')) {
-		return url.split('/')[3]
-	} else if (url.includes('note.com')) {
-		return url.split('/')[3]
+	try {
+		const parsedUrl = new URL(url);
+		const host = parsedUrl.host;
+		if (host === 'github.com') {
+			return parsedUrl.pathname.split('/')[1];
+		} else if (host === 'x.com') {
+			return parsedUrl.pathname.split('/')[1];
+		} else if (host === 'qiita.com') {
+			return parsedUrl.pathname.split('/')[1];
+		} else if (host === 'zenn.dev') {
+			return parsedUrl.pathname.split('/')[1];
+		} else if (host === 'note.com') {
+			return parsedUrl.pathname.split('/')[1];
+		}
+	} catch (e) {
+		// Handle invalid URL
+		console.error('Invalid URL:', e);
 	}
-	return url
+	return url;
 }
