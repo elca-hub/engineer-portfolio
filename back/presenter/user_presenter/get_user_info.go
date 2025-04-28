@@ -14,25 +14,6 @@ func NewGetUserInfoPresenter() *GetUserInfoPresenter {
 }
 
 func (p *GetUserInfoPresenter) Output(user *usermodel.User) user.GetUserInfoOutput {
-	skills := make([]dto.SkillDTO, 0, len(user.Skills()))
-
-	for _, skill := range user.Skills() {
-		skills = append(skills, dto.SkillDTO{
-			Name:      skill.Name(),
-			Status:    skill.Status(),
-			When:      skill.When().String(),
-			SortIndex: skill.SortIndex(),
-		})
-	}
-
-	externalServiceURLs := make([]dto.ExternalServiceUrlDTO, 0, len(user.ExternalServiceURLs()))
-	for _, externalServiceURL := range user.ExternalServiceURLs() {
-		externalServiceURLs = append(externalServiceURLs, dto.ExternalServiceUrlDTO{
-			Name: externalServiceURL.Name(),
-			Url:  externalServiceURL.Url(),
-		})
-	}
-
 	userDto := dto.NewUserDTO(user)
 
 	return usecase.GetUserInfoOutput{

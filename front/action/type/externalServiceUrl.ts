@@ -1,4 +1,5 @@
 export type ExternalServiceUrlType = {
-	name: string
+	id: string
+	service_type: number
 	url: string
 }

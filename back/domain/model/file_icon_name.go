@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type FileIconName struct {
@@ -16,6 +17,18 @@ const (
 )
 
 func NewFileIconName(fileName string, path int) (*FileIconName, error) {
+	if strings.HasPrefix(fileName, "icon/") || strings.HasPrefix(fileName, "header/") {
+		fileNameTmp := fileName
+		// fileNameから'icon/'や'header/'を削除
+		fileNameTmp = strings.TrimPrefix(fileNameTmp, "icon/")
+		fileNameTmp = strings.TrimPrefix(fileNameTmp, "header/")
+
+		return &FileIconName{
+			fileName:   fileNameTmp,
+			objectName: fileName,
+		}, nil
+	}
+
 	switch path {
 	case ICON_PATH:
 		return &FileIconName{

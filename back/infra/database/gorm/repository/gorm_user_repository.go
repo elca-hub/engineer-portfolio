@@ -26,7 +26,7 @@ func NewGormUserRepository(db repository.SQL) *GormUserRepository {
 
 func (r GormUserRepository) Create(ctx context.Context, user *model.User) error {
 	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
-	gormUser := convertToGormModel(*user)
+	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
 		return r.db.Execute(ctx).Create(&gormUser).Error
@@ -67,7 +67,7 @@ func (r GormUserRepository) ExistsById(ctx context.Context, id string) (bool, er
 
 func (r GormUserRepository) Update(ctx context.Context, user *model.User) error {
 	tx, ok := ctx.Value(transactionContextKey).(*gorm.DB)
-	gormUser := convertToGormModel(*user)
+	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
 		return r.db.Execute(ctx).Save(&gormUser).Error
@@ -86,7 +86,7 @@ func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email)
 		return nil, err
 	}
 
-	user, err := convertToDomainModel(gormUser)
+	user, err := r.convertToDomainModel(gormUser)
 
 	if err != nil {
 		return nil, err
@@ -102,13 +102,55 @@ func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.Use
 		return nil, err
 	}
 
-	user, err := convertToDomainModel(gormUser)
+	user, err := r.convertToDomainModel(gormUser)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func (r GormUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+	var gormUsers []gorm_model.User
+
+	if err := r.db.Execute(ctx).Where("icon_path <> ''").Find(&gormUsers).Error; err != nil {
+		return nil, err
+	}
+
+	res := make([]*model.FileIconName, len(gormUsers))
+
+	for i, user := range gormUsers {
+		var err error
+		res[i], err = model.NewFileIconName(user.IconPath, model.ICON_PATH)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
+}
+
+func (r GormUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+	var gormUsers []gorm_model.User
+
+	if err := r.db.Execute(ctx).Where("header_path <> ''").Find(&gormUsers).Error; err != nil {
+		return nil, err
+	}
+
+	res := make([]*model.FileIconName, len(gormUsers))
+
+	for i, user := range gormUsers {
+		var err error
+		res[i], err = model.NewFileIconName(user.HeaderPath, model.HEADER_PATH)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return res, nil
 }
 
 func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
@@ -128,52 +170,26 @@ func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context
 	return tx.Tx().Commit().Error
 }
 
-func convertToGormModel(user model.User) gorm_model.User {
+func (r GormUserRepository) convertToGormModel(user model.User) gorm_model.User {
 	email := user.Email()
 
-	modelSkills := user.Skills()
-
-	skills := make([]gorm_model.Skill, len(modelSkills))
-
-	for i, modelSkill := range modelSkills {
-		skills[i] = gorm_model.Skill{
-			Name:      modelSkill.Name(),
-			Status:    modelSkill.Status(),
-			When:      modelSkill.When(),
-			SortIndex: modelSkill.SortIndex(),
-		}
-	}
-
-	modelExternalServiceUrls := user.ExternalServiceURLs()
-
-	externalServiceUrls := make([]gorm_model.ExternalServiceUrl, len(modelExternalServiceUrls))
-
-	for i, modelExternalServiceUrl := range modelExternalServiceUrls {
-		externalServiceUrls[i] = gorm_model.ExternalServiceUrl{
-			Name: modelExternalServiceUrl.Name(),
-			Url:  modelExternalServiceUrl.Url(),
-		}
-	}
-
 	return gorm_model.User{
-		ID:                  user.ID(),
-		Name:                user.Name(),
-		Birthday:            user.Birthday(),
-		Email:               email.Email(),
-		IconPath:            user.IconName(),
-		HeaderPath:          user.HeaderIconName(),
-		BioPath:             user.BioPath(),
-		OrganizationName:    user.OrganizationName(),
-		OccupationName:      user.OccupationName(),
-		Place:               user.Place(),
-		CreatedAt:           user.CreatedAt(),
-		UpdatedAt:           user.UpdatedAt(),
-		Skills:              skills,
-		ExternalServiceUrls: externalServiceUrls,
+		ID:               user.ID(),
+		Name:             user.Name(),
+		Birthday:         user.Birthday(),
+		Email:            email.Email(),
+		IconPath:         user.IconName(),
+		HeaderPath:       user.HeaderIconName(),
+		BioPath:          user.BioPath(),
+		OrganizationName: user.OrganizationName(),
+		OccupationName:   user.OccupationName(),
+		Place:            user.Place(),
+		CreatedAt:        user.CreatedAt(),
+		UpdatedAt:        user.UpdatedAt(),
 	}
 }
 
-func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
+func (r GormUserRepository) convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 	userEmail, err := model.NewEmail(gormUser.Email)
 
 	if err != nil {
@@ -182,26 +198,18 @@ func convertToDomainModel(gormUser gorm_model.User) (*model.User, error) {
 
 	gormSkills := gormUser.Skills
 
-	skills := make([]*model.Skill, len(gormSkills))
+	skills := make([]uint, len(gormSkills))
 
 	for i, gormSkill := range gormSkills {
-		skills[i], err = model.NewSkill(gormSkill.Name, gormSkill.Status, gormSkill.When, gormSkill.SortIndex)
-
-		if err != nil {
-			return nil, err
-		}
+		skills[i] = gormSkill.ID
 	}
 
 	gormExternalServiceUrl := gormUser.ExternalServiceUrls
 
-	externalServiceUrls := make([]*model.ExternalServiceUrl, len(gormExternalServiceUrl))
+	externalServiceUrls := make([]string, len(gormExternalServiceUrl))
 
 	for i, gormExternalServiceUrl := range gormExternalServiceUrl {
-		externalServiceUrls[i], err = model.NewExternalServiceUrl(gormExternalServiceUrl.Name, gormExternalServiceUrl.Url)
-
-		if err != nil {
-			return nil, err
-		}
+		externalServiceUrls[i] = gormExternalServiceUrl.ID
 	}
 
 	user, err := model.NewUser(

@@ -12,8 +12,8 @@ type Props = {
 
 export default function DPModal({ children, header }: Props) {
 	return (
-		<Modal className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 entering:animate-in entering:fade-in entering:duration-200 exiting:animate-out exiting:fade-out exiting:duration-200">
-			<Dialog className="outline-none bg-white rounded-lg shadow-lg p-6 w-full mx-6 md:w-1/2 md:mx-auto relative max-h-[80%] overflow-y-auto">
+		<Modal className="fixed inset-0 z-50 flex items-top pt-[10%] justify-center bg-black/30 entering:animate-in entering:fade-in entering:duration-200 exiting:animate-out exiting:fade-out exiting:duration-200">
+			<Dialog className="h-fit outline-none bg-white rounded-lg shadow-lg p-6 w-full mx-6 md:w-1/2 md:mx-auto relative max-h-[80%] overflow-y-auto">
 				<Button slot="close" className="absolute top-4 right-4 outline-block outline-primary">
 					<RiCloseLine className="w-8 h-8 hover:scale-90 transition-all duration-200" />
 				</Button>

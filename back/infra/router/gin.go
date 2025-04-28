@@ -9,7 +9,9 @@ import (
 	repository2 "devport/infra/database/gorm/repository"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
+	external_presenter "devport/presenter/external_presenter"
 	user_presenter "devport/presenter/user_presenter"
+	"devport/usecase/external_service_url"
 	"devport/usecase/user"
 	"fmt"
 	"log"
@@ -119,6 +121,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		userRouterGroup := apiRouterGroup.Group("/user/:userId")
 		{
 			userRouterGroup.GET("/", e.fetchUserInfoAction())
+
+			externalServiceUrlsRouterGroup := userRouterGroup.Group("/external-service-url")
+			{
+				externalServiceUrlsRouterGroup.GET("/", e.findExternalServiceUrlByUser())
+			}
 		}
 
 		authRouterGroup := apiRouterGroup.Group("/auth")
@@ -128,8 +135,19 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
 				userAuthRouterGroup.PUT("/", e.updateUserAction())
+				userAuthRouterGroup.PUT("/image", e.uploadUserImageAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
+
+				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url")
+				{
+					externalServiceUrlAuthRouterGroup.POST("/", e.createExternalServiceUrlAction())
+					externalServiceUrlAuthItemRouterGroup := externalServiceUrlAuthRouterGroup.Group("/:externalServiceUrlId")
+					{
+						externalServiceUrlAuthItemRouterGroup.PUT("/", e.updateExternalServiceUrlAction())
+						externalServiceUrlAuthItemRouterGroup.DELETE("/", e.deleteExternalServiceUrlAction())
+					}
+				}
 			}
 		}
 	}
@@ -267,12 +285,96 @@ func (e *GinEngine) updateUserAction() gin.HandlerFunc {
 		var (
 			uc = user.NewUpdateUserInterator(
 				repository2.NewGormUserRepository(e.sql),
-				e.fileUploader,
+				repository2.NewGormExternalServiceRepository(e.sql),
 				user_presenter.NewUpdateUserPresenter(),
 				e.ctxTimeout,
 			)
 
 			act = action.NewUpdateUserAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) uploadUserImageAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewUploadUserImageInterator(
+				e.fileUploader,
+				user_presenter.NewUploadUserImagePresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUploadUserImageAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewCreateExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewCreateExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewUpdateExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewUpdateExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) deleteExternalServiceUrlAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewDeleteExternalServiceUrlInteractor(
+				repository2.NewGormExternalServiceRepository(e.sql),
+				repository2.NewGormUserRepository(e.sql),
+				external_presenter.NewDeleteExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewDeleteExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findExternalServiceUrlByUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = external_service_url.NewFindByUserExternalServiceUrlInterator(
+				repository2.NewGormUserRepository(e.sql),
+				repository2.NewGormExternalServiceRepository(e.sql),
+				external_presenter.NewFindByUserExternalServiceUrlPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindByUserExternalServiceUrlAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

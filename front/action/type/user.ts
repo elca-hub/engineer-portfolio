@@ -1,6 +1,3 @@
-import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
-import { SkillType } from '@/action/type/skill'
-
 export type UserType = {
 	email: string
 	user_id: string
@@ -12,6 +9,4 @@ export type UserType = {
 	organization_name: string
 	occupation_name: string
 	place: string
-	skills: SkillType[]
-	external_service_url: ExternalServiceUrlType[]
 }

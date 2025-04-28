@@ -3,13 +3,15 @@ package dto
 import "devport/domain/model"
 
 type ExternalServiceUrlDTO struct {
-	Name string `json:"name"`
-	Url  string `json:"url"`
+	URL         string `json:"url"`
+	ID          string `json:"id"`
+	ServiceType int    `json:"service_type"`
 }
 
 func NewExternalServiceUrlDTO(externalServiceUrl *model.ExternalServiceUrl) *ExternalServiceUrlDTO {
 	return &ExternalServiceUrlDTO{
-		Name: externalServiceUrl.Name(),
-		Url:  externalServiceUrl.Url(),
+		URL:         externalServiceUrl.Url(),
+		ID:          externalServiceUrl.ID(),
+		ServiceType: externalServiceUrl.ServiceType(),
 	}
 }

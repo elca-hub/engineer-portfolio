@@ -14,5 +14,7 @@ type UserRepository interface {
 	Update(context context.Context, u *model.User) error
 	FindByEmail(context context.Context, email *model.Email) (*model.User, error)
 	FindById(context context.Context, id string) (*model.User, error)
+	FetchIconNamesAll(context context.Context) ([]*model.FileIconName, error)
+	FetchHeaderNamesAll(context context.Context) ([]*model.FileIconName, error)
 	WithTransaction(ctx context.Context, fn func(context.Context) error) error
 }

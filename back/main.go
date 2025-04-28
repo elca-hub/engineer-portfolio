@@ -2,6 +2,7 @@ package main
 
 import (
 	"devport/infra"
+	cronpackage "devport/infra/cron"
 	"devport/infra/database"
 	"devport/infra/file_uploader"
 	"devport/infra/log"
@@ -12,6 +13,17 @@ import (
 )
 
 func main() {
+	batch := infra.NewBatchServerConfig().
+		CronText("@every 10m").
+		LoggingTool(log.InstanceZap).
+		DB(database.InstanceMySQL).
+		AppName(os.Getenv("APP_NAME")).
+		CtxTimeout(10 * time.Second).
+		FileUploader(file_uploader.InstanceMinio).
+		Cron(cronpackage.InstanceCron)
+
+	batch.Start()
+
 	app := infra.NewHttpServerConfig().
 		Name(os.Getenv("APP_NAME")).
 		ContextTimeout(10 * time.Second).

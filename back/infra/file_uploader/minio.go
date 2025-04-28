@@ -3,6 +3,9 @@ package file_uploader
 import (
 	"bytes"
 	"context"
+	"devport/domain/model"
+	"strings"
+
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -65,4 +68,54 @@ func (m *Minio) DeleteFile(objectName string) error {
 	}
 
 	return nil
+}
+
+func (m *Minio) GetIconNames() ([]*model.FileIconName, error) {
+	// S3に保存されているすべてのファイルの名称を取得
+	listObjectsInput := &s3.ListObjectsV2Input{
+		Bucket: &m.bucketName,
+	}
+
+	result, err := m.client.ListObjectsV2(context.TODO(), listObjectsInput)
+	if err != nil {
+		return nil, err
+	}
+
+	var fileIconNames []*model.FileIconName
+	for _, object := range result.Contents {
+		if strings.HasPrefix(*object.Key, "icon/") {
+			fileIconName, err := model.NewFileIconName(*object.Key, model.ICON_PATH)
+			if err != nil {
+				return nil, err
+			}
+			fileIconNames = append(fileIconNames, fileIconName)
+		}
+	}
+
+	return fileIconNames, nil
+}
+
+func (m *Minio) GetHeaderNames() ([]*model.FileIconName, error) {
+	// S3に保存されているすべてのファイルの名称を取得
+	listObjectsInput := &s3.ListObjectsV2Input{
+		Bucket: &m.bucketName,
+	}
+
+	result, err := m.client.ListObjectsV2(context.TODO(), listObjectsInput)
+	if err != nil {
+		return nil, err
+	}
+
+	var fileIconNames []*model.FileIconName
+	for _, object := range result.Contents {
+		if strings.HasPrefix(*object.Key, "header/") {
+			fileIconName, err := model.NewFileIconName(*object.Key, model.HEADER_PATH)
+			if err != nil {
+				return nil, err
+			}
+			fileIconNames = append(fileIconNames, fileIconName)
+		}
+	}
+
+	return fileIconNames, nil
 }
