@@ -107,6 +107,7 @@ export function ConvertUrlToServiceUserName(url: string): string {
 			return parsedUrl.pathname.split('/')[1] || ''
 		}
 	} catch (e) {
+		// Handle invalid URL
 		console.error('Invalid URL:', e)
 	}
 	return url
