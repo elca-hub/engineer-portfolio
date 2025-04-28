@@ -42,6 +42,12 @@ func NewExternalServiceUrl(id string, serviceType int, url string) (*ExternalSer
 }
 
 func updateUrlLogic(urlRaw string, serviceType int) (string, error) {
+	_, err := updateServiceType(serviceType) // serviceTypeのvalidate
+
+	if err != nil {
+		return "", err
+	}
+
 	// URLの形式が異なっている場合エラー
 	parsedURL, err := url.ParseRequestURI(urlRaw)
 	if err != nil {

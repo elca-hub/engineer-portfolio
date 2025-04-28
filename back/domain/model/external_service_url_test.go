@@ -117,10 +117,10 @@ func Test_updateUrlLogic(t *testing.T) {
 		{
 			name: "success: zenn",
 			args: args{
-				url:         "https://zenn.com/momiji",
+				url:         "https://zenn.dev/momiji",
 				serviceType: ExternalServiceZenn,
 			},
-			want:    "https://zenn.com/momiji",
+			want:    "https://zenn.dev/momiji",
 			wantErr: false,
 		},
 		{
