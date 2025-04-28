@@ -99,6 +99,7 @@ func updateUrlLogic(urlRaw string, serviceType int) (string, error) {
 
 func updateServiceType(serviceType int) (int, error) {
 	switch serviceType {
+	case ExternalServiceOther:
 	case ExternalServiceGithub:
 	case ExternalServiceX:
 	case ExternalServiceQiita:
