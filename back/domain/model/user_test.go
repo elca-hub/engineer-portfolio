@@ -218,7 +218,7 @@ func TestUser(t *testing.T) {
 				time.Now(),
 				time.Now(),
 				[]uint{},
-				[]uint{},
+				[]string{},
 			)
 
 			if c.isError {
