@@ -4,9 +4,8 @@ import (
 	"context"
 	"devport/adapter/api/action"
 	"devport/adapter/logger"
-	"devport/adapter/repository"
 	"devport/adapter/validator"
-	repository2 "devport/infra/database/gorm/repository"
+	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
 	external_presenter "devport/presenter/external_presenter"
@@ -32,8 +31,8 @@ type GinEngine struct {
 	router       *gin.Engine
 	port         Port
 	ctxTimeout   time.Duration
-	sql          repository.SQL
-	noSQL        repository.NoSQL
+	sql          database.SqlInter
+	noSQL        database.NoSQLInter
 	validator    validator.Validator
 	log          logger.Logger
 	email        email.Email
@@ -45,10 +44,10 @@ const csrfTokenName = "dp_csrf_token"
 func NewGinServer(
 	port Port,
 	t time.Duration,
-	db repository.SQL,
+	db database.SqlInter,
 	validator validator.Validator,
 	log logger.Logger,
-	session repository.NoSQL,
+	session database.NoSQLInter,
 	email email.Email,
 	fileUploader file_uploader.FileUploader,
 ) *GinEngine {
@@ -165,7 +164,7 @@ func (e *GinEngine) createUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewCreateUserInterator(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				e.noSQL.UserRepository(),
 				user_presenter.NewCreateUserPresenter(),
 				e.email,
@@ -183,7 +182,7 @@ func (e *GinEngine) loginUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewLoginUserInterator(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				e.noSQL.UserRepository(),
 				user_presenter.NewLoginUserPresenter(),
 				e.ctxTimeout,
@@ -200,7 +199,7 @@ func (e *GinEngine) verifyCookieTokenAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewVerifyCookieTokenInterator(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				e.noSQL.UserRepository(),
 				user_presenter.NewVerifyCookieTokenPresenter(),
 				e.ctxTimeout,
@@ -221,7 +220,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewGetUserInfoInterator(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				user_presenter.NewGetUserInfoPresenter(),
 				e.ctxTimeout,
 			)
@@ -252,7 +251,7 @@ func (e *GinEngine) isExistsUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewIsExistsUserInteractor(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				user_presenter.NewIsExistsUserPresenter(),
 				e.ctxTimeout,
 			)
@@ -268,7 +267,7 @@ func (e *GinEngine) fetchUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewFetchUserInfoInterator(
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.UserRepository(),
 				user_presenter.NewFetchUserInfoPresenter(),
 				e.ctxTimeout,
 			)
@@ -284,8 +283,8 @@ func (e *GinEngine) updateUserAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUpdateUserInterator(
-				repository2.NewGormUserRepository(e.sql),
-				repository2.NewGormExternalServiceRepository(e.sql),
+				e.sql.UserRepository(),
+				e.sql.ExternalServiceUrlsRepository(),
 				user_presenter.NewUpdateUserPresenter(),
 				e.ctxTimeout,
 			)
@@ -317,8 +316,8 @@ func (e *GinEngine) createExternalServiceUrlAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = external_service_url.NewCreateExternalServiceUrlInteractor(
-				repository2.NewGormExternalServiceRepository(e.sql),
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.ExternalServiceUrlsRepository(),
+				e.sql.UserRepository(),
 				external_presenter.NewCreateExternalServiceUrlPresenter(),
 				e.ctxTimeout,
 			)
@@ -334,8 +333,8 @@ func (e *GinEngine) updateExternalServiceUrlAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = external_service_url.NewUpdateExternalServiceUrlInteractor(
-				repository2.NewGormExternalServiceRepository(e.sql),
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.ExternalServiceUrlsRepository(),
+				e.sql.UserRepository(),
 				external_presenter.NewUpdateExternalServiceUrlPresenter(),
 				e.ctxTimeout,
 			)
@@ -351,8 +350,8 @@ func (e *GinEngine) deleteExternalServiceUrlAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = external_service_url.NewDeleteExternalServiceUrlInteractor(
-				repository2.NewGormExternalServiceRepository(e.sql),
-				repository2.NewGormUserRepository(e.sql),
+				e.sql.ExternalServiceUrlsRepository(),
+				e.sql.UserRepository(),
 				external_presenter.NewDeleteExternalServiceUrlPresenter(),
 				e.ctxTimeout,
 			)
@@ -368,8 +367,8 @@ func (e *GinEngine) findExternalServiceUrlByUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = external_service_url.NewFindByUserExternalServiceUrlInterator(
-				repository2.NewGormUserRepository(e.sql),
-				repository2.NewGormExternalServiceRepository(e.sql),
+				e.sql.UserRepository(),
+				e.sql.ExternalServiceUrlsRepository(),
 				external_presenter.NewFindByUserExternalServiceUrlPresenter(),
 				e.ctxTimeout,
 			)

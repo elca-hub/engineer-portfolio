@@ -2,7 +2,6 @@ package infra
 
 import (
 	"devport/adapter/logger"
-	"devport/adapter/repository"
 	"devport/adapter/validator"
 	"devport/infra/database"
 	"devport/infra/email"
@@ -19,8 +18,8 @@ type HttpServerConfig struct {
 	ctxTimeout    time.Duration
 	validator     validator.Validator
 	logger        logger.Logger
-	dbSql         repository.SQL
-	dbNoSql       repository.NoSQL
+	dbSql         database.SqlInter
+	dbNoSql       database.NoSQLInter
 	webServer     router.Server
 	webServerPort router.Port
 	email         email.Email

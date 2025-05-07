@@ -2,7 +2,6 @@ package infra
 
 import (
 	"devport/adapter/logger"
-	"devport/adapter/repository"
 	cronpackage "devport/infra/cron"
 	"devport/infra/database"
 	"devport/infra/file_uploader"
@@ -14,7 +13,7 @@ type BatchServerConfig struct {
 	appName      string
 	ctxTimeout   time.Duration
 	logger       logger.Logger
-	dbSql        repository.SQL
+	dbSql        database.SqlInter
 	fileUploader file_uploader.FileUploader
 	cronText     string
 	cs           cronpackage.CronServer

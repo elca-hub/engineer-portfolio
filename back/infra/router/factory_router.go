@@ -2,8 +2,8 @@ package router
 
 import (
 	"devport/adapter/logger"
-	"devport/adapter/repository"
 	"devport/adapter/validator"
+	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
 	"fmt"
@@ -24,8 +24,8 @@ func NewWebServerFactory(
 	instance int,
 	port Port,
 	ctxTimeout time.Duration,
-	db repository.SQL,
-	nosqlDb repository.NoSQL,
+	db database.SqlInter,
+	nosqlDb database.NoSQLInter,
 	validator validator.Validator,
 	logger logger.Logger,
 	email email.Email,

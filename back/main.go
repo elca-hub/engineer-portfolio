@@ -16,7 +16,7 @@ func main() {
 	batch := infra.NewBatchServerConfig().
 		CronText("@every 10m").
 		LoggingTool(log.InstanceZap).
-		DB(database.InstanceMySQL).
+		DB(database.InstanceSqlBoilerMySql).
 		AppName(os.Getenv("APP_NAME")).
 		CtxTimeout(10 * time.Second).
 		FileUploader(file_uploader.InstanceMinio).
@@ -27,7 +27,7 @@ func main() {
 	app := infra.NewHttpServerConfig().
 		Name(os.Getenv("APP_NAME")).
 		ContextTimeout(10 * time.Second).
-		DbSql(database.InstanceMySQL).
+		DbSql(database.InstanceSqlBoilerMySql).
 		DbNoSql(database.InstanceRedis).
 		Logger(log.InstanceZap).
 		Validator(validation.InstanceGoPlayground).

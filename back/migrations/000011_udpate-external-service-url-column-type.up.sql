@@ -1,0 +1,1 @@
+ALTER TABLE external_service_urls MODIFY COLUMN service_type INT NOT NULL;
