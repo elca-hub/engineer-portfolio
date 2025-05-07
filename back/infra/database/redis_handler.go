@@ -10,7 +10,6 @@ import (
 )
 
 type RedisHandler struct {
-	client *redis.Client
 }
 
 type RedisRepositoryConfig struct {
