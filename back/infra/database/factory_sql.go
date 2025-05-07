@@ -10,6 +10,7 @@ const (
 	InstanceSqlBoilerMySql
 )
 
+// 新しいリポジトリを作成したらここに追加する
 type SqlInter interface {
 	UserRepository() sql.UserRepository
 	ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository
