@@ -1,7 +1,7 @@
 package database
 
 import (
-	"devport/adapter/repository"
+	"devport/domain/repo/nosql"
 	"errors"
 )
 
@@ -9,7 +9,11 @@ const (
 	InstanceRedis int = iota
 )
 
-func NewDatabaseNoSqlFactory(instance int) (repository.NoSQL, error) {
+type NoSQLInter interface {
+	UserRepository() nosql.UserRepository
+}
+
+func NewDatabaseNoSqlFactory(instance int) (NoSQLInter, error) {
 	switch instance {
 	case InstanceRedis:
 		return NewRedisHandler(NewMyNoSQLConfig())

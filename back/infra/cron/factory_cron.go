@@ -2,7 +2,7 @@ package cronpackage
 
 import (
 	"devport/adapter/logger"
-	"devport/adapter/repository"
+	"devport/infra/database"
 	"devport/infra/file_uploader"
 	"fmt"
 	"time"
@@ -20,7 +20,7 @@ func NewCronFactory(
 	instance int,
 	timeout time.Duration,
 	cronText string,
-	db repository.SQL,
+	db database.SqlInter,
 	logger logger.Logger,
 	fileUploader file_uploader.FileUploader,
 ) (CronServer, error) {

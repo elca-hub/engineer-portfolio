@@ -1,9 +1,8 @@
 package database
 
 import (
-	"context"
-	"database/sql"
-	"devport/adapter/repository"
+	"devport/domain/repo/sql"
+	"devport/infra/database/gorm/repo"
 	"fmt"
 	"time"
 
@@ -38,28 +37,10 @@ func NewGormHandler(c *MysqlConfig) (*GormHandler, error) {
 	return &GormHandler{db: db}, nil
 }
 
-func (h GormHandler) BeginTx(ctx context.Context) (repository.Tx, error) {
-	tx := h.db.WithContext(ctx).Begin()
-
-	return newGormTx(tx), tx.Error
+func (h *GormHandler) UserRepository() sql.UserRepository {
+	return repo.NewGormUserRepository(h.db)
 }
 
-func (h GormHandler) Execute(ctx context.Context) *gorm.DB {
-	return h.db.WithContext(ctx)
-}
-
-func (h GormHandler) ScanRows(ctx context.Context, rows *sql.Rows, dest interface{}) error {
-	return h.db.WithContext(ctx).ScanRows(rows, dest)
-}
-
-type gormTx struct {
-	tx *gorm.DB
-}
-
-func newGormTx(tx *gorm.DB) repository.Tx {
-	return gormTx{tx: tx}
-}
-
-func (t gormTx) Tx() *gorm.DB {
-	return t.tx
+func (h *GormHandler) ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository {
+	return repo.NewGormExternalServiceRepository(h.db)
 }

@@ -2,10 +2,10 @@ package database
 
 import (
 	"context"
-	"devport/adapter/repository"
 	"devport/domain/repo/nosql"
 	"devport/infra/database/redis/redis_repo"
 	"fmt"
+
 	"github.com/redis/go-redis/v9"
 )
 
@@ -25,7 +25,7 @@ func (c *RedisRepositoryConfig) UserRepository() nosql.UserRepository {
 	return redis_repo.NewRedisUserRepository(c.client)
 }
 
-func NewRedisHandler(c *RedisConfig) (repository.NoSQL, error) {
+func NewRedisHandler(c *RedisConfig) (NoSQLInter, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", c.host, c.port),
 		Password: c.password,

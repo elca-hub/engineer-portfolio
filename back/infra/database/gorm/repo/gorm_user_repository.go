@@ -1,8 +1,7 @@
-package repository
+package repo
 
 import (
 	"context"
-	"devport/adapter/repository"
 	"devport/domain/model"
 	"devport/infra/database/gorm/gorm_model"
 	"errors"
@@ -15,10 +14,10 @@ type transactionKey struct{}
 var transactionContextKey = transactionKey{}
 
 type GormUserRepository struct {
-	db repository.SQL
+	db *gorm.DB
 }
 
-func NewGormUserRepository(db repository.SQL) *GormUserRepository {
+func NewGormUserRepository(db *gorm.DB) *GormUserRepository {
 	return &GormUserRepository{
 		db: db,
 	}
@@ -29,14 +28,14 @@ func (r GormUserRepository) Create(ctx context.Context, user *model.User) error 
 	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
-		return r.db.Execute(ctx).Create(&gormUser).Error
+		return r.db.Create(&gormUser).Error
 	}
 
 	return tx.Create(&gormUser).Error
 }
 
 func (r GormUserRepository) Exists(ctx context.Context, email *model.Email) (bool, error) {
-	first := r.db.Execute(ctx).Where("email = ?", email.Email()).First(&gorm_model.User{})
+	first := r.db.Where("email = ?", email.Email()).First(&gorm_model.User{})
 
 	if errors.Is(first.Error, gorm.ErrRecordNotFound) {
 		return false, nil
@@ -52,7 +51,7 @@ func (r GormUserRepository) Exists(ctx context.Context, email *model.Email) (boo
 func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool, error) {
 	var counter int64
 
-	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
+	r.db.Model(&gorm_model.User{}).Where("name = ?", name).Count(&counter)
 
 	return counter > 0, nil
 }
@@ -60,7 +59,7 @@ func (r GormUserRepository) ExistsByName(ctx context.Context, name string) (bool
 func (r GormUserRepository) ExistsById(ctx context.Context, id string) (bool, error) {
 	var counter int64
 
-	r.db.Execute(ctx).Model(&gorm_model.User{}).Where("id = ?", id).Count(&counter)
+	r.db.Model(&gorm_model.User{}).Where("id = ?", id).Count(&counter)
 
 	return counter > 0, nil
 }
@@ -70,7 +69,7 @@ func (r GormUserRepository) Update(ctx context.Context, user *model.User) error 
 	gormUser := r.convertToGormModel(*user)
 
 	if !ok {
-		return r.db.Execute(ctx).Save(&gormUser).Error
+		return r.db.Save(&gormUser).Error
 	}
 
 	return tx.Save(&gormUser).Error
@@ -79,7 +78,7 @@ func (r GormUserRepository) Update(ctx context.Context, user *model.User) error 
 func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email) (*model.User, error) {
 	var gormUser gorm_model.User
 
-	if err := r.db.Execute(ctx).Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
+	if err := r.db.Where("email = ?", email.Email()).First(&gormUser).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -98,7 +97,7 @@ func (r GormUserRepository) FindByEmail(ctx context.Context, email *model.Email)
 func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.User, error) {
 	var gormUser gorm_model.User
 
-	if err := r.db.Execute(ctx).Where("id = ?", id).First(&gormUser).Error; err != nil {
+	if err := r.db.Where("id = ?", id).First(&gormUser).Error; err != nil {
 		return nil, err
 	}
 
@@ -114,7 +113,7 @@ func (r GormUserRepository) FindById(ctx context.Context, id string) (*model.Use
 func (r GormUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
 	var gormUsers []gorm_model.User
 
-	if err := r.db.Execute(ctx).Where("icon_path <> ''").Find(&gormUsers).Error; err != nil {
+	if err := r.db.Where("icon_path <> ''").Find(&gormUsers).Error; err != nil {
 		return nil, err
 	}
 
@@ -135,7 +134,7 @@ func (r GormUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.Fil
 func (r GormUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
 	var gormUsers []gorm_model.User
 
-	if err := r.db.Execute(ctx).Where("header_path <> ''").Find(&gormUsers).Error; err != nil {
+	if err := r.db.Where("header_path <> ''").Find(&gormUsers).Error; err != nil {
 		return nil, err
 	}
 
@@ -154,20 +153,16 @@ func (r GormUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.F
 }
 
 func (r GormUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
-	tx, err := r.db.BeginTx(ctx)
+	tx := r.db.Begin()
 
-	if err != nil {
-		return err
-	}
-
-	transactionCtx := context.WithValue(ctx, transactionContextKey, tx.Tx())
+	transactionCtx := context.WithValue(ctx, transactionContextKey, tx)
 
 	if err := fn(transactionCtx); err != nil {
-		tx.Tx().Rollback()
+		tx.Rollback()
 		return err
 	}
 
-	return tx.Tx().Commit().Error
+	return tx.Commit().Error
 }
 
 func (r GormUserRepository) convertToGormModel(user model.User) gorm_model.User {

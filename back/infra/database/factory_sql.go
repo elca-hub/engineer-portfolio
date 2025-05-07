@@ -1,18 +1,26 @@
 package database
 
 import (
-	"devport/adapter/repository"
+	"devport/domain/repo/sql"
 	"errors"
 )
 
 const (
-	InstanceMySQL int = iota
+	InstanceGormMySql int = iota
+	InstanceSqlBoilerMySql
 )
 
-func NewDatabaseSqlFactory(instance int) (repository.SQL, error) {
+type SqlInter interface {
+	UserRepository() sql.UserRepository
+	ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository
+}
+
+func NewDatabaseSqlFactory(instance int) (SqlInter, error) {
 	switch instance {
-	case InstanceMySQL:
+	case InstanceGormMySql:
 		return NewGormHandler(NewMySQLConfig())
+	case InstanceSqlBoilerMySql:
+		return NewSqlBoilerHandler(NewMySQLConfig())
 	default:
 		return nil, errors.New("invalid instance")
 	}
