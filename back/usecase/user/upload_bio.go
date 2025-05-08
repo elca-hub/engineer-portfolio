@@ -16,7 +16,7 @@ type (
 	}
 
 	UploadBioInput struct {
-		Bio    string `json:"bio" validate:"required,max=1000,min=1"`
+		Bio    string `json:"bio" validate:"max=1000"`
 		UserId string `validate:"required"`
 	}
 
