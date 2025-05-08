@@ -49,6 +49,32 @@ func (r *SqlBoilerBioImagesRepository) Delete(ctx context.Context, user *model.U
 	return err
 }
 
+func (r *SqlBoilerBioImagesRepository) DeleteAllByUserId(ctx context.Context, user *model.User) error {
+	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
+
+	if !ok {
+		fileNames, err := models.BioImages(models.BioImageWhere.UserID.EQ(user.ID())).All(ctx, r.db)
+		if err != nil {
+			return err
+		}
+
+		if _, err := fileNames.DeleteAll(ctx, r.db); err != nil {
+			return err
+		}
+	}
+
+	fileNames, err := models.BioImages(models.BioImageWhere.UserID.EQ(user.ID())).All(ctx, tx)
+	if err != nil {
+		return err
+	}
+
+	if _, err := fileNames.DeleteAll(ctx, r.db); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *SqlBoilerBioImagesRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.FileIconName, error) {
 	fileNames, err := models.BioImages(models.BioImageWhere.UserID.EQ(user.ID())).All(ctx, r.db)
 	if err != nil {
@@ -77,10 +103,16 @@ func (r *SqlBoilerBioImagesRepository) IsExistsFileName(ctx context.Context, fil
 }
 
 func (r *SqlBoilerBioImagesRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
-	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
-	if !ok {
-		return fn(ctx)
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
 	}
 
-	return fn(context.WithValue(ctx, transactionContextKey, tx))
+	defer tx.Rollback()
+
+	if err := fn(context.WithValue(ctx, transactionContextKey, tx)); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

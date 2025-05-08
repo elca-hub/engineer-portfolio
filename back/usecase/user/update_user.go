@@ -56,10 +56,6 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 		return UpdateUserOutput{}, err
 	}
 
-	if err != nil {
-		return UpdateUserOutput{}, err
-	}
-
 	if input.User.Name != "" {
 		if err := user.UpdateName(input.User.Name); err != nil {
 			return UpdateUserOutput{}, err

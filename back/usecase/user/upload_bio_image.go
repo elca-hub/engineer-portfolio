@@ -5,10 +5,9 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/sql"
 	"devport/infra/file_uploader"
+	"fmt"
 	"mime/multipart"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -61,11 +60,19 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 		return UploadBioImageOutput{}, err
 	}
 
-	imageId := uuid.New().String()
-
 	image, err := model.NewFileIcon(input.Image, input.ImageHeader, model.BIO_IMAGE_PATH)
 	if err != nil {
 		return UploadBioImageOutput{}, err
+	}
+
+	bioImages, err := i.bioImageRepo.FindByUserId(tx, user)
+
+	if err != nil {
+		return UploadBioImageOutput{}, err
+	}
+
+	if len(bioImages) == model.MaxBioImagesLen {
+		return UploadBioImageOutput{}, fmt.Errorf("画像は%d枚以上アップロードすることができません", model.MaxBioImagesLen)
 	}
 
 	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
@@ -82,5 +89,5 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 		return UploadBioImageOutput{}, err
 	}
 
-	return UploadBioImageOutput{ImageId: imageId}, nil
+	return UploadBioImageOutput{ImageId: image.GetFileName().GetFileName()}, nil
 }

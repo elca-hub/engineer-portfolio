@@ -90,5 +90,66 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		return UploadBioOutput{}, err
 	}
 
+	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
+		uploadedFiles, err := i.fileUploader.GetFiles(model.BIO_IMAGE_PATH)
+
+		if err != nil {
+			return err
+		}
+		difference := func(a, b []*model.FileIconName) ([]*model.FileIconName, error) {
+			aString := make([]string, len(a))
+			bString := make([]string, len(b))
+			for i, item := range a {
+				aString[i] = item.GetFileName()
+			}
+			for i, item := range b {
+				bString[i] = item.GetFileName()
+			}
+
+			// aStringからbStringを引いた配列を返す
+			diff := make([]string, 0)
+			for _, item := range aString {
+				if !contains(bString, item) {
+					diff = append(diff, item)
+				}
+			}
+
+			diffFiles := make([]*model.FileIconName, len(diff))
+			for i, item := range diff {
+				diffFiles[i], err = model.NewFileIconName(item, model.BIO_IMAGE_PATH)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			return diffFiles, nil
+		}
+
+		bioImages := bioModel.ImageIds()
+
+		bioImageFiles := make([]*model.FileIconName, len(bioImages))
+
+		for i, imageId := range bioImages {
+			bioImageFiles[i], err = model.NewFileIconName(imageId, model.BIO_IMAGE_PATH)
+			if err != nil {
+				return err
+			}
+		}
+
+		diff, err := difference(uploadedFiles, bioImageFiles)
+		if err != nil {
+			return err
+		}
+
+		for _, d := range diff {
+			i.fileUploader.DeleteFile(d.GetObjectName())
+			i.bioImageRepo.Delete(tx, user, d)
+		}
+
+		return nil
+	}); err != nil {
+		return UploadBioOutput{}, err
+	}
+
 	return UploadBioOutput{BioName: bioModel.ID()}, nil
 }

@@ -18,17 +18,14 @@ const (
 )
 
 func NewFileIconName(fileName string, path int) (*FileIconName, error) {
-	if strings.HasPrefix(fileName, "icon/") || strings.HasPrefix(fileName, "header/") {
-		fileNameTmp := fileName
-		// fileNameから'icon/'や'header/'を削除
-		fileNameTmp = strings.TrimPrefix(fileNameTmp, "icon/")
-		fileNameTmp = strings.TrimPrefix(fileNameTmp, "header/")
-		fileNameTmp = strings.TrimPrefix(fileNameTmp, "bio_images/")
-
-		return &FileIconName{
-			fileName:   fileNameTmp,
-			objectName: fileName,
-		}, nil
+	prefixes := []string{"icon/", "header/", "bio_images/"}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(fileName, prefix) {
+			return &FileIconName{
+				fileName:   strings.TrimPrefix(fileName, prefix),
+				objectName: fileName,
+			}, nil
+		}
 	}
 
 	switch path {
