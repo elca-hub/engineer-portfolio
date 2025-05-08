@@ -127,10 +127,10 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			}
 		}
 
-		authRouterGroup := apiRouterGroup.Group("/auth")
+		authRouterGroup := apiRouterGroup.Group("/auth") // 認証が必要なAPI
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
-			authRouterGroup.GET("/health_check", e.healthCheckAction())
+			authRouterGroup.GET("/health_check", e.healthCheckAction()) // 認証状態の確認
 			userAuthRouterGroup := authRouterGroup.Group("/user")
 			{
 				userAuthRouterGroup.PUT("/", e.updateUserAction())
@@ -146,6 +146,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 						externalServiceUrlAuthItemRouterGroup.PUT("/", e.updateExternalServiceUrlAction())
 						externalServiceUrlAuthItemRouterGroup.DELETE("/", e.deleteExternalServiceUrlAction())
 					}
+				}
+
+				bioAuthRouterGroup := userAuthRouterGroup.Group("/bio")
+				{
+					bioAuthRouterGroup.POST("/", e.uploadBioAction())
 				}
 			}
 		}
@@ -374,6 +379,23 @@ func (e *GinEngine) findExternalServiceUrlByUser() gin.HandlerFunc {
 			)
 
 			act = action.NewFindByUserExternalServiceUrlAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) uploadBioAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = user.NewUploadBioInteractor(
+				e.fileUploader,
+				user_presenter.NewUploadBioPresenter(),
+				e.sql.UserRepository(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUploadBioAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

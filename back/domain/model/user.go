@@ -280,6 +280,10 @@ func (u *User) BioPath() string {
 	return u.bioPath
 }
 
+func (u *User) UpdateBioPath(bioPath string) {
+	u.bioPath = bioPath
+}
+
 func (u *User) OrganizationName() string {
 	return u.organizationName
 }
