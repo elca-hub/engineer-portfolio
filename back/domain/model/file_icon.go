@@ -21,11 +21,11 @@ type FileIcon struct {
 
 func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
-		return nil, errors.New("file size exceeds the limit")
+		return nil, errors.New("ファイルサイズが50MBを超えています")
 	}
 
 	if fileHeader.Header.Get("Content-Type") != "image/png" && fileHeader.Header.Get("Content-Type") != "image/jpeg" {
-		return nil, errors.New("invalid file type")
+		return nil, errors.New("不正なファイル形式です")
 	}
 
 	extensionTmp := fileHeader.Filename

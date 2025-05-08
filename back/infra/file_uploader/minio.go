@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"devport/domain/model"
+	"errors"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -110,6 +111,44 @@ func (m *Minio) GetHeaderNames() ([]*model.FileIconName, error) {
 	for _, object := range result.Contents {
 		if strings.HasPrefix(*object.Key, "header/") {
 			fileIconName, err := model.NewFileIconName(*object.Key, model.HEADER_PATH)
+			if err != nil {
+				return nil, err
+			}
+			fileIconNames = append(fileIconNames, fileIconName)
+		}
+	}
+
+	return fileIconNames, nil
+}
+
+func (m *Minio) GetFiles(filePattern int) ([]*model.FileIconName, error) {
+	listObjectsInput := &s3.ListObjectsV2Input{
+		Bucket: &m.bucketName,
+	}
+
+	result, err := m.client.ListObjectsV2(context.TODO(), listObjectsInput)
+	if err != nil {
+		return nil, err
+	}
+
+	var fileIconNames []*model.FileIconName
+
+	prefixPattern := ""
+
+	switch filePattern {
+	case model.ICON_PATH:
+		prefixPattern = "icon/"
+	case model.HEADER_PATH:
+		prefixPattern = "header/"
+	case model.BIO_IMAGE_PATH:
+		prefixPattern = "bio_images/"
+	default:
+		return nil, errors.New("不正な画像ファイルの種類です")
+	}
+
+	for _, object := range result.Contents {
+		if strings.HasPrefix(*object.Key, prefixPattern) {
+			fileIconName, err := model.NewFileIconName(*object.Key, filePattern)
 			if err != nil {
 				return nil, err
 			}

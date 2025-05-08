@@ -2,12 +2,10 @@ package user
 
 import (
 	"context"
+	"devport/domain/model"
 	"devport/domain/repo/sql"
 	"devport/infra/file_uploader"
-	"fmt"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type (
@@ -32,6 +30,7 @@ type (
 		fileUploader   file_uploader.FileUploader
 		presenter      UploadBioPresenter
 		userRepository sql.UserRepository
+		bioImageRepo   sql.BioImagesRepository
 		ctxTimeout     time.Duration
 	}
 )
@@ -40,12 +39,14 @@ func NewUploadBioInteractor(
 	fileUploader file_uploader.FileUploader,
 	presenter UploadBioPresenter,
 	userRepository sql.UserRepository,
+	bioImageRepo sql.BioImagesRepository,
 	t time.Duration,
 ) UploadBioUseCase {
 	return uploadBioInteractor{
 		fileUploader:   fileUploader,
 		presenter:      presenter,
 		userRepository: userRepository,
+		bioImageRepo:   bioImageRepo,
 		ctxTimeout:     t,
 	}
 }
@@ -56,26 +57,25 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		return UploadBioOutput{}, err
 	}
 
-	var bioId string
+	bioModel, err := model.NewBio(user.ID(), user.BioPath(), input.Bio)
 
-	// 新規にbioをアップロードする場合はuuidを生成
-	if user.BioPath() != "" {
-		bioId = user.BioPath()
-	} else {
-		bioId = uuid.New().String()
-	}
-
-	objectName := fmt.Sprintf("bio/%s/%s.md", user.ID(), bioId)
-
-	if err := i.fileUploader.UploadFile([]byte(input.Bio), objectName); err != nil {
+	if err != nil {
 		return UploadBioOutput{}, err
 	}
 
-	user.UpdateBioPath(bioId)
+	if err != nil {
+		return UploadBioOutput{}, err
+	}
+
+	if err := i.fileUploader.UploadFile([]byte(input.Bio), bioModel.ObjectName()); err != nil {
+		return UploadBioOutput{}, err
+	}
+
+	user.UpdateBioPath(bioModel.ID())
 
 	if err := i.userRepository.Update(tx, user); err != nil {
 		return UploadBioOutput{}, err
 	}
 
-	return UploadBioOutput{BioName: bioId}, nil
+	return UploadBioOutput{BioName: bioModel.ID()}, nil
 }

@@ -14,6 +14,7 @@ type FileIconName struct {
 const (
 	ICON_PATH = iota
 	HEADER_PATH
+	BIO_IMAGE_PATH
 )
 
 func NewFileIconName(fileName string, path int) (*FileIconName, error) {
@@ -22,6 +23,7 @@ func NewFileIconName(fileName string, path int) (*FileIconName, error) {
 		// fileNameから'icon/'や'header/'を削除
 		fileNameTmp = strings.TrimPrefix(fileNameTmp, "icon/")
 		fileNameTmp = strings.TrimPrefix(fileNameTmp, "header/")
+		fileNameTmp = strings.TrimPrefix(fileNameTmp, "bio_images/")
 
 		return &FileIconName{
 			fileName:   fileNameTmp,
@@ -40,8 +42,13 @@ func NewFileIconName(fileName string, path int) (*FileIconName, error) {
 			fileName:   fileName,
 			objectName: fmt.Sprintf("%s/%s", "header", fileName),
 		}, nil
+	case BIO_IMAGE_PATH:
+		return &FileIconName{
+			fileName:   fileName,
+			objectName: fmt.Sprintf("%s/%s", "bio_images", fileName),
+		}, nil
 	default:
-		return nil, errors.New("invalid path")
+		return nil, errors.New("不正なパスです")
 	}
 }
 

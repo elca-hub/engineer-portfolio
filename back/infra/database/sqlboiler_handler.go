@@ -42,3 +42,7 @@ func (h *SqlBoilerHandler) UserRepository() sql_inter.UserRepository {
 func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() sql_inter.ExternalServiceUrlsRepository {
 	return repository.NewSqlBoilerExternalServiceUrlRepository(h.db)
 }
+
+func (h *SqlBoilerHandler) BioImagesRepository() sql_inter.BioImagesRepository {
+	return repository.NewSqlBoilerBioImagesRepository(h.db)
+}
