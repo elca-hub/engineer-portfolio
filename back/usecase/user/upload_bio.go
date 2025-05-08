@@ -5,6 +5,7 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/sql"
 	"devport/infra/file_uploader"
+	"errors"
 	"time"
 )
 
@@ -63,8 +64,20 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		return UploadBioOutput{}, err
 	}
 
-	if err != nil {
-		return UploadBioOutput{}, err
+	for _, imageId := range bioModel.ImageIds() {
+		fileIconName, err := model.NewFileIconName(imageId, model.BIO_IMAGE_PATH)
+		if err != nil {
+			return UploadBioOutput{}, err
+		}
+
+		exists, err := i.bioImageRepo.IsExistsFileName(tx, fileIconName)
+		if err != nil {
+			return UploadBioOutput{}, err
+		}
+
+		if !exists {
+			return UploadBioOutput{}, errors.New("画像が存在しません")
+		}
 	}
 
 	if err := i.fileUploader.UploadFile([]byte(input.Bio), bioModel.ObjectName()); err != nil {

@@ -67,7 +67,7 @@ func (r *SqlBoilerBioImagesRepository) FindByUserId(ctx context.Context, user *m
 	return res, nil
 }
 
-func (r *SqlBoilerBioImagesRepository) IsExistsFileName(ctx context.Context, fileName model.FileIconName) (bool, error) {
+func (r *SqlBoilerBioImagesRepository) IsExistsFileName(ctx context.Context, fileName *model.FileIconName) (bool, error) {
 	exists, err := models.BioImages(models.BioImageWhere.FileName.EQ(fileName.GetFileName())).Exists(ctx, r.db)
 	if err != nil {
 		return false, err

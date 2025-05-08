@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -31,11 +32,14 @@ func NewBio(userId string, id string, content string) (*Bio, error) {
 
 	imageIds := []string{}
 
-	// markdown形式のcontentから画像のidを取得
-	re := regexp.MustCompile(`!\[.*?\]\((.*?)\)`)
+	re := regexp.MustCompile(`\[!devportからアップロードされた画像\]\((http://minio:9000/bio_images/.+[a-z]{2,5})\)`)
 	matches := re.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
-		imageIds = append(imageIds, match[1])
+		// 後ろから/を探して、その前の文字列を取得
+		lastSlashIndex := strings.LastIndex(match[1], "/")
+		if lastSlashIndex != -1 {
+			imageIds = append(imageIds, match[1][lastSlashIndex+1:])
+		}
 	}
 
 	if len(imageIds) > MaxBioImagesLen {
