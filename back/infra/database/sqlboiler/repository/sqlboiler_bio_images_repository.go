@@ -35,18 +35,25 @@ func (r *SqlBoilerBioImagesRepository) Create(ctx context.Context, user *model.U
 func (r *SqlBoilerBioImagesRepository) Delete(ctx context.Context, user *model.User, fileName *model.FileIconName) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
-	tar := &models.BioImage{
-		UserID:   user.ID(),
-		FileName: fileName.GetFileName(),
-	}
+	tar, err := models.BioImages(models.BioImageWhere.UserID.EQ(user.ID()), models.BioImageWhere.FileName.EQ(fileName.GetFileName())).One(ctx, r.db)
 
-	if !ok {
-		_, err := tar.Delete(ctx, r.db)
+	if err != nil {
 		return err
 	}
 
-	_, err := tar.Delete(ctx, tx)
-	return err
+	if !ok {
+		if _, err := tar.Delete(ctx, r.db); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if _, err := tar.Delete(ctx, tx); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *SqlBoilerBioImagesRepository) DeleteAllByUserId(ctx context.Context, user *model.User) error {
