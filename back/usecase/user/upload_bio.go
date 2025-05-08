@@ -6,6 +6,7 @@ import (
 	"devport/domain/repo/sql"
 	"devport/infra/file_uploader"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -91,7 +92,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 	}
 
 	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
-		uploadedFiles, err := i.fileUploader.GetFiles(model.BIO_IMAGE_PATH)
+		uploadedFiles, err := i.bioImageRepo.FindByUserId(tx, user)
 
 		if err != nil {
 			return err
@@ -142,6 +143,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		}
 
 		for _, d := range diff {
+			fmt.Println(d.GetFileName())
 			i.fileUploader.DeleteFile(d.GetObjectName())
 			i.bioImageRepo.Delete(tx, user, d)
 		}

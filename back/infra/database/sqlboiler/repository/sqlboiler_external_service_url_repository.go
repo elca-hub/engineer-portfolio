@@ -77,12 +77,22 @@ func (r *SqlBoilerExternalServiceUrlRepository) FindByUserId(ctx context.Context
 }
 
 func (r *SqlBoilerExternalServiceUrlRepository) FindByServiceType(ctx context.Context, user *model.User, serviceType int) (*model.ExternalServiceUrl, error) {
-	externalServiceUrl, err := models.ExternalServiceUrls(qm.Where("user_id = ? AND service_type = ?", user.ID(), serviceType)).One(ctx, r.db)
+	externalServiceUrl, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(user.ID()), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).One(ctx, r.db)
+
 	if err != nil {
 		return nil, err
 	}
 
 	return r.convertToDomainModel(externalServiceUrl)
+}
+
+func (r *SqlBoilerExternalServiceUrlRepository) IsExistsByServiceType(ctx context.Context, user *model.User, serviceType int) (bool, error) {
+	exists, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(user.ID()), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).Exists(ctx, r.db)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
 
 func (r *SqlBoilerExternalServiceUrlRepository) FindById(ctx context.Context, id string) (*model.ExternalServiceUrl, error) {
