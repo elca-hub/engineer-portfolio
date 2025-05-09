@@ -10,8 +10,8 @@ func NewUploadBioPresenter() *UploadBioPresenter {
 	return &UploadBioPresenter{}
 }
 
-func (p *UploadBioPresenter) Output(bioName string) usecase.UploadBioOutput {
+func (p *UploadBioPresenter) Output(bio string) usecase.UploadBioOutput {
 	return usecase.UploadBioOutput{
-		BioName: bioName,
+		Bio: bio,
 	}
 }

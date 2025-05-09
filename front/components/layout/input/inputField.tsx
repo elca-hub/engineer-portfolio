@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Dialog, DialogTrigger, FieldError, Input, Label, Popover, Text, TextField, TextFieldProps } from 'react-aria-components'
+import { Button, Dialog, DialogTrigger, FieldError, Input, Label, Popover, Text, TextArea, TextField, TextFieldProps } from 'react-aria-components'
 import { ControllerFieldState, ControllerRenderProps, FieldPath, FieldValue, FieldValues } from 'react-hook-form'
 import { RiInfoI } from 'react-icons/ri'
 import TextWithIcon from '../../ui/text/textWithIcon'
@@ -12,6 +12,8 @@ interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivEle
 	helperText?: string
 	icon?: React.ReactNode
 	popoverContent?: string
+	isMultiline?: boolean
+	rows?: number
 }
 
 const InputField = ({ ...props }: InputFieldProps) => {
@@ -51,7 +53,14 @@ const InputField = ({ ...props }: InputFieldProps) => {
 	return (
 		<TextField {...props.field} {...props} className="my-4 flex flex-col gap-2">
 			<Label className="text-gray-700">{labelPopOver}</Label>
-			<Input className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+			{props.isMultiline ? (
+				<TextArea
+					rows={props.rows || 10}
+					className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+				/>
+			) : (
+				<Input className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+			)}
 			<Text slot="description" className="text-sm text-subtext">
 				{props.helperText}
 			</Text>

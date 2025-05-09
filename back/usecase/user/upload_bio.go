@@ -25,7 +25,7 @@ type (
 	}
 
 	UploadBioOutput struct {
-		BioName string `json:"bio_name"`
+		Bio string `json:"bio"`
 	}
 
 	uploadBioInteractor struct {
@@ -153,5 +153,5 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		return UploadBioOutput{}, err
 	}
 
-	return UploadBioOutput{BioName: bioModel.ID()}, nil
+	return UploadBioOutput{Bio: input.Bio}, nil
 }
