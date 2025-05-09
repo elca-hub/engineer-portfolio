@@ -3,6 +3,7 @@
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { UserType } from '@/action/type/user'
 import fetchExternalServiceUrlByUserId from '@/action/usecase/externalServiceUrl/fetchByUserId'
+import fetchBio from '@/action/usecase/user/fetchBio'
 import fetchById from '@/action/usecase/user/fetchById'
 import HeaderPresentation from '@/app/_containers/profile/headerPresentation'
 import ProfilePresentation from '@/app/_containers/profile/presentation'
@@ -22,9 +23,17 @@ export default async function ProfileContainer({ userId }: Props) {
 	let authUser: UserType | null = null
 	let user: UserType | null = null
 	let externalServiceUrls: ExternalServiceUrlType[] = []
+	let bio: string | null = null
 
 	if (fetchUser) {
 		user = fetchUser
+		bio = await fetchBio(user)
+
+		const externalServiceUrlsRes = await fetchExternalServiceUrlByUserId(userId)
+
+		if (externalServiceUrlsRes) {
+			externalServiceUrls = externalServiceUrlsRes
+		}
 	}
 
 	if (!user) redirect('/404')
@@ -33,12 +42,6 @@ export default async function ProfileContainer({ userId }: Props) {
 
 	if (authRes.data) {
 		authUser = authRes.data.user
-
-		const externalServiceUrlsRes = await fetchExternalServiceUrlByUserId(userId)
-
-		if (externalServiceUrlsRes) {
-			externalServiceUrls = externalServiceUrlsRes
-		}
 	}
 
 	return (
@@ -48,6 +51,7 @@ export default async function ProfileContainer({ userId }: Props) {
 				user={user}
 				isAuthUser={authUser !== null && authUser.user_id === userId}
 				externalServiceUrls={externalServiceUrls}
+				bio={bio}
 			></ProfilePresentation>
 		</>
 	)

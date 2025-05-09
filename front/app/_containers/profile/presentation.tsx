@@ -6,6 +6,7 @@ import BasicSettingTabPresentation from '@/app/_containers/profile/tabs/BasicSet
 import BioSettingTabPresentation from '@/app/_containers/profile/tabs/BioSettingTabPresentation'
 import LinksSettingTabPresentation from '@/app/_containers/profile/tabs/LinksSettingTabPresentation'
 import ProfileImageTabPresentation from '@/app/_containers/profile/tabs/ProfileImageTabPresentation'
+import CustomMarkdown from '@/components/layout/markdown/CustomMarkdown'
 import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
@@ -14,19 +15,20 @@ import { ImageNameByServiceType, ServiceTypeToServiceName } from '@/lib/external
 import Image from 'next/image'
 import Link from 'next/link'
 import { DialogTrigger, Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
-import { RiBriefcaseLine, RiBuilding2Line, RiMapPinLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
+import { RiBriefcaseLine, RiBuilding2Line, RiMapPinLine, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
 	user: UserType
 	isAuthUser: boolean
 	externalServiceUrls: ExternalServiceUrlType[]
+	bio: string | null
 }
 
 /**
  * @package
  */
-export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls }: Props) {
+export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls, bio }: Props) {
 	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-border outline-primary data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
 
 	return (
@@ -126,26 +128,12 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 				</section>
 
 				<section>
-					{user.bio_path ? (
+					{bio ? (
 						<div className="mt-4">
-							<h2 className="text-lg font-bold">自己紹介</h2>
-							<p className="text-sm text-gray-600">test</p>
-						</div>
-					) : isAuthUser ? (
-						<div className="mt-4">
-							<h2 className="text-lg font-bold">自己紹介</h2>
-							<p className="text-sm text-gray-600">自己紹介を入力してください</p>
+							<CustomMarkdown>{bio}</CustomMarkdown>
 						</div>
 					) : (
 						<p className="text-subtext">自己紹介はありません</p>
-					)}
-
-					{isAuthUser && (
-						<div className="mt-4">
-							<DPButton colormode="primary">
-								<TextWithIcon icon={<RiPencilLine />}>自己紹介を編集</TextWithIcon>
-							</DPButton>
-						</div>
 					)}
 				</section>
 			</main>
