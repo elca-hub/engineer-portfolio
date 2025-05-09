@@ -113,10 +113,10 @@ export default function BioSettingTabPresentation({ user }: Props) {
 									field={field}
 									fieldState={fieldState}
 									isMultiline
-									helperText="markdownによる入力が可能です。"
+									helperText="markdownによる入力が可能です。1000文字以内で入力してください。"
 									icon={<RiUserLine />}
 									autoComplete="on"
-									popoverContent="自己紹介文は1000文字以内で入力してください。"
+									popoverContent="入力していない状態でも内容は自動的に保存されます。"
 									rows={10}
 								></InputField>
 							)}
