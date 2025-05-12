@@ -10,8 +10,8 @@ func NewUploadBioImagePresenter() *UploadBioImagePresenter {
 	return &UploadBioImagePresenter{}
 }
 
-func (p *UploadBioImagePresenter) Output(imageId string) usecase.UploadBioImageOutput {
+func (p *UploadBioImagePresenter) Output(imageUrl string) usecase.UploadBioImageOutput {
 	return usecase.UploadBioImageOutput{
-		ImageId: imageId,
+		ImageUrl: imageUrl,
 	}
 }

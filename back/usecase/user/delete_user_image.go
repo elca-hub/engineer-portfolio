@@ -67,13 +67,13 @@ func (i deleteUserImageInterator) Execute(tx context.Context, input DeleteUserIm
 	// アップロード済みのアイコン取得
 	go func() {
 		defer wg.Done()
-		uploadedIconImageNames, iconErr = i.fileUploader.GetIconNames()
+		uploadedIconImageNames, iconErr = i.fileUploader.GetFiles(model.ICON_PATH)
 	}()
 
 	// アップロード済みのヘッダー取得
 	go func() {
 		defer wg.Done()
-		uploadedHeaderImageNames, headerErr = i.fileUploader.GetHeaderNames()
+		uploadedHeaderImageNames, headerErr = i.fileUploader.GetFiles(model.HEADER_PATH)
 	}()
 
 	// DBに登録されているアイコン取得

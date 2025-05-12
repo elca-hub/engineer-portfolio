@@ -3,12 +3,14 @@ package model
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
 type FileIconName struct {
 	fileName   string
 	objectName string
+	iconType   int
 }
 
 const (
@@ -24,29 +26,20 @@ func NewFileIconName(fileName string, path int) (*FileIconName, error) {
 			return &FileIconName{
 				fileName:   strings.TrimPrefix(fileName, prefix),
 				objectName: fileName,
+				iconType:   path,
 			}, nil
 		}
 	}
 
-	switch path {
-	case ICON_PATH:
-		return &FileIconName{
-			fileName:   fileName,
-			objectName: fmt.Sprintf("%s/%s", "icon", fileName),
-		}, nil
-	case HEADER_PATH:
-		return &FileIconName{
-			fileName:   fileName,
-			objectName: fmt.Sprintf("%s/%s", "header", fileName),
-		}, nil
-	case BIO_IMAGE_PATH:
-		return &FileIconName{
-			fileName:   fileName,
-			objectName: fmt.Sprintf("%s/%s", "bio_images", fileName),
-		}, nil
-	default:
+	prefixes = []string{"icon", "header", "bio_images"}
+	if path < 0 || path >= len(prefixes) {
 		return nil, errors.New("不正なパスです")
 	}
+	return &FileIconName{
+		fileName:   fileName,
+		objectName: fmt.Sprintf("%s/%s", prefixes[path], fileName),
+		iconType:   path,
+	}, nil
 }
 
 func (f *FileIconName) GetFileName() string {
@@ -55,4 +48,21 @@ func (f *FileIconName) GetFileName() string {
 
 func (f *FileIconName) GetObjectName() string {
 	return f.objectName
+}
+
+func (f *FileIconName) GetUrl() string {
+	protocol := "http"
+	hostName := "localhost"
+	port := os.Getenv("MINIO_PORT")
+	bucketName := os.Getenv("MINIO_BUCKET_NAME")
+	switch f.iconType {
+	case ICON_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/icon/%s", protocol, hostName, port, bucketName, f.fileName)
+	case HEADER_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/header/%s", protocol, hostName, port, bucketName, f.fileName)
+	case BIO_IMAGE_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/bio_images/%s", protocol, hostName, port, bucketName, f.fileName)
+	default:
+		return ""
+	}
 }

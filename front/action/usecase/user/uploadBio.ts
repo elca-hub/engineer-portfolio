@@ -6,12 +6,13 @@ import { DPResponseData, NewDPResponse } from '@/lib/api'
 export default async function uploadBio(
 	token: string,
 	bio: string,
+	isDeleteImage: boolean,
 ): Promise<
 	DPResponseData<{
 		bio: string
 	}>
 > {
-	const updateBio = await fetch(`${apiPrefix}/auth/user/bio/`, {
+	const updateBio = await fetch(`${apiPrefix}/auth/user/bio/?is_delete_image=${isDeleteImage}`, {
 		method: 'POST',
 		body: JSON.stringify({ bio: bio }),
 		headers: {

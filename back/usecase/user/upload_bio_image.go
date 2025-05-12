@@ -22,11 +22,11 @@ type (
 	}
 
 	UploadBioImagePresenter interface {
-		Output(imageId string) UploadBioImageOutput
+		Output(imageUrl string) UploadBioImageOutput
 	}
 
 	UploadBioImageOutput struct {
-		ImageId string `json:"image_id"`
+		ImageUrl string `json:"image_url"`
 	}
 
 	uploadBioImageInteractor struct {
@@ -89,5 +89,5 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 		return UploadBioImageOutput{}, err
 	}
 
-	return UploadBioImageOutput{ImageId: image.GetFileName().GetFileName()}, nil
+	return i.presenter.Output(image.GetFileName().GetUrl()), nil
 }

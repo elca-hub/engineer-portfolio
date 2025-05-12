@@ -46,6 +46,8 @@ func (a *UploadBioAction) Execute(w http.ResponseWriter, r *http.Request, c *gin
 
 	input.UserId = currentUser.ID()
 
+	input.IsDeleteImage = c.DefaultQuery("is_delete_image", "false") == "true"
+
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when decode upload bio request")
 		response.NewError(err, http.StatusBadRequest).Send(w)

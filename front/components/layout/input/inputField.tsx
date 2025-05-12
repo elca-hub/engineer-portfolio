@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Dialog, DialogTrigger, FieldError, Input, Label, Popover, Text, TextArea, TextField, TextFieldProps } from 'react-aria-components'
+import { Button, Dialog, DialogTrigger, FieldError, Input, Label, Popover, Text, TextField, TextFieldProps } from 'react-aria-components'
 import { ControllerFieldState, ControllerRenderProps, FieldPath, FieldValue, FieldValues } from 'react-hook-form'
 import { RiInfoI } from 'react-icons/ri'
 import TextWithIcon from '../../ui/text/textWithIcon'
@@ -14,6 +14,8 @@ interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivEle
 	popoverContent?: string
 	isMultiline?: boolean
 	rows?: number
+	customInput?: React.ReactNode
+	isLoading?: boolean
 }
 
 const InputField = ({ ...props }: InputFieldProps) => {
@@ -50,14 +52,21 @@ const InputField = ({ ...props }: InputFieldProps) => {
 		labelNode
 	)
 
-	return (
-		<TextField {...props.field} {...props} className="my-4 flex flex-col gap-2">
+	return props.isLoading ? (
+		<div className="animate-pulse">
+			<div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+			<div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+			<div className="h-4 bg-gray-200 rounded w-2/3"></div>
+		</div>
+	) : (
+		<TextField {...props.field} {...props} className={`my-4 flex flex-col gap-2 ${props.className}`}>
 			<Label className="text-gray-700">{labelPopOver}</Label>
-			{props.isMultiline ? (
-				<TextArea
-					rows={props.rows || 10}
-					className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-				/>
+			{props.customInput ? (
+				// <TextArea
+				// 	rows={props.rows || 10}
+				// 	className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+				// />
+				props.customInput
 			) : (
 				<Input className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
 			)}

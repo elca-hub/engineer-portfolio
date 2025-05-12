@@ -50,12 +50,12 @@ export const defaultComponents: CustomComponents = {
 		</blockquote>
 	),
 	code: ({ children, ...props }) => (
-		<code className="bg-gray-100 rounded px-1 py-0.5" {...props}>
+		<code className="bg-gray-200 rounded px-1 py-0.5" {...props}>
 			{children}
 		</code>
 	),
 	pre: ({ children, ...props }) => (
-		<pre className="bg-gray-100 rounded p-4 mb-4 overflow-x-auto" {...props}>
+		<pre className="bg-gray-200 rounded p-4 mb-4 overflow-x-auto" {...props}>
 			{children}
 		</pre>
 	),

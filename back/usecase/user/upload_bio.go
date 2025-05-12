@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
+	"database/sql"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	repo_sql "devport/domain/repo/sql"
 	"devport/infra/file_uploader"
 	"errors"
 	"fmt"
@@ -16,8 +17,9 @@ type (
 	}
 
 	UploadBioInput struct {
-		Bio    string `json:"bio" validate:"max=1000"`
-		UserId string `validate:"required"`
+		Bio           string `json:"bio" validate:"max=5000"`
+		UserId        string `validate:"required"`
+		IsDeleteImage bool
 	}
 
 	UploadBioPresenter interface {
@@ -31,8 +33,8 @@ type (
 	uploadBioInteractor struct {
 		fileUploader   file_uploader.FileUploader
 		presenter      UploadBioPresenter
-		userRepository sql.UserRepository
-		bioImageRepo   sql.BioImagesRepository
+		userRepository repo_sql.UserRepository
+		bioImageRepo   repo_sql.BioImagesRepository
 		ctxTimeout     time.Duration
 	}
 )
@@ -40,8 +42,8 @@ type (
 func NewUploadBioInteractor(
 	fileUploader file_uploader.FileUploader,
 	presenter UploadBioPresenter,
-	userRepository sql.UserRepository,
-	bioImageRepo sql.BioImagesRepository,
+	userRepository repo_sql.UserRepository,
+	bioImageRepo repo_sql.BioImagesRepository,
 	t time.Duration,
 ) UploadBioUseCase {
 	return uploadBioInteractor{
@@ -65,19 +67,40 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		return UploadBioOutput{}, err
 	}
 
+	objectImages, err := i.fileUploader.GetFiles(model.BIO_IMAGE_PATH)
+	if err != nil {
+		return UploadBioOutput{}, err
+	}
+
+	dbImagePaths, err := i.bioImageRepo.FindByUserId(tx, user)
+	if err != nil {
+		return UploadBioOutput{}, err
+	}
+
 	for _, imageId := range bioModel.ImageIds() {
 		fileIconName, err := model.NewFileIconName(imageId, model.BIO_IMAGE_PATH)
 		if err != nil {
 			return UploadBioOutput{}, err
 		}
 
-		exists, err := i.bioImageRepo.IsExistsFileName(tx, fileIconName)
-		if err != nil {
-			return UploadBioOutput{}, err
+		isExistsInArray := func(array []*model.FileIconName, target string) bool {
+			for _, item := range array {
+				if item.GetFileName() == target {
+					return true
+				}
+			}
+			return false
 		}
 
-		if !exists {
+		// 画像がアップロードされていない場合はエラー
+		if !isExistsInArray(objectImages, fileIconName.GetFileName()) {
 			return UploadBioOutput{}, errors.New("画像が存在しません")
+		}
+
+		if !isExistsInArray(dbImagePaths, fileIconName.GetFileName()) {
+			if err := i.bioImageRepo.Create(tx, user, fileIconName); err != nil {
+				return UploadBioOutput{}, err
+			}
 		}
 	}
 
@@ -92,11 +115,6 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 	}
 
 	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
-		uploadedFiles, err := i.bioImageRepo.FindByUserId(tx, user)
-
-		if err != nil {
-			return err
-		}
 		difference := func(a, b []*model.FileIconName) ([]*model.FileIconName, error) {
 			aString := make([]string, len(a))
 			bString := make([]string, len(b))
@@ -137,15 +155,23 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 			}
 		}
 
-		diff, err := difference(uploadedFiles, bioImageFiles)
+		diff, err := difference(objectImages, bioImageFiles)
 		if err != nil {
 			return err
 		}
 
+		fmt.Printf("diff: %v\n", diff)
+
 		for _, d := range diff {
-			fmt.Println(d.GetFileName())
-			i.fileUploader.DeleteFile(d.GetObjectName())
-			i.bioImageRepo.Delete(tx, user, d)
+			if input.IsDeleteImage {
+				i.fileUploader.DeleteFile(d.GetObjectName())
+			}
+			if err := i.bioImageRepo.Delete(tx, user, d); err != nil {
+				if errors.Is(err, sql.ErrNoRows) {
+					continue
+				}
+				return err
+			}
 		}
 
 		return nil

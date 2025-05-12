@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
@@ -17,7 +18,7 @@ type Bio struct {
 }
 
 const (
-	MaxBioLen       = 1000
+	MaxBioLen       = 6000
 	MaxBioImagesLen = 5
 )
 
@@ -32,7 +33,7 @@ func NewBio(userId string, id string, content string) (*Bio, error) {
 
 	imageIds := []string{}
 
-	re := regexp.MustCompile(`\[!devportからアップロードされた画像\]\((http://minio:9000/bio_images/.+[a-z]{2,5})\)`)
+	re := regexp.MustCompile(fmt.Sprintf(`!\[.+\](\(%s/devport/bio_images/.+[a-z]{2,5})\)`, os.Getenv("BIO_RESOURCE_DOMAIN")))
 	matches := re.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
 		// 後ろから/を探して、その前の文字列を取得
