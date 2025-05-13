@@ -65,7 +65,7 @@ export const defaultComponents: CustomComponents = {
 			alt={alt || ''}
 			width={400}
 			height={250}
-			className="select-none pointer-events-none h-[200px] max-w-3xl mx-auto mb-4 rounded-lg object-contain"
+			className="select-none pointer-events-none h-[200px] max-w-full md:max-w-3xl mx-auto mb-4 rounded-lg object-contain"
 			unoptimized
 		/>
 	),
