@@ -201,7 +201,7 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 
 	return (
 		<form onSubmit={handleSubmit(() => setIsSubmit(true))}>
-			<div className="flex mt-4 justify-center gap-6">
+			<div className="flex mt-4 justify-center md:gap-6 gap-2 flex-col md:flex-row items-center md:items-start">
 				<MySelect
 					className="flex flex-col gap-y-2 my-4"
 					label="サービス"
