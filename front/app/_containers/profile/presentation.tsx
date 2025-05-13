@@ -129,7 +129,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 
 				<section>
 					{bio ? (
-						<div className="mt-4 bg-white rounded-md p-10">
+						<div className="mt-4 bg-white rounded-md py-6 px-10">
 							<h2 className="text-2xl font-bold mb-6">自己紹介</h2>
 							<CustomMarkdown>{bio}</CustomMarkdown>
 						</div>
