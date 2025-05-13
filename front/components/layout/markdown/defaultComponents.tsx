@@ -1,14 +1,24 @@
 'use client'
 
+import { BudouXText } from '@/components/ui/text/budouxText'
 import Image from 'next/image'
 import { CustomComponents } from './types'
 
 export const defaultComponents: CustomComponents = {
-	p: ({ children, ...props }) => (
-		<p className="mb-4" {...props}>
-			{children}
-		</p>
-	),
+	p: ({ children, ...props }) => {
+		if (typeof children === 'string') {
+			return (
+				<p className="mb-4" {...props}>
+					<BudouXText text={children} />
+				</p>
+			)
+		}
+		return (
+			<p className="mb-4" {...props}>
+				{children}
+			</p>
+		)
+	},
 	a: ({ children, href, ...props }) => (
 		<a href={href} className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer" {...props}>
 			{children}
@@ -16,17 +26,17 @@ export const defaultComponents: CustomComponents = {
 	),
 	h1: ({ children, ...props }) => (
 		<h1 className="text-3xl font-bold mb-4" {...props}>
-			{children}
+			<BudouXText text={children as string} />
 		</h1>
 	),
 	h2: ({ children, ...props }) => (
 		<h2 className="text-2xl font-bold mb-3" {...props}>
-			{children}
+			<BudouXText text={children as string} />
 		</h2>
 	),
 	h3: ({ children, ...props }) => (
 		<h3 className="text-xl font-bold mb-2" {...props}>
-			{children}
+			<BudouXText text={children as string} />
 		</h3>
 	),
 	ul: ({ children, ...props }) => (
