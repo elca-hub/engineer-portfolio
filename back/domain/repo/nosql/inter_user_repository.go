@@ -7,6 +7,7 @@ import (
 )
 
 type UserRepository interface {
+	IsExistSession(token string) (bool, error)
 	StartSession(email *model.Email) (string, error)
 	GetSession(token string) (*model.Email, error)
 	DeleteSession(token string) error

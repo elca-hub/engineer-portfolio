@@ -9,7 +9,7 @@ import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { getSessionToken } from '@/lib/access'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { Button, DropZone, FileTrigger, Tab, TabList, TabPanel, Tabs, TextArea } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
 import { RiEyeLine, RiImageAddLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
@@ -40,6 +40,8 @@ export default function BioSettingTabPresentation({ user }: Props) {
 		},
 	})
 	const [isSubmit, setIsSubmit] = useState(false)
+
+	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
@@ -117,7 +119,16 @@ export default function BioSettingTabPresentation({ user }: Props) {
 				}
 
 				if (res.data) {
-					setValue('bio', `${watch('bio')}\n\n![image](${res.data.image_url})`)
+					const textarea = textareaRef.current
+					if (textarea) {
+						const start = textarea.selectionStart
+						const end = textarea.selectionEnd
+						const currentValue = watch('bio')
+						const newValue = currentValue.substring(0, start) + `\n![image](${res.data.image_url})\n` + currentValue.substring(end)
+						setValue('bio', newValue)
+					} else {
+						setValue('bio', `${watch('bio')}\n\n![image](${res.data.image_url})`)
+					}
 				}
 			}
 			uploadFlow()
@@ -196,9 +207,25 @@ export default function BioSettingTabPresentation({ user }: Props) {
 										isLoading={isLoading}
 										customInput={
 											<TextArea
+												ref={textareaRef}
 												rows={10}
 												className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
 												placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
+												onKeyDown={(e) => {
+													if (e.key === 'Tab') {
+														e.preventDefault()
+														const textarea = e.currentTarget
+														const start = textarea.selectionStart
+														const end = textarea.selectionEnd
+														const value = textarea.value
+														textarea.value = value.substring(0, start) + '\t' + value.substring(end)
+														textarea.selectionStart = textarea.selectionEnd = start + 1
+														// React Hook Formの値も更新
+														if (typeof field?.onChange === 'function') {
+															field.onChange(textarea.value)
+														}
+													}
+												}}
 											/>
 										}
 									></InputField>

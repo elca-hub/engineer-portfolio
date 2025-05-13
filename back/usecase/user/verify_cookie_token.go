@@ -5,6 +5,7 @@ import (
 	"devport/domain/model"
 	"devport/domain/repo/nosql"
 	"devport/domain/repo/sql"
+	"errors"
 	"time"
 )
 
@@ -57,6 +58,17 @@ func (i verifyCookieTokenInterator) Execute(cx context.Context, input VerifyCook
 	defer cancel()
 
 	err := i.sqlRepository.WithTransaction(ctx, func(tx context.Context) error {
+
+		isExist, err := i.noSqlRepository.IsExistSession(input.Token)
+
+		if err != nil {
+			return err
+		}
+
+		if !isExist {
+			return errors.New("セッションが無効化されました。再度ログインしてください")
+		}
+
 		email, err := i.noSqlRepository.GetSession(input.Token)
 
 		if err != nil {
