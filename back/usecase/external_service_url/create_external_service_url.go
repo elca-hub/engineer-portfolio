@@ -77,13 +77,13 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return err
 		}
 
-		fetchByServiceType, err := i.externalServiceUrlsRepository.FindByServiceType(ctx, user, input.ServiceType)
+		exists, err := i.externalServiceUrlsRepository.IsExistsByServiceType(ctx, user, input.ServiceType)
 
 		if err != nil {
 			return err
 		}
 
-		if fetchByServiceType != nil {
+		if exists {
 			return fmt.Errorf("既に登録されています: %d", input.ServiceType)
 		}
 

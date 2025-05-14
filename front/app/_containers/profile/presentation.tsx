@@ -3,8 +3,10 @@
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { UserType } from '@/action/type/user'
 import BasicSettingTabPresentation from '@/app/_containers/profile/tabs/BasicSettingTabPresentation'
+import BioSettingTabPresentation from '@/app/_containers/profile/tabs/BioSettingTabPresentation'
 import LinksSettingTabPresentation from '@/app/_containers/profile/tabs/LinksSettingTabPresentation'
 import ProfileImageTabPresentation from '@/app/_containers/profile/tabs/ProfileImageTabPresentation'
+import CustomMarkdown from '@/components/layout/markdown/CustomMarkdown'
 import DPModal from '@/components/layout/modal'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
@@ -20,12 +22,13 @@ type Props = {
 	user: UserType
 	isAuthUser: boolean
 	externalServiceUrls: ExternalServiceUrlType[]
+	bio: string | null
 }
 
 /**
  * @package
  */
-export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls }: Props) {
+export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls, bio }: Props) {
 	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-border outline-primary data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
 
 	return (
@@ -72,6 +75,9 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 												<Tab id="links" className={tabItemClassName}>
 													リンク
 												</Tab>
+												<Tab id="bio" className={tabItemClassName}>
+													自己紹介
+												</Tab>
 											</TabList>
 											<TabPanel id="image">
 												<div className="relative mb-14">
@@ -83,6 +89,9 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 											</TabPanel>
 											<TabPanel id="links">
 												<LinksSettingTabPresentation externalServiceUrls={externalServiceUrls} />
+											</TabPanel>
+											<TabPanel id="bio">
+												<BioSettingTabPresentation user={user} />
 											</TabPanel>
 										</Tabs>
 									</DPModal>
@@ -114,15 +123,26 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 				</section>
 				<section className="flex justify-start gap-x-4 gap-y-2 flex-wrap">
 					{externalServiceUrls.map((url) => (
-						<PofileLinkComponent url={url.url} serviceType={url.service_type} key={url.id} />
+						<ProfileLinkComponent url={url.url} serviceType={url.service_type} key={url.id} />
 					))}
+				</section>
+
+				<section>
+					{bio ? (
+						<div className="mt-4 bg-white rounded-md py-6 px-10">
+							<h2 className="text-2xl font-bold mb-6">自己紹介</h2>
+							<CustomMarkdown>{bio}</CustomMarkdown>
+						</div>
+					) : (
+						<p className="text-subtext">自己紹介はありません</p>
+					)}
 				</section>
 			</main>
 		</div>
 	)
 }
 
-function PofileLinkComponent({ url, serviceType }: { url: string; serviceType: number }) {
+function ProfileLinkComponent({ url, serviceType }: { url: string; serviceType: number }) {
 	let text = ServiceTypeToServiceName(serviceType) as string
 	if (text === 'other') text = url
 

@@ -41,6 +41,6 @@ func (h *GormHandler) UserRepository() sql.UserRepository {
 	return repo.NewGormUserRepository(h.db)
 }
 
-func (h *GormHandler) ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository {
-	return repo.NewGormExternalServiceRepository(h.db)
-}
+// func (h *GormHandler) ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository {
+// 	return repo.NewGormExternalServiceRepository(h.db)
+// }

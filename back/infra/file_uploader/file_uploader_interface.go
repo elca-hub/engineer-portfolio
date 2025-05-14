@@ -9,4 +9,5 @@ type FileUploader interface {
 	DeleteFile(objectName string) error
 	GetIconNames() ([]*model.FileIconName, error)
 	GetHeaderNames() ([]*model.FileIconName, error)
+	GetFiles(filePattern int) ([]*model.FileIconName, error)
 }

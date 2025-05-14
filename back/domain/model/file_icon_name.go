@@ -3,46 +3,43 @@ package model
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
 type FileIconName struct {
 	fileName   string
 	objectName string
+	iconType   int
 }
 
 const (
 	ICON_PATH = iota
 	HEADER_PATH
+	BIO_IMAGE_PATH
 )
 
 func NewFileIconName(fileName string, path int) (*FileIconName, error) {
-	if strings.HasPrefix(fileName, "icon/") || strings.HasPrefix(fileName, "header/") {
-		fileNameTmp := fileName
-		// fileNameから'icon/'や'header/'を削除
-		fileNameTmp = strings.TrimPrefix(fileNameTmp, "icon/")
-		fileNameTmp = strings.TrimPrefix(fileNameTmp, "header/")
-
-		return &FileIconName{
-			fileName:   fileNameTmp,
-			objectName: fileName,
-		}, nil
+	prefixes := []string{"icon/", "header/", "bio_images/"}
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(fileName, prefix) {
+			return &FileIconName{
+				fileName:   strings.TrimPrefix(fileName, prefix),
+				objectName: fileName,
+				iconType:   path,
+			}, nil
+		}
 	}
 
-	switch path {
-	case ICON_PATH:
-		return &FileIconName{
-			fileName:   fileName,
-			objectName: fmt.Sprintf("%s/%s", "icon", fileName),
-		}, nil
-	case HEADER_PATH:
-		return &FileIconName{
-			fileName:   fileName,
-			objectName: fmt.Sprintf("%s/%s", "header", fileName),
-		}, nil
-	default:
-		return nil, errors.New("invalid path")
+	prefixes = []string{"icon", "header", "bio_images"}
+	if path < 0 || path >= len(prefixes) {
+		return nil, errors.New("不正なパスです")
 	}
+	return &FileIconName{
+		fileName:   fileName,
+		objectName: fmt.Sprintf("%s/%s", prefixes[path], fileName),
+		iconType:   path,
+	}, nil
 }
 
 func (f *FileIconName) GetFileName() string {
@@ -51,4 +48,21 @@ func (f *FileIconName) GetFileName() string {
 
 func (f *FileIconName) GetObjectName() string {
 	return f.objectName
+}
+
+func (f *FileIconName) GetUrl() string {
+	protocol := "http"
+	hostName := "localhost"
+	port := os.Getenv("MINIO_PORT")
+	bucketName := os.Getenv("MINIO_BUCKET_NAME")
+	switch f.iconType {
+	case ICON_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/icon/%s", protocol, hostName, port, bucketName, f.fileName)
+	case HEADER_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/header/%s", protocol, hostName, port, bucketName, f.fileName)
+	case BIO_IMAGE_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/bio_images/%s", protocol, hostName, port, bucketName, f.fileName)
+	default:
+		return ""
+	}
 }

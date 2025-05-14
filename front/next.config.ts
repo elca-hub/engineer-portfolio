@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
 		serverActions: { bodySizeLimit: '50mb' },
 	},
 	images: {
+		// allow all
 		remotePatterns: [
 			{
 				protocol: 'http',

@@ -2,7 +2,6 @@ package model
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -21,11 +20,11 @@ type FileIcon struct {
 
 func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
-		return nil, errors.New("file size exceeds the limit")
+		return nil, fmt.Errorf("ファイルサイズが%dMBを超えています", MAX_FILE_SIZE/1024/1024)
 	}
 
 	if fileHeader.Header.Get("Content-Type") != "image/png" && fileHeader.Header.Get("Content-Type") != "image/jpeg" {
-		return nil, errors.New("invalid file type")
+		return nil, fmt.Errorf("不正なファイル形式です。Content-Type: %s", fileHeader.Header.Get("Content-Type"))
 	}
 
 	extensionTmp := fileHeader.Filename

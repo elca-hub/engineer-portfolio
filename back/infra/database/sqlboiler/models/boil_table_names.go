@@ -4,10 +4,12 @@
 package models
 
 var TableNames = struct {
+	BioImages           string
 	ExternalServiceUrls string
 	Skills              string
 	Users               string
 }{
+	BioImages:           "bio_images",
 	ExternalServiceUrls: "external_service_urls",
 	Skills:              "skills",
 	Users:               "users",

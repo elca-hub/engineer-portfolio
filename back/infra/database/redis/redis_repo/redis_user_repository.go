@@ -3,9 +3,10 @@ package redis_repo
 import (
 	"context"
 	"devport/domain/model"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
-	"time"
 )
 
 type RedisUserRepository struct {
@@ -16,6 +17,16 @@ func NewRedisUserRepository(client *redis.Client) *RedisUserRepository {
 	return &RedisUserRepository{
 		client: client,
 	}
+}
+
+func (r *RedisUserRepository) IsExistSession(token string) (bool, error) {
+	exists, err := r.client.Exists(context.Background(), token).Result()
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists > 0, nil
 }
 
 func (r *RedisUserRepository) StartSession(email *model.Email) (string, error) {

@@ -2,7 +2,6 @@ package database
 
 import (
 	"os"
-	"time"
 )
 
 type MysqlConfig struct {
@@ -11,13 +10,10 @@ type MysqlConfig struct {
 	port     string
 	user     string
 	password string
-
-	ctxTimeout time.Duration
 }
 
 type RedisConfig struct {
 	host     string
-	database string
 	port     string
 	password string
 	poolSize int
