@@ -20,12 +20,13 @@ func NewRedisUserRepository(client *redis.Client) *RedisUserRepository {
 }
 
 func (r *RedisUserRepository) IsExistSession(token string) (bool, error) {
+	exists, err := r.client.Exists(context.Background(), token).Result()
 
-	if err := r.client.Exists(context.Background(), token).Err(); err != nil {
+	if err != nil {
 		return false, err
 	}
 
-	return true, nil
+	return exists > 0, nil
 }
 
 func (r *RedisUserRepository) StartSession(email *model.Email) (string, error) {
