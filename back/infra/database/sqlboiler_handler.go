@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	sql_inter "devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/database/sqlboiler/repository"
 )
 
@@ -35,14 +35,18 @@ func NewSqlBoilerHandler(c *MysqlConfig) (*SqlBoilerHandler, error) {
 	return &SqlBoilerHandler{db: db}, nil
 }
 
-func (h *SqlBoilerHandler) UserRepository() sql_inter.UserRepository {
+func (h *SqlBoilerHandler) UserRepository() db.UserRepository {
 	return repository.NewSqlBoilerUserRepository(h.db)
 }
 
-func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() sql_inter.ExternalServiceUrlsRepository {
+func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() db.ExternalServiceUrlsRepository {
 	return repository.NewSqlBoilerExternalServiceUrlRepository(h.db)
 }
 
-func (h *SqlBoilerHandler) BioImagesRepository() sql_inter.BioImagesRepository {
+func (h *SqlBoilerHandler) BioImagesRepository() db.BioImagesRepository {
 	return repository.NewSqlBoilerBioImagesRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) WorkRepository() db.WorkRepository {
+	return repository.NewSqlBoilerWorkRepository(h.db)
 }

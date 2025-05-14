@@ -63,7 +63,7 @@ func (i uploadUserImageInterator) Execute(tx context.Context, input UploadUserIm
 	// アイコン画像のアップロード
 	if input.Icon != nil && input.IconHeader != nil {
 		g.Go(func() error {
-			iconFile, err := model.NewFileIcon(input.Icon, input.IconHeader, model.ICON_PATH)
+			iconFile, err := model.NewBucketFile(input.Icon, input.IconHeader, model.ICON_PATH)
 			if err != nil {
 				return err
 			}
@@ -79,7 +79,7 @@ func (i uploadUserImageInterator) Execute(tx context.Context, input UploadUserIm
 	// ヘッダー画像のアップロード
 	if input.Header != nil && input.HeaderHeader != nil {
 		g.Go(func() error {
-			headerFile, err := model.NewFileIcon(input.Header, input.HeaderHeader, model.HEADER_PATH)
+			headerFile, err := model.NewBucketFile(input.Header, input.HeaderHeader, model.HEADER_PATH)
 			if err != nil {
 				return err
 			}

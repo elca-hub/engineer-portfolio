@@ -1,7 +1,7 @@
 package database
 
 import (
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"errors"
 )
 
@@ -12,9 +12,10 @@ const (
 
 // 新しいリポジトリを作成したらここに追加する
 type SqlInter interface {
-	UserRepository() sql.UserRepository
-	ExternalServiceUrlsRepository() sql.ExternalServiceUrlsRepository
-	BioImagesRepository() sql.BioImagesRepository
+	UserRepository() db.UserRepository
+	ExternalServiceUrlsRepository() db.ExternalServiceUrlsRepository
+	BioImagesRepository() db.BioImagesRepository
+	WorkRepository() db.WorkRepository
 }
 
 func NewDatabaseSqlFactory(instance int) (SqlInter, error) {

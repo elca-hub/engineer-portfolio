@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -28,16 +28,16 @@ type (
 	}
 
 	updateExternalServiceUrlInteractor struct {
-		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
-		userRepository                sql.UserRepository
+		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
+		userRepository                db.UserRepository
 		presenter                     UpdateExternalServiceUrlPresenter
 		ctxTimeout                    time.Duration
 	}
 )
 
 func NewUpdateExternalServiceUrlInteractor(
-	externalServiceUrlsRepository sql.ExternalServiceUrlsRepository,
-	userRepository sql.UserRepository,
+	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
+	userRepository db.UserRepository,
 	presenter UpdateExternalServiceUrlPresenter,
 	t time.Duration,
 ) UpdateExternalServiceUrlUseCase {

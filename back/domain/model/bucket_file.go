@@ -18,7 +18,7 @@ type FileIcon struct {
 	fileName *FileIconName
 }
 
-func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
+func NewBucketFile(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
 		return nil, fmt.Errorf("ファイルサイズが%dMBを超えています", MAX_FILE_SIZE/1024/1024)
 	}
@@ -52,7 +52,7 @@ func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int
 
 	fileName := fmt.Sprintf("%s.%s", fileNameUUID.String(), extension)
 
-	iconName, err := NewFileIconName(fileName, path)
+	iconName, err := NewFileName(fileName, path)
 
 	if err != nil {
 		return nil, err

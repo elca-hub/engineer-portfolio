@@ -85,7 +85,7 @@ func (m *Minio) GetIconNames() ([]*model.FileIconName, error) {
 	var fileIconNames []*model.FileIconName
 	for _, object := range result.Contents {
 		if strings.HasPrefix(*object.Key, "icon/") {
-			fileIconName, err := model.NewFileIconName(*object.Key, model.ICON_PATH)
+			fileIconName, err := model.NewFileName(*object.Key, model.ICON_PATH)
 			if err != nil {
 				return nil, err
 			}
@@ -110,7 +110,7 @@ func (m *Minio) GetHeaderNames() ([]*model.FileIconName, error) {
 	var fileIconNames []*model.FileIconName
 	for _, object := range result.Contents {
 		if strings.HasPrefix(*object.Key, "header/") {
-			fileIconName, err := model.NewFileIconName(*object.Key, model.HEADER_PATH)
+			fileIconName, err := model.NewFileName(*object.Key, model.HEADER_PATH)
 			if err != nil {
 				return nil, err
 			}
@@ -148,7 +148,7 @@ func (m *Minio) GetFiles(filePattern int) ([]*model.FileIconName, error) {
 
 	for _, object := range result.Contents {
 		if strings.HasPrefix(*object.Key, prefixPattern) {
-			fileIconName, err := model.NewFileIconName(*object.Key, filePattern)
+			fileIconName, err := model.NewFileName(*object.Key, filePattern)
 			if err != nil {
 				return nil, err
 			}

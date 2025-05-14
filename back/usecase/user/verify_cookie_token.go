@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"devport/domain/model"
+	"devport/domain/repo/db"
 	"devport/domain/repo/nosql"
-	"devport/domain/repo/sql"
 	"errors"
 	"time"
 )
@@ -27,7 +27,7 @@ type (
 	}
 
 	verifyCookieTokenInterator struct {
-		sqlRepository   sql.UserRepository
+		sqlRepository   db.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       VerifyCookieTokenPresenter
 		ctxTimeout      time.Duration
@@ -35,7 +35,7 @@ type (
 )
 
 func NewVerifyCookieTokenInterator(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	presenter VerifyCookieTokenPresenter,
 	t time.Duration,

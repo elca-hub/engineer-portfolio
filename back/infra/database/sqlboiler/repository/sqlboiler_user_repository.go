@@ -101,7 +101,7 @@ func (r *SqlBoilerUserRepository) FetchIconNamesAll(ctx context.Context) ([]*mod
 	iconNames := make([]*model.FileIconName, len(users))
 
 	for i, user := range users {
-		iconNames[i], err = model.NewFileIconName(user.IconPath.String, model.ICON_PATH)
+		iconNames[i], err = model.NewFileName(user.IconPath.String, model.ICON_PATH)
 		if err != nil {
 			return nil, err
 		}
@@ -119,7 +119,7 @@ func (r *SqlBoilerUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*m
 	headerNames := make([]*model.FileIconName, len(users))
 
 	for i, user := range users {
-		headerNames[i], err = model.NewFileIconName(user.HeaderPath.String, model.HEADER_PATH)
+		headerNames[i], err = model.NewFileName(user.HeaderPath.String, model.HEADER_PATH)
 		if err != nil {
 			return nil, err
 		}

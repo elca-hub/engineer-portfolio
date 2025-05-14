@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/file_uploader"
 	"fmt"
 	"mime/multipart"
@@ -31,8 +31,8 @@ type (
 
 	uploadBioImageInteractor struct {
 		fileUploader   file_uploader.FileUploader
-		userRepository sql.UserRepository
-		bioImageRepo   sql.BioImagesRepository
+		userRepository db.UserRepository
+		bioImageRepo   db.BioImagesRepository
 		presenter      UploadBioImagePresenter
 		ctxTimeout     time.Duration
 	}
@@ -41,8 +41,8 @@ type (
 func NewUploadBioImageInteractor(
 	fileUploader file_uploader.FileUploader,
 	presenter UploadBioImagePresenter,
-	userRepository sql.UserRepository,
-	bioImageRepo sql.BioImagesRepository,
+	userRepository db.UserRepository,
+	bioImageRepo db.BioImagesRepository,
 	t time.Duration,
 ) UploadBioImageUseCase {
 	return uploadBioImageInteractor{
@@ -60,7 +60,7 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 		return UploadBioImageOutput{}, err
 	}
 
-	image, err := model.NewFileIcon(input.Image, input.ImageHeader, model.BIO_IMAGE_PATH)
+	image, err := model.NewBucketFile(input.Image, input.ImageHeader, model.BIO_IMAGE_PATH)
 	if err != nil {
 		return UploadBioImageOutput{}, err
 	}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -26,16 +26,16 @@ type (
 	}
 
 	updateUserInterator struct {
-		userRepository                sql.UserRepository
-		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
+		userRepository                db.UserRepository
+		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
 		presenter                     UpdateUserPresenter
 		ctxTimeout                    time.Duration
 	}
 )
 
 func NewUpdateUserInterator(
-	userRepository sql.UserRepository,
-	externalServiceUrlsRepository sql.ExternalServiceUrlsRepository,
+	userRepository db.UserRepository,
+	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
 	presenter UpdateUserPresenter,
 	t time.Duration,
 ) UpdateUserUseCase {

@@ -121,7 +121,7 @@ func (r GormUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.Fil
 
 	for i, user := range gormUsers {
 		var err error
-		res[i], err = model.NewFileIconName(user.IconPath, model.ICON_PATH)
+		res[i], err = model.NewFileName(user.IconPath, model.ICON_PATH)
 
 		if err != nil {
 			return nil, err
@@ -142,7 +142,7 @@ func (r GormUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.F
 
 	for i, user := range gormUsers {
 		var err error
-		res[i], err = model.NewFileIconName(user.HeaderPath, model.HEADER_PATH)
+		res[i], err = model.NewFileName(user.HeaderPath, model.HEADER_PATH)
 
 		if err != nil {
 			return nil, err

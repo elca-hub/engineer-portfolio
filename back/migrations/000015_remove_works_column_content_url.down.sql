@@ -1,0 +1,2 @@
+ALTER TABLE works
+    ADD COLUMN content_url VARCHAR(255) NOT NULL COMMENT '文章のurl';

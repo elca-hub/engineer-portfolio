@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/file_uploader"
 	"sync"
 	"time"
@@ -25,15 +25,15 @@ type (
 	}
 
 	deleteUserImageInterator struct {
-		sqlRepository sql.UserRepository
+		sqlRepository db.UserRepository
 		fileUploader  file_uploader.FileUploader
-		presenter     UploadUserImagePresenter
+		presenter     DeleteUserImagePresenter
 		ctxTimeout    time.Duration
 	}
 )
 
 func NewDeleteUserImageInterator(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	fileUploader file_uploader.FileUploader,
 	t time.Duration,
 ) DeleteUserImageUseCase {

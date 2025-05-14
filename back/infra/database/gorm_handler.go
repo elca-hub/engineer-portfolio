@@ -1,7 +1,7 @@
 package database
 
 import (
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/database/gorm/repo"
 	"fmt"
 	"time"
@@ -37,7 +37,7 @@ func NewGormHandler(c *MysqlConfig) (*GormHandler, error) {
 	return &GormHandler{db: db}, nil
 }
 
-func (h *GormHandler) UserRepository() sql.UserRepository {
+func (h *GormHandler) UserRepository() db.UserRepository {
 	return repo.NewGormUserRepository(h.db)
 }
 

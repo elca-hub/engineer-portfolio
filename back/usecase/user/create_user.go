@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"devport/domain/model"
+	"devport/domain/repo/db"
 	"devport/domain/repo/nosql"
-	"devport/domain/repo/sql"
 	"devport/infra/email"
 	"errors"
 	"time"
@@ -31,7 +31,7 @@ type (
 	}
 
 	createUserInterator struct {
-		sqlRepository   sql.UserRepository
+		sqlRepository   db.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       CreateUserPresenter
 		email           email.Email
@@ -40,7 +40,7 @@ type (
 )
 
 func NewCreateUserInterator(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	presenter CreateUserPresenter,
 	email email.Email,

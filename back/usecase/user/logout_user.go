@@ -1,8 +1,8 @@
 package user
 
 import (
+	"devport/domain/repo/db"
 	"devport/domain/repo/nosql"
-	"devport/domain/repo/sql"
 )
 
 type (
@@ -21,7 +21,7 @@ type (
 	LogoutUserOutput struct{}
 
 	logoutUserInterator struct {
-		sqlRepository   sql.UserRepository
+		sqlRepository   db.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       LogoutUserPresenter
 	}

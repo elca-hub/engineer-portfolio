@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"devport/domain/model"
+	"devport/domain/repo/db"
 	"devport/domain/repo/nosql"
-	"devport/domain/repo/sql"
 	"time"
 )
 
@@ -27,7 +27,7 @@ type (
 	}
 
 	loginUserInterator struct {
-		sqlRepository   sql.UserRepository
+		sqlRepository   db.UserRepository
 		noSqlRepository nosql.UserRepository
 		presenter       LoginUserPresenter
 		ctxTimeout      time.Duration
@@ -35,7 +35,7 @@ type (
 )
 
 func NewLoginUserInterator(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	noSqlRepository nosql.UserRepository,
 	presenter LoginUserPresenter,
 	t time.Duration,

@@ -91,7 +91,7 @@ func (r *SqlBoilerBioImagesRepository) FindByUserId(ctx context.Context, user *m
 	res := make([]*model.FileIconName, len(fileNames))
 
 	for i, fileName := range fileNames {
-		res[i], err = model.NewFileIconName(fileName.FileName, model.BIO_IMAGE_PATH)
+		res[i], err = model.NewFileName(fileName.FileName, model.BIO_IMAGE_PATH)
 		if err != nil {
 			return nil, err
 		}

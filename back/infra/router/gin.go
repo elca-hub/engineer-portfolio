@@ -10,8 +10,10 @@ import (
 	"devport/infra/file_uploader"
 	external_presenter "devport/presenter/external_presenter"
 	user_presenter "devport/presenter/user_presenter"
+	"devport/presenter/work_presenter"
 	"devport/usecase/external_service_url"
 	"devport/usecase/user"
+	"devport/usecase/work"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,8 +40,6 @@ type GinEngine struct {
 	email        email.Email
 	fileUploader file_uploader.FileUploader
 }
-
-const csrfTokenName = "dp_csrf_token"
 
 func NewGinServer(
 	port Port,
@@ -131,14 +131,14 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			authRouterGroup.GET("/health_check", e.healthCheckAction()) // 認証状態の確認
-			userAuthRouterGroup := authRouterGroup.Group("/user")
+			userAuthRouterGroup := authRouterGroup.Group("/user")       // ユーザ関連
 			{
 				userAuthRouterGroup.PUT("/", e.updateUserAction())
 				userAuthRouterGroup.PUT("/image", e.uploadUserImageAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 
-				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url")
+				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url") // 外部サービスURL関連
 				{
 					externalServiceUrlAuthRouterGroup.POST("/", e.createExternalServiceUrlAction())
 					externalServiceUrlAuthItemRouterGroup := externalServiceUrlAuthRouterGroup.Group("/:externalServiceUrlId")
@@ -148,10 +148,15 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 					}
 				}
 
-				bioAuthRouterGroup := userAuthRouterGroup.Group("/bio")
+				bioAuthRouterGroup := userAuthRouterGroup.Group("/bio") // 自己紹介関連
 				{
 					bioAuthRouterGroup.POST("/", e.uploadBioAction())
 					bioAuthRouterGroup.POST("/image", e.uploadBioImageAction())
+				}
+
+				workAuthRouterGroup := userAuthRouterGroup.Group("/work") // 作品関連
+				{
+					workAuthRouterGroup.POST("/", e.createWorkAction())
 				}
 			}
 		}
@@ -416,6 +421,24 @@ func (e *GinEngine) uploadBioImageAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUploadBioImageAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createWorkAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewCreateWorkInteractor(
+				e.sql.WorkRepository(),
+				e.sql.UserRepository(),
+				e.fileUploader,
+				work_presenter.NewCreateWorkPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateWorkAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

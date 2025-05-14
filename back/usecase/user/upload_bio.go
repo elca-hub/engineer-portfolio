@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"devport/domain/model"
-	repo_sql "devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/file_uploader"
 	"errors"
 	"fmt"
@@ -33,8 +33,8 @@ type (
 	uploadBioInteractor struct {
 		fileUploader   file_uploader.FileUploader
 		presenter      UploadBioPresenter
-		userRepository repo_sql.UserRepository
-		bioImageRepo   repo_sql.BioImagesRepository
+		userRepository db.UserRepository
+		bioImageRepo   db.BioImagesRepository
 		ctxTimeout     time.Duration
 	}
 )
@@ -42,8 +42,8 @@ type (
 func NewUploadBioInteractor(
 	fileUploader file_uploader.FileUploader,
 	presenter UploadBioPresenter,
-	userRepository repo_sql.UserRepository,
-	bioImageRepo repo_sql.BioImagesRepository,
+	userRepository db.UserRepository,
+	bioImageRepo db.BioImagesRepository,
 	t time.Duration,
 ) UploadBioUseCase {
 	return uploadBioInteractor{
@@ -78,7 +78,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 	}
 
 	for _, imageId := range bioModel.ImageIds() {
-		fileIconName, err := model.NewFileIconName(imageId, model.BIO_IMAGE_PATH)
+		fileIconName, err := model.NewFileName(imageId, model.BIO_IMAGE_PATH)
 		if err != nil {
 			return UploadBioOutput{}, err
 		}
@@ -135,7 +135,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 
 			diffFiles := make([]*model.FileIconName, len(diff))
 			for i, item := range diff {
-				diffFiles[i], err = model.NewFileIconName(item, model.BIO_IMAGE_PATH)
+				diffFiles[i], err = model.NewFileName(item, model.BIO_IMAGE_PATH)
 				if err != nil {
 					return nil, err
 				}
@@ -149,7 +149,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		bioImageFiles := make([]*model.FileIconName, len(bioImages))
 
 		for i, imageId := range bioImages {
-			bioImageFiles[i], err = model.NewFileIconName(imageId, model.BIO_IMAGE_PATH)
+			bioImageFiles[i], err = model.NewFileName(imageId, model.BIO_IMAGE_PATH)
 			if err != nil {
 				return err
 			}

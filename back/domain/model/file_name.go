@@ -17,10 +17,12 @@ const (
 	ICON_PATH = iota
 	HEADER_PATH
 	BIO_IMAGE_PATH
+	WORK_CONTENT_PATH
+	WORK_THUMBNAIL_PATH
 )
 
-func NewFileIconName(fileName string, path int) (*FileIconName, error) {
-	prefixes := []string{"icon/", "header/", "bio_images/"}
+func NewFileName(fileName string, path int) (*FileIconName, error) {
+	prefixes := []string{"icon/", "header/", "bio_images/", "works/"}
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(fileName, prefix) {
 			return &FileIconName{
@@ -31,7 +33,7 @@ func NewFileIconName(fileName string, path int) (*FileIconName, error) {
 		}
 	}
 
-	prefixes = []string{"icon", "header", "bio_images"}
+	prefixes = []string{"icon", "header", "bio_images", "works"}
 	if path < 0 || path >= len(prefixes) {
 		return nil, errors.New("不正なパスです")
 	}
@@ -50,6 +52,10 @@ func (f *FileIconName) GetObjectName() string {
 	return f.objectName
 }
 
+func (f *FileIconName) GetPath() int {
+	return f.iconType
+}
+
 func (f *FileIconName) GetUrl() string {
 	protocol := "http"
 	hostName := "localhost"
@@ -62,6 +68,8 @@ func (f *FileIconName) GetUrl() string {
 		return fmt.Sprintf("%s://%s:%s/%s/header/%s", protocol, hostName, port, bucketName, f.fileName)
 	case BIO_IMAGE_PATH:
 		return fmt.Sprintf("%s://%s:%s/%s/bio_images/%s", protocol, hostName, port, bucketName, f.fileName)
+	case WORK_CONTENT_PATH, WORK_THUMBNAIL_PATH:
+		return fmt.Sprintf("%s://%s:%s/%s/works/%s", protocol, hostName, port, bucketName, f.fileName)
 	default:
 		return ""
 	}

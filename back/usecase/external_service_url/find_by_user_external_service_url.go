@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -26,16 +26,16 @@ type (
 	}
 
 	findByUserExternalServiceUrlInterator struct {
-		userRepo   sql.UserRepository
-		esuRepo    sql.ExternalServiceUrlsRepository
+		userRepo   db.UserRepository
+		esuRepo    db.ExternalServiceUrlsRepository
 		presenter  FindByUserExternalServiceUrlPresenter
 		ctxTimeout time.Duration
 	}
 )
 
 func NewFindByUserExternalServiceUrlInterator(
-	sqlRepository sql.UserRepository,
-	esuRepository sql.ExternalServiceUrlsRepository,
+	sqlRepository db.UserRepository,
+	esuRepository db.ExternalServiceUrlsRepository,
 	presenter FindByUserExternalServiceUrlPresenter,
 	t time.Duration,
 ) FindByUserExternalServiceUrlUseCase {

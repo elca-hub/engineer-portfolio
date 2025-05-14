@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -26,14 +26,14 @@ type (
 	}
 
 	fetchUserInfoInterator struct {
-		sqlRepository sql.UserRepository
+		sqlRepository db.UserRepository
 		presenter     FetchUserInfoPresenter
 		ctxTimeout    time.Duration
 	}
 )
 
 func NewFetchUserInfoInterator(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	presenter FetchUserInfoPresenter,
 	t time.Duration,
 ) FetchUserInfoUseCase {
