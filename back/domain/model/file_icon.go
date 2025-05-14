@@ -2,7 +2,6 @@ package model
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -25,7 +24,7 @@ func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int
 	}
 
 	if fileHeader.Header.Get("Content-Type") != "image/png" && fileHeader.Header.Get("Content-Type") != "image/jpeg" {
-		return nil, errors.New("不正なファイル形式です")
+		return nil, fmt.Errorf("不正なファイル形式です。Content-Type: %s", fileHeader.Header.Get("Content-Type"))
 	}
 
 	extensionTmp := fileHeader.Filename
