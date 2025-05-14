@@ -33,7 +33,7 @@ func NewBio(userId string, id string, content string) (*Bio, error) {
 
 	imageIds := []string{}
 
-	re := regexp.MustCompile(fmt.Sprintf(`!\[.+\](\(%s/devport/bio_images/.+[a-z]{2,5})\)`, os.Getenv("BIO_RESOURCE_DOMAIN")))
+	re := regexp.MustCompile(fmt.Sprintf(`!\[.*\](\(%s/devport/bio_images/.+[a-z]{2,5})\)`, os.Getenv("BIO_RESOURCE_DOMAIN")))
 	matches := re.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
 		// 後ろから/を探して、その前の文字列を取得
@@ -42,6 +42,8 @@ func NewBio(userId string, id string, content string) (*Bio, error) {
 			imageIds = append(imageIds, match[1][lastSlashIndex+1:])
 		}
 	}
+
+	imageIds = unique(imageIds)
 
 	if len(imageIds) > MaxBioImagesLen {
 		return nil, errors.New("自己紹介文に使用している画像が多すぎます")
@@ -70,4 +72,16 @@ func (b *Bio) ImageIds() []string {
 
 func (b *Bio) IsFullImage() bool {
 	return len(b.imageIds) == MaxBioImagesLen
+}
+
+func unique(slice []string) []string {
+	keys := make(map[string]struct{})
+	result := []string{}
+	for _, v := range slice {
+		if _, ok := keys[v]; !ok {
+			keys[v] = struct{}{}
+			result = append(result, v)
+		}
+	}
+	return result
 }
