@@ -21,7 +21,7 @@ type FileIcon struct {
 
 func NewFileIcon(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
-		return nil, errors.New("ファイルサイズが50MBを超えています")
+		return nil, fmt.Errorf("ファイルサイズが%dMBを超えています", MAX_FILE_SIZE/1024/1024)
 	}
 
 	if fileHeader.Header.Get("Content-Type") != "image/png" && fileHeader.Header.Get("Content-Type") != "image/jpeg" {
