@@ -1,11 +1,14 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"os"
 
 	"devport/domain/repo/db"
 	"devport/infra/database/sqlboiler/repository"
+	"devport/infra/database/sqlboiler/seed"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -32,6 +35,11 @@ func NewSqlBoilerHandler(c *MysqlConfig) (*SqlBoilerHandler, error) {
 
 	if err := db.Ping(); err != nil {
 		return nil, err
+	}
+
+	if os.Getenv("GO_ENVIRONMENT") == "development" {
+		// seedのデータを作成
+		seed.CreateUserSeed(context.Background(), db)
 	}
 
 	return &SqlBoilerHandler{db: db}, nil
