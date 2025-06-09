@@ -60,51 +60,28 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 		return UpdateUserOutput{}, err
 	}
 
-	if input.User.Name != "" {
-		if err := user.UpdateName(input.User.Name); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	if err := user.UpdateName(input.User.Name); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.Birthday != "" {
-		jst, _ := time.LoadLocation("Asia/Tokyo")
-		birthday, err := time.ParseInLocation("2006-01-02", input.User.Birthday, jst)
-		if err != nil {
-			return UpdateUserOutput{}, err
-		}
-		if err := user.UpdateBirthday(birthday); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	birthday, err := time.ParseInLocation("2006-01-02", input.User.Birthday, jst)
+	if err != nil {
+		return UpdateUserOutput{}, err
+	}
+	if err := user.UpdateBirthday(birthday); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	/* icon, headerIconの更新はupload_user_imageで行っているので多分ここいらない */
-	// if input.User.IconName != "" {
-	// 	user.UpdateIconName(input.User.IconName)
-	// }
-
-	// if input.User.HeaderIconName != "" {
-	// 	user.UpdateHeaderIconName(input.User.HeaderIconName)
-	// }
-
-	if input.User.OrganizationName != "" {
-		if err := user.UpdateOrganizationName(input.User.OrganizationName); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	if err := user.UpdateOrganizationName(input.User.OrganizationName); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.OccupationName != "" {
-		if err := user.UpdateOccupationName(input.User.OccupationName); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	if err := user.UpdateOccupationName(input.User.OccupationName); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.Place != "" {
-		if err := user.UpdatePlace(input.User.Place); err != nil {
-			return UpdateUserOutput{}, err
-		}
-	}
-
-	if _, err := i.bioSentenceStorage.Upload(tx, user.ID(), input.User.Bio); err != nil {
+	if err := user.UpdatePlace(input.User.Place); err != nil {
 		return UpdateUserOutput{}, err
 	}
 

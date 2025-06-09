@@ -78,7 +78,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 					}
 				}
 
-				if (res.data) {
+				if (res.data && isSubmit) {
 					router.refresh()
 					setCallout([...callout, { content: '変更しました', type: 'info' }])
 				}

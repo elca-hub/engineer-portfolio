@@ -55,22 +55,28 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 					return
 				}
 
+				user.name = name
+				user.birthday = birthday.toString()
+				user.organization_name = organizationName
+				user.occupation_name = occupationName
+				user.place = place
+
+				console.log(user)
+
 				const res = await userUpdate(token, {
-					userData: {
-						name,
-						birthday: birthday.toString(),
-						organization_name: organizationName,
-						occupation_name: occupationName,
-						place: place,
-					},
+					userData: user,
 				})
-				if (res === null) {
-					setCallout([...callout, { content: '変更に失敗しました', type: 'error' }])
-					return
+				if (res.errors) {
+					for (const error of res.errors) {
+						setCallout([...callout, { content: error, type: 'error' }])
+					}
 				}
 
-				setCallout([...callout, { content: '変更しました', type: 'info' }])
-				router.refresh()
+				if (res.data) {
+					setCallout([...callout, { content: '変更しました', type: 'success' }])
+					router.refresh()
+					return
+				}
 			}
 
 			updateFlow()
@@ -102,6 +108,7 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 						icon={<RiUserLine />}
 						autoComplete="off"
 						popoverContent="本名を入力する必要はありません。自分の個性的な名前をつけましょう！"
+						placeholder={user.name}
 					></InputField>
 				)}
 			></Controller>
@@ -136,6 +143,7 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 						helperText="組織名は50文字以内で入力してください"
 						icon={<RiBuilding2Line />}
 						autoComplete="off"
+						placeholder={user.organization_name || 'あなたの所属している組織や企業を紹介しましょう！'}
 					></InputField>
 				)}
 			></Controller>
@@ -158,6 +166,7 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 						helperText="職業は50文字以内で入力してください"
 						icon={<RiBriefcaseLine />}
 						autoComplete="off"
+						placeholder={user.occupation_name || 'あなたの職業を紹介しましょう！'}
 					></InputField>
 				)}
 			></Controller>
@@ -175,6 +184,7 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 						helperText="場所は50文字以内で入力してください"
 						icon={<RiMapPinLine />}
 						autoComplete="off"
+						placeholder={user.place || 'あなたの住んでいる場所を紹介しましょう！'}
 					></InputField>
 				)}
 			></Controller>
