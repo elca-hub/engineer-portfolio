@@ -1,5 +1,4 @@
 import { UserType } from '@/action/type/user'
-import fetchBio from '@/action/usecase/user/fetchBio'
 import uploadBio from '@/action/usecase/user/uploadBio'
 import uploadBioImage from '@/action/usecase/user/uploadBioImage'
 import { CalloutContext } from '@/app/state'
@@ -53,7 +52,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 	useEffect(() => {
 		const fb = async () => {
 			setIsLoading(true)
-			const bio = await fetchBio(user)
+			const bio = user.bio
 			setValue('bio', bio === null ? '' : bio)
 			setIsLoading(false)
 		}
@@ -71,24 +70,15 @@ export default function BioSettingTabPresentation({ user }: Props) {
 					return
 				}
 
-				// const beforeVal = await fetchBio(user)
-				// if (beforeVal === bio) {
-				// 	if (isSubmit) {
-				// 		router.refresh()
-				// 		setCallout([...callout, { content: '変更しました', type: 'info' }])
-				// 	}
-				// 	return
-				// }
-
 				const res = await uploadBio(token, bio, isSubmit)
+
 				if (res.errors) {
 					for (const error of res.errors) {
 						setCallout([...callout, { content: error, type: 'error' }])
 					}
-					return
 				}
 
-				if (isSubmit) {
+				if (res.data) {
 					router.refresh()
 					setCallout([...callout, { content: '変更しました', type: 'info' }])
 				}
@@ -127,7 +117,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 						const newValue = currentValue.substring(0, start) + `\n![image](${res.data.image_url})\n` + currentValue.substring(end)
 						setValue('bio', newValue)
 					} else {
-						setValue('bio', `${watch('bio')}\n\n![image](${res.data.image_url})`)
+						setValue('bio', `${watch('bio')}\n![image](${res.data.image_url})`)
 					}
 				}
 			}

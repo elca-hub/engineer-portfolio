@@ -13,12 +13,12 @@ const (
 	MAX_FILE_SIZE = 50 * 1024 * 1024
 )
 
-type FileIcon struct {
+type ImageFile struct {
 	file     []byte
-	fileName *FileIconName
+	fileName string
 }
 
-func NewBucketFile(file multipart.File, fileHeader *multipart.FileHeader, path int) (*FileIcon, error) {
+func NewImageFile(file multipart.File, fileHeader *multipart.FileHeader, path int) (*ImageFile, error) {
 	if fileHeader.Size > MAX_FILE_SIZE {
 		return nil, fmt.Errorf("ファイルサイズが%dMBを超えています", MAX_FILE_SIZE/1024/1024)
 	}
@@ -52,22 +52,20 @@ func NewBucketFile(file multipart.File, fileHeader *multipart.FileHeader, path i
 
 	fileName := fmt.Sprintf("%s.%s", fileNameUUID.String(), extension)
 
-	iconName, err := NewFileName(fileName, path)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &FileIcon{
+	return &ImageFile{
 		file:     buf.Bytes(),
-		fileName: iconName,
+		fileName: fileName,
 	}, nil
 }
 
-func (f *FileIcon) GetFile() []byte {
+func (f *ImageFile) GetFile() []byte {
 	return f.file
 }
 
-func (f *FileIcon) GetFileName() *FileIconName {
+func (f *ImageFile) GetFileName() string {
 	return f.fileName
 }

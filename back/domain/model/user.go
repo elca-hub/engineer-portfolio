@@ -24,7 +24,7 @@ type User struct {
 	email                 *Email
 	iconName              string
 	headerIconName        string
-	bioPath               string
+	bio                   string
 	organizationName      string
 	occupationName        string
 	place                 string
@@ -138,6 +138,14 @@ func updateExternalServiceURLsLogic(externalServiceURLs []*ExternalServiceUrl) (
 	return externalServiceURLs, nil
 }
 
+func updateBioLogic(bio *Bio) string {
+	if bio == nil {
+		return ""
+	}
+
+	return bio.Content()
+}
+
 func NewUser(
 	id string,
 	name string,
@@ -145,7 +153,7 @@ func NewUser(
 	email *Email,
 	iconName string,
 	headerIconName string,
-	bioPath string,
+	bio *Bio,
 	organizationName string,
 	occupationName string,
 	place string,
@@ -194,6 +202,8 @@ func NewUser(
 		return nil, err
 	}
 
+	sentence := updateBioLogic(bio)
+
 	return &User{
 		id,
 		name,
@@ -202,7 +212,7 @@ func NewUser(
 		email,
 		iconName,
 		headerIconName,
-		bioPath,
+		sentence,
 		organizationName,
 		occupationName,
 		place,
@@ -276,12 +286,12 @@ func (u *User) UpdateHeaderIconName(headerIconName string) {
 	u.headerIconName = headerIconName
 }
 
-func (u *User) BioPath() string {
-	return u.bioPath
+func (u *User) Bio() string {
+	return u.bio
 }
 
-func (u *User) UpdateBioPath(bioPath string) {
-	u.bioPath = bioPath
+func (u *User) UpdateBio(bio *Bio) {
+	u.bio = bio.Content()
 }
 
 func (u *User) OrganizationName() string {

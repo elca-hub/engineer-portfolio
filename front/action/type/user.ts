@@ -5,7 +5,7 @@ export type UserType = {
 	name: string
 	icon_name: string
 	header_icon_name: string
-	bio_path: string
+	bio: string
 	organization_name: string
 	occupation_name: string
 	place: string

@@ -8,9 +8,10 @@ import (
 	"devport/domain/model"
 	"devport/usecase/user"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GetUserInfoAction struct {
@@ -41,7 +42,7 @@ func (a *GetUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 		return
 	}
 
-	input.Email = userContext.(*model.User).Email().Email()
+	input.UserId = userContext.(*model.User).ID()
 
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()

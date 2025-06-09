@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"devport/domain/repo/file_storage"
 	"time"
 )
 
@@ -28,6 +29,7 @@ type (
 	updateUserInterator struct {
 		userRepository                db.UserRepository
 		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
+		bioSentenceStorage            file_storage.BioSentenceStorageRepository
 		presenter                     UpdateUserPresenter
 		ctxTimeout                    time.Duration
 	}
@@ -36,12 +38,14 @@ type (
 func NewUpdateUserInterator(
 	userRepository db.UserRepository,
 	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
+	bioSentenceStorage file_storage.BioSentenceStorageRepository,
 	presenter UpdateUserPresenter,
 	t time.Duration,
 ) UpdateUserUseCase {
 	return updateUserInterator{
 		userRepository:                userRepository,
 		externalServiceUrlsRepository: externalServiceUrlsRepository,
+		bioSentenceStorage:            bioSentenceStorage,
 		presenter:                     presenter,
 		ctxTimeout:                    t,
 	}
@@ -51,7 +55,7 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	user, err := i.userRepository.FindById(ctx, input.User.UserId)
+	user, err := i.userRepository.FindById(ctx, input.User.UserId, nil)
 	if err != nil {
 		return UpdateUserOutput{}, err
 	}
@@ -73,13 +77,14 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 		}
 	}
 
-	if input.User.IconName != "" {
-		user.UpdateIconName(input.User.IconName)
-	}
+	/* icon, headerIconの更新はupload_user_imageで行っているので多分ここいらない */
+	// if input.User.IconName != "" {
+	// 	user.UpdateIconName(input.User.IconName)
+	// }
 
-	if input.User.HeaderIconName != "" {
-		user.UpdateHeaderIconName(input.User.HeaderIconName)
-	}
+	// if input.User.HeaderIconName != "" {
+	// 	user.UpdateHeaderIconName(input.User.HeaderIconName)
+	// }
 
 	if input.User.OrganizationName != "" {
 		if err := user.UpdateOrganizationName(input.User.OrganizationName); err != nil {
@@ -97,6 +102,10 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 		if err := user.UpdatePlace(input.User.Place); err != nil {
 			return UpdateUserOutput{}, err
 		}
+	}
+
+	if _, err := i.bioSentenceStorage.Upload(tx, user.ID(), input.User.Bio); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
 	if err := i.userRepository.Update(tx, user); err != nil {

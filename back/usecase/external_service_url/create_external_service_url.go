@@ -71,7 +71,7 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return err
 		}
 
-		user, err := i.userRepository.FindById(ctx, input.UserId)
+		user, err := i.userRepository.FindById(ctx, input.UserId, nil)
 
 		if err != nil {
 			return err

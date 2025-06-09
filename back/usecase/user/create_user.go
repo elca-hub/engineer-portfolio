@@ -110,7 +110,7 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 			e,
 			"",
 			"",
-			"",
+			nil,
 			"",
 			"",
 			"",
@@ -132,11 +132,9 @@ func (i createUserInterator) Execute(ctx context.Context, input CreateUserInput)
 
 		vars := map[string]string{"Name": user.Name()}
 		files := []string{"infra/email/template/register.tpl"}
-
 		if err := i.email.SendEmail(input.Email, mailObject, vars, files...); err != nil {
 			return err
 		}
-
 		return nil
 	})
 

@@ -2,12 +2,13 @@
 
 package file_uploader
 
-import "devport/domain/model"
+import (
+	"devport/infra/file_uploader/file_object"
+)
 
 type FileUploader interface {
-	UploadFile(fileBytes []byte, objectName string) error
-	DeleteFile(objectName string) error
-	GetIconNames() ([]*model.FileIconName, error)
-	GetHeaderNames() ([]*model.FileIconName, error)
-	GetFiles(filePattern int) ([]*model.FileIconName, error)
+	UploadFile(objectName file_object.ObjectNameInterface) error
+	DeleteFile(fileName file_object.FileNameInterface) error
+	GetFiles(filePattern int) ([][]byte, error)
+	GetFile(fileName file_object.FileNameInterface) ([]byte, error)
 }

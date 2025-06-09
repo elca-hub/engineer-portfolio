@@ -5,15 +5,14 @@ import (
 	"devport/adapter/api/action"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
+	"devport/domain/domain_service"
 	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
 	external_presenter "devport/presenter/external_presenter"
 	user_presenter "devport/presenter/user_presenter"
-	"devport/presenter/work_presenter"
 	"devport/usecase/external_service_url"
 	"devport/usecase/user"
-	"devport/usecase/work"
 	"fmt"
 	"log"
 	"net/http"
@@ -38,7 +37,7 @@ type GinEngine struct {
 	validator    validator.Validator
 	log          logger.Logger
 	email        email.Email
-	fileUploader file_uploader.FileUploader
+	fileUploader file_uploader.StorageRepositoryInter
 }
 
 func NewGinServer(
@@ -49,7 +48,7 @@ func NewGinServer(
 	log logger.Logger,
 	session database.NoSQLInter,
 	email email.Email,
-	fileUploader file_uploader.FileUploader,
+	fileUploader file_uploader.StorageRepositoryInter,
 ) *GinEngine {
 	return &GinEngine{
 		router:       gin.New(),
@@ -153,11 +152,6 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 					bioAuthRouterGroup.POST("/", e.uploadBioAction())
 					bioAuthRouterGroup.POST("/image", e.uploadBioImageAction())
 				}
-
-				workAuthRouterGroup := userAuthRouterGroup.Group("/work") // 作品関連
-				{
-					workAuthRouterGroup.POST("/", e.createWorkAction())
-				}
 			}
 		}
 	}
@@ -232,6 +226,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 		var (
 			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
 				user_presenter.NewGetUserInfoPresenter(),
 				e.ctxTimeout,
 			)
@@ -277,9 +272,10 @@ func (e *GinEngine) isExistsUserAction() gin.HandlerFunc {
 func (e *GinEngine) fetchUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			uc = user.NewFetchUserInfoInterator(
+			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
-				user_presenter.NewFetchUserInfoPresenter(),
+				e.fileUploader.BioSentenceStorageRepository(),
+				user_presenter.NewGetUserInfoPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -296,6 +292,7 @@ func (e *GinEngine) updateUserAction() gin.HandlerFunc {
 			uc = user.NewUpdateUserInterator(
 				e.sql.UserRepository(),
 				e.sql.ExternalServiceUrlsRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
 				user_presenter.NewUpdateUserPresenter(),
 				e.ctxTimeout,
 			)
@@ -311,7 +308,9 @@ func (e *GinEngine) uploadUserImageAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadUserImageInterator(
-				e.fileUploader,
+				e.sql.UserRepository(),
+				e.fileUploader.IconImageStorageRepository(),
+				e.fileUploader.HeaderImageStorageRepository(),
 				user_presenter.NewUploadUserImagePresenter(),
 				e.ctxTimeout,
 			)
@@ -395,10 +394,12 @@ func (e *GinEngine) uploadBioAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadBioInteractor(
-				e.fileUploader,
-				user_presenter.NewUploadBioPresenter(),
+				domain_service.NewBioService(e.fileUploader.BioImageStorageRepository()),
 				e.sql.UserRepository(),
 				e.sql.BioImagesRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
+				e.fileUploader.BioImageStorageRepository(),
+				user_presenter.NewUploadBioPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -413,32 +414,15 @@ func (e *GinEngine) uploadBioImageAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadBioImageInteractor(
-				e.fileUploader,
-				user_presenter.NewUploadBioImagePresenter(),
 				e.sql.UserRepository(),
 				e.sql.BioImagesRepository(),
+				e.fileUploader.BioImageStorageRepository(),
+				e.sql.BioImagesRepository(),
+				user_presenter.NewUploadBioImagePresenter(),
 				e.ctxTimeout,
 			)
 
 			act = action.NewUploadBioImageAction(uc, e.validator, e.log)
-		)
-
-		act.Execute(c.Writer, c.Request, c)
-	}
-}
-
-func (e *GinEngine) createWorkAction() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var (
-			uc = work.NewCreateWorkInteractor(
-				e.sql.WorkRepository(),
-				e.sql.UserRepository(),
-				e.fileUploader,
-				work_presenter.NewCreateWorkPresenter(),
-				e.ctxTimeout,
-			)
-
-			act = action.NewCreateWorkAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

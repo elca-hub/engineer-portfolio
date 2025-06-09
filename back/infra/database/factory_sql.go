@@ -15,13 +15,10 @@ type SqlInter interface {
 	UserRepository() db.UserRepository
 	ExternalServiceUrlsRepository() db.ExternalServiceUrlsRepository
 	BioImagesRepository() db.BioImagesRepository
-	WorkRepository() db.WorkRepository
 }
 
 func NewDatabaseSqlFactory(instance int) (SqlInter, error) {
 	switch instance {
-	// case InstanceGormMySql:
-	// 	return NewGormHandler(NewMySQLConfig())
 	case InstanceSqlBoilerMySql:
 		return NewSqlBoilerHandler(NewMySQLConfig())
 	default:

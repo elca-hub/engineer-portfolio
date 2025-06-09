@@ -6,6 +6,8 @@ import (
 
 	"devport/domain/repo/db"
 	"devport/infra/database/sqlboiler/repository"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type SqlBoilerHandler struct {
@@ -45,8 +47,4 @@ func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() db.ExternalServiceUrl
 
 func (h *SqlBoilerHandler) BioImagesRepository() db.BioImagesRepository {
 	return repository.NewSqlBoilerBioImagesRepository(h.db)
-}
-
-func (h *SqlBoilerHandler) WorkRepository() db.WorkRepository {
-	return repository.NewSqlBoilerWorkRepository(h.db)
 }

@@ -61,17 +61,13 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 		return i.presenter.Output("", ""), err
 	}
 
-	if _, err := i.sqlRepository.FindByEmail(ctx, email); err != nil {
-		return i.presenter.Output("", ""), err
-	}
-
-	session, err = i.noSqlRepository.StartSession(email)
+	user, err := i.sqlRepository.FindByEmail(ctx, email, nil)
 
 	if err != nil {
 		return i.presenter.Output("", ""), err
 	}
 
-	user, err := i.sqlRepository.FindByEmail(ctx, email)
+	session, err = i.noSqlRepository.StartSession(email)
 
 	if err != nil {
 		return i.presenter.Output("", ""), err

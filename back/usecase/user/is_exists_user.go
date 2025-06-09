@@ -64,7 +64,7 @@ func (i isExistsUserInteractor) Execute(ctx context.Context, input IsExistsUserI
 		return i.presenter.Output(false, ""), nil
 	}
 
-	user, err := i.sqlRepository.FindByEmail(ctx, e)
+	user, err := i.sqlRepository.FindByEmail(ctx, e, nil)
 
 	if err != nil {
 		return i.presenter.Output(false, ""), err

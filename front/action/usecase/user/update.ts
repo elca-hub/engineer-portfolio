@@ -2,9 +2,9 @@
 
 import { UserType } from '@/action/type/user'
 import { apiPrefix } from '@/constants/constant'
-import { NewDPResponse } from '@/lib/api'
+import { DPResponseData, NewDPResponse } from '@/lib/api'
 
-export default async function userUpdate(token: string, { userData }: { userData?: Partial<UserType> }): Promise<UserType | null> {
+export default async function userUpdate(token: string, { userData }: { userData?: Partial<UserType> }): Promise<DPResponseData<{ user: UserType }>> {
 	const updateUser = await fetch(`${apiPrefix}/auth/user/`, {
 		method: 'PUT',
 		body: JSON.stringify({ user: userData }),
@@ -16,9 +16,5 @@ export default async function userUpdate(token: string, { userData }: { userData
 
 	const updateUserRes = await NewDPResponse<{ user: UserType }>(updateUser)
 
-	if (updateUserRes.errors) {
-		return null
-	}
-
-	return updateUserRes.data?.user ?? null
+	return updateUserRes
 }

@@ -2,9 +2,9 @@ package user
 
 import (
 	"context"
-	"devport/domain/model"
+	"devport/domain/domain_service"
 	"devport/domain/repo/db"
-	"devport/infra/file_uploader"
+	"devport/domain/repo/file_storage"
 	"fmt"
 	"mime/multipart"
 	"time"
@@ -30,57 +30,56 @@ type (
 	}
 
 	uploadBioImageInteractor struct {
-		fileUploader   file_uploader.FileUploader
-		userRepository db.UserRepository
-		bioImageRepo   db.BioImagesRepository
-		presenter      UploadBioImagePresenter
-		ctxTimeout     time.Duration
+		userRepository     db.UserRepository
+		bioImageRepository db.BioImagesRepository
+		bioImageStorage    file_storage.BioImageStorageRepository
+		presenter          UploadBioImagePresenter
+		ctxTimeout         time.Duration
 	}
 )
 
 func NewUploadBioImageInteractor(
-	fileUploader file_uploader.FileUploader,
-	presenter UploadBioImagePresenter,
 	userRepository db.UserRepository,
+	bioImageRepository db.BioImagesRepository,
+	bioImageStorage file_storage.BioImageStorageRepository,
 	bioImageRepo db.BioImagesRepository,
+	presenter UploadBioImagePresenter,
 	t time.Duration,
 ) UploadBioImageUseCase {
 	return uploadBioImageInteractor{
-		fileUploader:   fileUploader,
-		bioImageRepo:   bioImageRepo,
-		userRepository: userRepository,
-		presenter:      presenter,
-		ctxTimeout:     t,
+		bioImageRepository: bioImageRepo,
+		userRepository:     userRepository,
+		bioImageStorage:    bioImageStorage,
+		presenter:          presenter,
+		ctxTimeout:         t,
 	}
 }
 
 func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioImageInput) (UploadBioImageOutput, error) {
-	user, err := i.userRepository.FindById(tx, input.UserId)
-	if err != nil {
-		return UploadBioImageOutput{}, err
-	}
+	fileName := input.ImageHeader.Filename
 
-	image, err := model.NewBucketFile(input.Image, input.ImageHeader, model.BIO_IMAGE_PATH)
-	if err != nil {
-		return UploadBioImageOutput{}, err
-	}
+	fmt.Println(input.UserId)
 
-	bioImages, err := i.bioImageRepo.FindByUserId(tx, user)
+	bioImages, err := i.bioImageRepository.FindByUserId(tx, input.UserId)
 
 	if err != nil {
 		return UploadBioImageOutput{}, err
 	}
 
-	if len(bioImages) == model.MaxBioImagesLen {
-		return UploadBioImageOutput{}, fmt.Errorf("画像は%d枚以上アップロードすることができません", model.MaxBioImagesLen)
+	if len(bioImages) == domain_service.MAX_IMAGE_LEN {
+		return UploadBioImageOutput{}, fmt.Errorf("画像は%d枚以上アップロードすることができません", domain_service.MAX_IMAGE_LEN)
 	}
 
-	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
-		if err := i.bioImageRepo.Create(tx, user, image.GetFileName()); err != nil {
+	var imagePath string
+
+	if err := i.bioImageRepository.WithTransaction(tx, func(ttx context.Context) error {
+		if err := i.bioImageRepository.Create(ttx, input.UserId, fileName); err != nil {
 			return err
 		}
 
-		if err := i.fileUploader.UploadFile(image.GetFile(), image.GetFileName().GetObjectName()); err != nil {
+		imagePath, err = i.bioImageStorage.Upload(ttx, input.UserId, input.Image, input.ImageHeader)
+
+		if err != nil {
 			return err
 		}
 
@@ -89,5 +88,5 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 		return UploadBioImageOutput{}, err
 	}
 
-	return i.presenter.Output(image.GetFileName().GetUrl()), nil
+	return i.presenter.Output(imagePath), nil
 }

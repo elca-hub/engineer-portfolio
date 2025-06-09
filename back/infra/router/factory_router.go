@@ -29,7 +29,7 @@ func NewWebServerFactory(
 	validator validator.Validator,
 	logger logger.Logger,
 	email email.Email,
-	fileUploader file_uploader.FileUploader,
+	fileUploader file_uploader.StorageRepositoryInter,
 ) (Server, error) {
 	switch instance {
 	case InstanceGin:

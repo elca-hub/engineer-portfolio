@@ -5,8 +5,10 @@ import (
 	"devport/adapter/api/response"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
+	"devport/domain/model"
 	"devport/usecase/user"
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 
@@ -52,6 +54,18 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 		return file, header, nil
 	}
 
+	validateFile := func(fileHeader *multipart.FileHeader, maxFileSize int64) error {
+		if fileHeader.Size > maxFileSize {
+			return fmt.Errorf("ファイルサイズが%dMBを超えています", maxFileSize/1024/1024)
+		}
+		contentType := fileHeader.Header.Get("Content-Type")
+		if contentType != "image/png" && contentType != "image/jpeg" {
+			return fmt.Errorf("不正なファイル形式です。Content-Type: %s", contentType)
+		}
+
+		return nil
+	}
+
 	// アイコン画像の処理
 	if iconFile, iconHeader, err := processFile("icon"); err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error while getting icon file")
@@ -61,6 +75,15 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 		defer iconFile.Close()
 		input.Icon = iconFile
 		input.IconHeader = iconHeader
+	}
+
+	if input.IconHeader != nil {
+		if err := validateFile(input.IconHeader, 3*1024*1024); err != nil {
+			logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when validate icon image.")
+			response.NewError(err, http.StatusBadRequest).Send(w)
+
+			return
+		}
 	}
 
 	// ヘッダー画像の処理
@@ -73,6 +96,26 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 		input.Header = headerFile
 		input.HeaderHeader = headerHeader
 	}
+
+	if input.HeaderHeader != nil {
+		if err := validateFile(input.HeaderHeader, 4*1024*1024); err != nil {
+			logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when validate header image.")
+			response.NewError(err, http.StatusBadRequest).Send(w)
+
+			return
+		}
+	}
+
+	userContext, isExistsUserContext := c.Get("user")
+
+	if !isExistsUserContext {
+		err := errors.New("not found email")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log(fmt.Sprintf("error when email: %v", err))
+		response.NewError(err, http.StatusBadRequest).Send(w)
+		return
+	}
+
+	input.UserId = userContext.(*model.User).ID()
 
 	output, err := a.uc.Execute(r.Context(), input)
 	if err != nil {

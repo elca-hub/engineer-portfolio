@@ -2,13 +2,13 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"devport/domain/model"
+	"devport/domain/domain_service"
 	"devport/domain/repo/db"
-	"devport/infra/file_uploader"
+	"devport/domain/repo/file_storage"
 	"errors"
-	"fmt"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type (
@@ -31,61 +31,59 @@ type (
 	}
 
 	uploadBioInteractor struct {
-		fileUploader   file_uploader.FileUploader
-		presenter      UploadBioPresenter
-		userRepository db.UserRepository
-		bioImageRepo   db.BioImagesRepository
-		ctxTimeout     time.Duration
+		bioService         *domain_service.BioService
+		userRepository     db.UserRepository
+		bioImageRepo       db.BioImagesRepository
+		bioSentenceStorage file_storage.BioSentenceStorageRepository
+		bioImageStorage    file_storage.BioImageStorageRepository
+		presenter          UploadBioPresenter
+		ctxTimeout         time.Duration
 	}
 )
 
 func NewUploadBioInteractor(
-	fileUploader file_uploader.FileUploader,
-	presenter UploadBioPresenter,
+	bioService *domain_service.BioService,
 	userRepository db.UserRepository,
 	bioImageRepo db.BioImagesRepository,
+	bioSentenceStorage file_storage.BioSentenceStorageRepository,
+	bioImageStorage file_storage.BioImageStorageRepository,
+	presenter UploadBioPresenter,
 	t time.Duration,
 ) UploadBioUseCase {
 	return uploadBioInteractor{
-		fileUploader:   fileUploader,
-		presenter:      presenter,
-		userRepository: userRepository,
-		bioImageRepo:   bioImageRepo,
-		ctxTimeout:     t,
+		bioService:         bioService,
+		presenter:          presenter,
+		userRepository:     userRepository,
+		bioImageRepo:       bioImageRepo,
+		bioSentenceStorage: bioSentenceStorage,
+		bioImageStorage:    bioImageStorage,
+		ctxTimeout:         t,
 	}
 }
 
 func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (UploadBioOutput, error) {
-	user, err := i.userRepository.FindById(tx, input.UserId)
+	user, err := i.userRepository.FindById(tx, input.UserId, nil) // 結局更新するので、bioはnilで良い
 	if err != nil {
 		return UploadBioOutput{}, err
 	}
 
-	bioModel, err := model.NewBio(user.ID(), user.BioPath(), input.Bio)
-
+	uploadedImageName, err := i.bioImageStorage.FindByUserId(tx, user.ID())
 	if err != nil {
 		return UploadBioOutput{}, err
 	}
 
-	objectImages, err := i.fileUploader.GetFiles(model.BIO_IMAGE_PATH)
-	if err != nil {
-		return UploadBioOutput{}, err
+	imageIds := i.bioService.GetImageIds(user.ID(), input.Bio)
+	if i.bioService.IsFullImage(imageIds) {
+		return UploadBioOutput{}, errors.New("自己紹介文に使用している画像が多すぎます")
 	}
 
-	dbImagePaths, err := i.bioImageRepo.FindByUserId(tx, user)
-	if err != nil {
-		return UploadBioOutput{}, err
-	}
-
-	for _, imageId := range bioModel.ImageIds() {
-		fileIconName, err := model.NewFileName(imageId, model.BIO_IMAGE_PATH)
-		if err != nil {
-			return UploadBioOutput{}, err
-		}
-
-		isExistsInArray := func(array []*model.FileIconName, target string) bool {
+	for _, bioFileName := range imageIds {
+		/**
+		array内にtargetが存在するかどうか
+		*/
+		isExistsInArray := func(array []string, target string) bool {
 			for _, item := range array {
-				if item.GetFileName() == target {
+				if item == target {
 					return true
 				}
 			}
@@ -93,90 +91,57 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		}
 
 		// 画像がアップロードされていない場合はエラー
-		if !isExistsInArray(objectImages, fileIconName.GetFileName()) {
+		if !isExistsInArray(uploadedImageName, bioFileName) {
 			return UploadBioOutput{}, errors.New("画像が存在しません")
 		}
-
-		if !isExistsInArray(dbImagePaths, fileIconName.GetFileName()) {
-			if err := i.bioImageRepo.Create(tx, user, fileIconName); err != nil {
-				return UploadBioOutput{}, err
-			}
-		}
 	}
 
-	if err := i.fileUploader.UploadFile([]byte(input.Bio), bioModel.ObjectName()); err != nil {
+	if _, err := i.bioSentenceStorage.Upload(tx, user.ID(), input.Bio); err != nil {
 		return UploadBioOutput{}, err
 	}
 
-	user.UpdateBioPath(bioModel.ID())
+	differenceArray := func(a, b []string) []string {
+		bSet := make(map[string]struct{})
+		for _, item := range b {
+			bSet[item] = struct{}{}
+		}
 
-	if err := i.userRepository.Update(tx, user); err != nil {
-		return UploadBioOutput{}, err
+		var diff []string
+		for _, item := range a {
+			if _, found := bSet[item]; !found {
+				diff = append(diff, item)
+			}
+		}
+		return diff
 	}
 
-	if err := i.bioImageRepo.WithTransaction(tx, func(tx context.Context) error {
-		difference := func(a, b []*model.FileIconName) ([]*model.FileIconName, error) {
-			aString := make([]string, len(a))
-			bString := make([]string, len(b))
-			for i, item := range a {
-				aString[i] = item.GetFileName()
-			}
-			for i, item := range b {
-				bString[i] = item.GetFileName()
-			}
+	if input.IsDeleteImage {
+		// ストレージ上から削除する画像の名前を取得
+		deleteImageTarget := differenceArray(uploadedImageName, imageIds)
 
-			// aStringからbStringを引いた配列を返す
-			diff := make([]string, 0)
-			for _, item := range aString {
-				if !contains(bString, item) {
-					diff = append(diff, item)
-				}
-			}
-
-			diffFiles := make([]*model.FileIconName, len(diff))
-			for i, item := range diff {
-				diffFiles[i], err = model.NewFileName(item, model.BIO_IMAGE_PATH)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			return diffFiles, nil
+		errG := new(errgroup.Group)
+		for _, imageName := range deleteImageTarget {
+			errG.Go(func() error {
+				return i.bioImageStorage.Delete(tx, user.ID(), imageName)
+			})
 		}
 
-		bioImages := bioModel.ImageIds()
-
-		bioImageFiles := make([]*model.FileIconName, len(bioImages))
-
-		for i, imageId := range bioImages {
-			bioImageFiles[i], err = model.NewFileName(imageId, model.BIO_IMAGE_PATH)
-			if err != nil {
-				return err
-			}
-		}
-
-		diff, err := difference(objectImages, bioImageFiles)
+		dbImages, err := i.bioImageRepo.FindByUserId(tx, user.ID())
 		if err != nil {
-			return err
+			return UploadBioOutput{}, err
 		}
 
-		fmt.Printf("diff: %v\n", diff)
+		deleteImageTargetDB := differenceArray(dbImages, imageIds)
 
-		for _, d := range diff {
-			if input.IsDeleteImage {
-				i.fileUploader.DeleteFile(d.GetObjectName())
-			}
-			if err := i.bioImageRepo.Delete(tx, user, d); err != nil {
-				if errors.Is(err, sql.ErrNoRows) {
-					continue
-				}
-				return err
-			}
+		for _, imageName := range deleteImageTargetDB {
+			errG.Go(func() error {
+				return i.bioImageRepo.Delete(tx, user, imageName)
+			})
 		}
 
-		return nil
-	}); err != nil {
-		return UploadBioOutput{}, err
+		if err := errG.Wait(); err != nil {
+			return UploadBioOutput{}, err
+		}
 	}
 
 	return UploadBioOutput{Bio: input.Bio}, nil

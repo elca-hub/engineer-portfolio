@@ -1,14 +1,17 @@
 'use server'
 
 import { apiPrefix } from '@/constants/constant'
-import { NewDPResponse } from '@/lib/api'
+import { DPResponseData, NewDPResponse } from '@/lib/api'
 
 type ResponseType = {
 	icon_name: string
 	header_icon_name: string
 }
 
-export default async function uploadImage(token: string, { icon, headerIcon }: { icon?: File; headerIcon?: File }): Promise<ResponseType | null> {
+export default async function uploadImage(
+	token: string,
+	{ icon, headerIcon }: { icon?: File; headerIcon?: File },
+): Promise<DPResponseData<ResponseType>> {
 	const formData = new FormData()
 
 	// 画像ファイルがある場合は追加
@@ -27,11 +30,5 @@ export default async function uploadImage(token: string, { icon, headerIcon }: {
 		},
 	})
 
-	const uploadImageRes = await NewDPResponse<ResponseType>(uploadImage)
-
-	if (uploadImageRes.errors) {
-		return null
-	}
-
-	return uploadImageRes.data ?? null
+	return await NewDPResponse<ResponseType>(uploadImage)
 }
