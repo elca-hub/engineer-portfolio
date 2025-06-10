@@ -9,23 +9,43 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+var mockUsers = []struct {
+	userId   string
+	name     string
+	email    string
+	birthday time.Time
+}{
+	{
+		userId:   "mock_user_1",
+		name:     "mock1",
+		email:    "devport_mock_1@example.com",
+		birthday: time.Date(2004, 11, 16, 0, 0, 0, 0, time.UTC),
+	},
+	{
+		userId:   "mock_user_2",
+		name:     "mock2",
+		email:    "devport_mock_2@example.com",
+		birthday: time.Date(2004, 11, 16, 0, 0, 0, 0, time.UTC),
+	},
+}
+
 func CreateUserSeed(ctx context.Context, db *sql.DB) {
-	userId := "mock_user_id"
-	exists, err := models.UserExists(ctx, db, userId)
-	if err != nil {
-		panic(err)
-	}
+	for _, user := range mockUsers {
+		exists, err := models.UserExists(ctx, db, user.userId)
+		if err != nil {
+			panic(err)
+		}
+		if exists {
+			continue
+		}
 
-	if exists {
-		return
-	}
+		user := models.User{
+			ID:       user.userId,
+			Name:     user.name,
+			Email:    user.email,
+			Birthday: user.birthday,
+		}
 
-	user := models.User{
-		ID:       userId,
-		Name:     "mock mock",
-		Email:    "devport_mock@example.com",
-		Birthday: time.Date(2004, 11, 16, 0, 0, 0, 0, time.UTC),
+		user.Insert(ctx, db, boil.Infer())
 	}
-
-	user.Insert(ctx, db, boil.Infer())
 }
