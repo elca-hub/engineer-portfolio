@@ -61,8 +61,6 @@ export default function BasicSettingTabPresentation({ user }: Props) {
 				user.occupation_name = occupationName
 				user.place = place
 
-				console.log(user)
-
 				const res = await userUpdate(token, {
 					userData: user,
 				})

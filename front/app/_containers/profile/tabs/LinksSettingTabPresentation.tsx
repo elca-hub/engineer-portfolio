@@ -5,35 +5,25 @@ import updateExternalServiceUrl from '@/action/usecase/externalServiceUrl/update
 import { CalloutContext } from '@/app/state'
 import InputField from '@/components/layout/input/inputField'
 import DPButton from '@/components/ui/button/button'
+import { BudouXText } from '@/components/ui/text/budouxText'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { getSessionToken } from '@/lib/access'
 import {
 	ConvertToExternalServiceUrl,
 	ConvertUrlToServiceUserName,
+	ImageNameByServiceType,
 	MAX_SERVICE_TYPE_LEN,
+	ServiceTypeToServiceName,
 	ServiceTypeToString,
-	StringToServiceType,
 } from '@/lib/externalServiceUrl'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
-import {
-	Button,
-	FieldError,
-	Key,
-	Label,
-	ListBox,
-	ListBoxItem,
-	ListBoxItemProps,
-	Popover,
-	Select,
-	SelectProps,
-	SelectValue,
-	Text,
-	ValidationResult,
-} from 'react-aria-components'
+import React, { useContext, useEffect, useState } from 'react'
+import { Button, Cell, Checkbox, CheckboxProps, Column, Row, Table, TableBody, TableHeader, useDragAndDrop } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { RiArrowDownWideLine, RiAtLine, RiLink, RiPencilLine } from 'react-icons/ri'
+import { RiAtLine, RiCheckboxBlankLine, RiCheckboxFill, RiCheckboxIndeterminateLine, RiLink, RiMenuLine, RiPencilLine } from 'react-icons/ri'
+import { useListData } from 'react-stately'
 
 type LinkFormType = {
 	values: { url: string }[]
@@ -47,6 +37,36 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 	const router = useRouter()
 
 	const { callout, setCallout } = useContext(CalloutContext)
+
+	function makeInitialList(): { id: number; userId: string; url: string; serviceName: string; isDisabledUserId: boolean }[] {
+		const res: { id: number; userId: string; url: string; serviceName: string; isDisabledUserId: boolean }[] = []
+		for (let i = 0; i <= MAX_SERVICE_TYPE_LEN; i++) {
+			const serviceObj = externalServiceUrls.find((val) => val.service_type === i)
+			if (serviceObj) {
+				res.push({
+					id: i,
+					userId: i === 0 ? '' : ConvertUrlToServiceUserName(serviceObj.url),
+					url: serviceObj.url,
+					serviceName: ServiceTypeToServiceName(i),
+					isDisabledUserId: i === 0,
+				})
+			} else {
+				res.push({
+					id: i,
+					userId: '',
+					url: '',
+					serviceName: ServiceTypeToServiceName(i),
+					isDisabledUserId: i === 0,
+				})
+			}
+		}
+
+		return res
+	}
+
+	const list = useListData({
+		initialItems: makeInitialList(),
+	})
 
 	function initServiceValue(): { url: string }[] {
 		const serviceValue: { url: string }[] = []
@@ -68,45 +88,6 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 		name: 'values',
 		control,
 	})
-
-	const serviceItems: {
-		imageName: string
-		content: string
-		name: string
-	}[] = [
-		{
-			imageName: 'github.png',
-			content: 'GitHub',
-			name: 'github',
-		},
-		{
-			imageName: 'x.png',
-			content: 'X',
-			name: 'x',
-		},
-		{
-			imageName: 'qiita.png',
-			content: 'Qiita',
-			name: 'qiita',
-		},
-		{
-			imageName: 'zenn.svg',
-			content: 'Zenn',
-			name: 'zenn',
-		},
-		{
-			imageName: 'note.png',
-			content: 'note',
-			name: 'note',
-		},
-		{
-			imageName: 'other.svg',
-			content: 'other',
-			name: 'other',
-		},
-	]
-
-	const [service, setService] = useState<Key>('github')
 
 	const [isSubmit, setIsSubmit] = useState(false)
 
@@ -199,103 +180,150 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 		changeFlow(updateData)
 	}, [isSubmit])
 
+	const { dragAndDropHooks } = useDragAndDrop({
+		getItems: (keys) =>
+			[...keys].map((key) => ({
+				'text/plain': list.getItem(key)?.serviceName || '',
+			})),
+		onReorder(e) {
+			if (e.target.dropPosition === 'before') {
+				list.moveBefore(e.target.key, e.keys)
+			} else if (e.target.dropPosition === 'after') {
+				list.moveAfter(e.target.key, e.keys)
+			}
+		},
+	})
+
+	const [editTargetServiceId, setEditTargetServiceId] = useState(-1)
+
 	return (
-		<form onSubmit={handleSubmit(() => setIsSubmit(true))}>
-			<div className="flex mt-4 justify-center md:gap-6 gap-2 flex-col md:flex-row items-center md:items-start">
-				<MySelect
-					className="flex flex-col gap-y-2 my-4"
-					label="サービス"
-					items={serviceItems}
-					selectedKey={service}
-					onSelectionChange={(service) => setService(service)}
-				>
-					{(item) => (
-						<MyListBoxItem id={item.name} textValue={item.name}>
-							<MyListContent imageName={item.imageName} content={item.content}></MyListContent>
-						</MyListBoxItem>
-					)}
-				</MySelect>
-				<div>
-					{fields.map((field, index) =>
-						index === StringToServiceType(service.toString()) ? (
-							<div key={index}>
-								<Controller
-									name={`values.${index}.url`}
-									control={control}
-									render={({ field, fieldState }) =>
-										service === 'other' ? (
-											<InputField title="URL" type="url" field={field} fieldState={fieldState} icon={<RiLink />} helperText=""></InputField>
-										) : (
-											<InputField
-												title="ユーザ名"
-												type="text"
-												field={field}
-												fieldState={fieldState}
-												helperText="@マークなどは削除してください"
-												icon={<RiAtLine />}
-											></InputField>
-										)
-									}
-								></Controller>
-							</div>
-						) : (
-							<div key={index}></div>
-						),
-					)}
+		<>
+			<form onSubmit={handleSubmit(() => setIsSubmit(true))}>
+				<div className="flex md:flex-row flex-col md:justify-evenly">
+					<Table
+						onSelectionChange={(key) => {
+							const tar = Array.from(key)
+							setEditTargetServiceId(tar.length ? Number(tar[0]) : -1)
+						}}
+						className="flex justify-center items-center flex-col md:w-[30%]"
+						selectionMode="single"
+						aria-label="external-service-urls"
+						dragAndDropHooks={dragAndDropHooks}
+					>
+						<TableHeader>
+							<Column></Column>
+							<Column>
+								<RiPencilLine></RiPencilLine>
+							</Column>
+							<Column isRowHeader>サービス名</Column>
+						</TableHeader>
+						<TableBody items={list.items}>
+							{(item) => (
+								<Row className="data-[dragging]:opacity-30">
+									<Cell>
+										<Button slot="drag" className="cursor-pointer">
+											<RiMenuLine></RiMenuLine>
+										</Button>
+									</Cell>
+									<Cell>
+										<MyCheckbox slot="selection"></MyCheckbox>
+									</Cell>
+									<Cell>
+										<div className="text-[1.2rem] flex justify-center items-center gap-2">
+											<Image
+												src={`/external_service/${ImageNameByServiceType(item.id)}`}
+												width={16}
+												height={16}
+												alt={`logo by ${item.serviceName}`}
+												className="size-[1.2rem]"
+											></Image>
+											{item.serviceName}
+										</div>
+									</Cell>
+								</Row>
+							)}
+						</TableBody>
+					</Table>
+					<div className="md:w-[50%] flex mt-4 justify-center md:gap-6 gap-2 flex-col md:flex-row items-center">
+						<div>
+							{fields.map((field, index) =>
+								index === editTargetServiceId ? (
+									<div key={index}>
+										<Controller
+											name={`values.${index}.url`}
+											control={control}
+											render={({ field, fieldState }) =>
+												editTargetServiceId === 0 ? (
+													<InputField title="URL" type="url" field={field} fieldState={fieldState} icon={<RiLink />} helperText=""></InputField>
+												) : (
+													<InputField
+														title="ユーザ名"
+														type="text"
+														field={field}
+														fieldState={fieldState}
+														helperText="@マークなどは削除してください"
+														icon={<RiAtLine />}
+													></InputField>
+												)
+											}
+										></Controller>
+									</div>
+								) : (
+									<div key={index}></div>
+								),
+							)}
+							{editTargetServiceId === -1 && (
+								<>
+									<p className="text-subtext">
+										<BudouXText text="表からサービスを選択することで、ユーザ名やURLを編集することができます。"></BudouXText>
+									</p>
+									<p className="text-subtext">
+										<BudouXText text="表から表示するソート順を変更することもできます。"></BudouXText>
+									</p>
+								</>
+							)}
+						</div>
+					</div>
 				</div>
-			</div>
-			<div className="flex justify-center">
-				<DPButton colormode="primary" className="mt-4" type="submit">
-					<TextWithIcon icon={<RiLink></RiLink>}>変更する</TextWithIcon>
-				</DPButton>
-			</div>
-		</form>
+				<div className="flex justify-center">
+					<DPButton colormode="primary" className="mt-4" type="submit">
+						<TextWithIcon icon={<RiLink></RiLink>}>変更する</TextWithIcon>
+					</DPButton>
+				</div>
+			</form>
+		</>
 	)
 }
 
-function MyListBoxItem(props: ListBoxItemProps) {
+function MyCheckbox({
+	children,
+	...props
+}: Omit<CheckboxProps, 'children'> & {
+	children?: React.ReactNode
+}) {
 	return (
-		<ListBoxItem
-			{...props}
-			className="cursor-pointer group flex w-full items-center rounded-md px-3 py-2 box-border outline-none cursor-default text-foreground focus:bg-primary focus:text-white"
-		/>
-	)
-}
-
-interface MySelectProps<T extends object> extends Omit<SelectProps<T>, 'children'> {
-	label?: string
-	description?: string
-	errorMessage?: string | ((validation: ValidationResult) => string)
-	items?: Iterable<T>
-	children: React.ReactNode | ((item: T) => React.ReactNode)
-}
-
-function MySelect<T extends object>({ label, description, errorMessage, children, items, ...props }: MySelectProps<T>) {
-	return (
-		<Select {...props}>
-			<Label className="text-gray-700">
-				<TextWithIcon icon={<RiPencilLine></RiPencilLine>}>{label}</TextWithIcon>
-			</Label>
-			<Button className="h-fit w-[10rem] flex flex-row items-center justify-between gap-x-2 rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-				<SelectValue />
-				<RiArrowDownWideLine />
-			</Button>
-			{description && <Text slot="description">{description}</Text>}
-			<FieldError>{errorMessage}</FieldError>
-			<Popover className="bg-white ring-1 ring-primary p-2 rounded entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
-				<ListBox items={items} className="outline-none">
+		<Checkbox {...props}>
+			{({ isIndeterminate, isSelected }) => (
+				<>
+					<div className="checkbox flex items-center justify-center">
+						{isIndeterminate ? (
+							<RiCheckboxIndeterminateLine className="text-primary size-[1.25rem]" />
+						) : isSelected ? (
+							<motion.div
+								className="flex items-center justify-center"
+								initial={{ scale: 0 }}
+								animate={{ scale: 1 }}
+								transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+							>
+								<RiCheckboxFill className="text-secondary size-[1.25rem]" />
+							</motion.div>
+						) : (
+							<RiCheckboxBlankLine className="text-subtext size-[1.25rem]" />
+						)}
+					</div>
 					{children}
-				</ListBox>
-			</Popover>
-		</Select>
-	)
-}
-
-function MyListContent(props: { imageName: string; content: string }) {
-	return (
-		<span className="flex items-center gap-x-2 p-0.5">
-			<Image src={`/external_service/${props.imageName}`} width={16} height={16} alt={`images by ${props.content}`} className="size-[1rem]"></Image>
-			<p className="leading-tight text-[1rem]">{props.content}</p>
-		</span>
+				</>
+			)}
+		</Checkbox>
 	)
 }
