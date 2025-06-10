@@ -9,6 +9,8 @@ import (
 
 type BioService struct {
 	bioImageStorage file_storage.BioImageStorageRepository
+
+	imageLen int
 }
 
 const (
@@ -23,7 +25,7 @@ func NewBioService(bioImageStorage file_storage.BioImageStorageRepository) *BioS
 
 func (s *BioService) GetImageIds(userId string, content string) []string {
 	imageIds := []string{}
-	regStr := fmt.Sprintf(`!\[.*\]\(%s/[a-z0-9-]{36}\.[a-z]{2,5}\)`, s.bioImageStorage.GetPublicDomain(userId))
+	regStr := fmt.Sprintf(`!\[.*\]\(%s/[a-z0-9-]{36}\.[a-z]{3,4}\)`, s.bioImageStorage.GetPublicDomain(userId))
 	re := regexp.MustCompile(regStr)
 	matches := re.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
@@ -35,11 +37,13 @@ func (s *BioService) GetImageIds(userId string, content string) []string {
 		}
 	}
 
+	s.imageLen = len(imageIds)
+
 	return unique(imageIds)
 }
 
-func (s *BioService) IsFullImage(imageIds []string) bool {
-	return len(imageIds) >= MAX_IMAGE_LEN
+func (s *BioService) IsFullImage() bool {
+	return s.imageLen > MAX_IMAGE_LEN
 }
 
 func unique(slice []string) []string {

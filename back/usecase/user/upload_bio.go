@@ -6,6 +6,7 @@ import (
 	"devport/domain/repo/db"
 	"devport/domain/repo/file_storage"
 	"errors"
+	"slices"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -73,7 +74,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 	}
 
 	imageIds := i.bioService.GetImageIds(user.ID(), input.Bio)
-	if i.bioService.IsFullImage(imageIds) {
+	if i.bioService.IsFullImage() {
 		return UploadBioOutput{}, errors.New("自己紹介文に使用している画像が多すぎます")
 	}
 
@@ -101,14 +102,9 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 	}
 
 	differenceArray := func(a, b []string) []string {
-		bSet := make(map[string]struct{})
-		for _, item := range b {
-			bSet[item] = struct{}{}
-		}
-
-		var diff []string
+		diff := []string{}
 		for _, item := range a {
-			if _, found := bSet[item]; !found {
+			if !slices.Contains(b, item) {
 				diff = append(diff, item)
 			}
 		}

@@ -30,7 +30,7 @@ func NewBioImageStorage(uploader *manager.Uploader, client *s3.Client, bucketNam
 	}
 }
 
-func (r *BioImageStorage) Upload(ctx context.Context, userId string, file multipart.File, fileHeader *multipart.FileHeader) (string, error) {
+func (r *BioImageStorage) Upload(ctx context.Context, userId string, file multipart.File, fileHeader *multipart.FileHeader) (string, string, error) {
 	ext := strings.LastIndex(fileHeader.Filename, ".")
 
 	fileName := fmt.Sprintf("%s%s", uuid.New().String(), fileHeader.Filename[ext:])
@@ -39,7 +39,7 @@ func (r *BioImageStorage) Upload(ctx context.Context, userId string, file multip
 	buf := bytes.NewBuffer(nil)
 
 	if _, err := io.Copy(buf, file); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	fileByte := buf.Bytes()
@@ -56,10 +56,10 @@ func (r *BioImageStorage) Upload(ctx context.Context, userId string, file multip
 	})
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return fmt.Sprintf("%s/%s", r.endpoint, objectNameStr), nil
+	return fmt.Sprintf("%s/%s", r.endpoint, objectNameStr), fileName, nil
 }
 
 func (r *BioImageStorage) Delete(ctx context.Context, userId string, imageName string) error {

@@ -56,10 +56,6 @@ func NewUploadBioImageInteractor(
 }
 
 func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioImageInput) (UploadBioImageOutput, error) {
-	fileName := input.ImageHeader.Filename
-
-	fmt.Println(input.UserId)
-
 	bioImages, err := i.bioImageRepository.FindByUserId(tx, input.UserId)
 
 	if err != nil {
@@ -71,15 +67,16 @@ func (i uploadBioImageInteractor) Execute(tx context.Context, input UploadBioIma
 	}
 
 	var imagePath string
+	var fileName string
 
 	if err := i.bioImageRepository.WithTransaction(tx, func(ttx context.Context) error {
-		if err := i.bioImageRepository.Create(ttx, input.UserId, fileName); err != nil {
+		imagePath, fileName, err = i.bioImageStorage.Upload(ttx, input.UserId, input.Image, input.ImageHeader)
+
+		if err != nil {
 			return err
 		}
 
-		imagePath, err = i.bioImageStorage.Upload(ttx, input.UserId, input.Image, input.ImageHeader)
-
-		if err != nil {
+		if err := i.bioImageRepository.Create(ttx, input.UserId, fileName); err != nil {
 			return err
 		}
 

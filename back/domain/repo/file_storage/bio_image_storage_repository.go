@@ -7,7 +7,7 @@ import (
 )
 
 type BioImageStorageRepository interface {
-	Upload(context context.Context, userId string, file multipart.File, fileHeader *multipart.FileHeader) (string, error)
+	Upload(context context.Context, userId string, file multipart.File, fileHeader *multipart.FileHeader) (string, string, error)
 	Delete(context context.Context, userId string, imageName string) error
 	IsExists(context context.Context, userId string, imageName string) (bool, error)
 	FindByUserId(context context.Context, userId string) ([]string, error)
