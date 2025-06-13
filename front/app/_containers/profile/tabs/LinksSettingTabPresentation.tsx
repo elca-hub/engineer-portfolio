@@ -20,9 +20,9 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Cell, Checkbox, CheckboxProps, Column, Row, Table, TableBody, TableHeader, useDragAndDrop } from 'react-aria-components'
+import { Cell, Checkbox, CheckboxProps, Column, Row, Table, TableBody, TableHeader } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { RiAtLine, RiCheckboxBlankLine, RiCheckboxFill, RiCheckboxIndeterminateLine, RiLink, RiMenuLine, RiPencilLine } from 'react-icons/ri'
+import { RiAtLine, RiCheckboxBlankLine, RiCheckboxFill, RiCheckboxIndeterminateLine, RiLink, RiPencilLine } from 'react-icons/ri'
 import { useListData } from 'react-stately'
 
 type LinkFormType = {
@@ -180,20 +180,6 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 		changeFlow(updateData)
 	}, [isSubmit])
 
-	const { dragAndDropHooks } = useDragAndDrop({
-		getItems: (keys) =>
-			[...keys].map((key) => ({
-				'text/plain': list.getItem(key)?.serviceName || '',
-			})),
-		onReorder(e) {
-			if (e.target.dropPosition === 'before') {
-				list.moveBefore(e.target.key, e.keys)
-			} else if (e.target.dropPosition === 'after') {
-				list.moveAfter(e.target.key, e.keys)
-			}
-		},
-	})
-
 	const [editTargetServiceId, setEditTargetServiceId] = useState(-1)
 
 	return (
@@ -208,10 +194,8 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 						className="flex justify-center items-center flex-col md:w-[30%]"
 						selectionMode="single"
 						aria-label="external-service-urls"
-						dragAndDropHooks={dragAndDropHooks}
 					>
 						<TableHeader>
-							<Column></Column>
 							<Column>
 								<RiPencilLine></RiPencilLine>
 							</Column>
@@ -220,11 +204,6 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 						<TableBody items={list.items}>
 							{(item) => (
 								<Row className="data-[dragging]:opacity-30">
-									<Cell>
-										<Button slot="drag" className="cursor-pointer">
-											<RiMenuLine></RiMenuLine>
-										</Button>
-									</Cell>
 									<Cell>
 										<MyCheckbox slot="selection"></MyCheckbox>
 									</Cell>
