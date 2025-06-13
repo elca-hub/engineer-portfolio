@@ -256,9 +256,6 @@ export default function LinksSettingTabPresentation({ externalServiceUrls }: Pro
 									<p className="text-subtext">
 										<BudouXText text="表からサービスを選択することで、ユーザ名やURLを編集することができます。"></BudouXText>
 									</p>
-									<p className="text-subtext">
-										<BudouXText text="表から表示するソート順を変更することもできます。"></BudouXText>
-									</p>
 								</>
 							)}
 						</div>
