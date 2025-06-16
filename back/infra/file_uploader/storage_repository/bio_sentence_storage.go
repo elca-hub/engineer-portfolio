@@ -69,7 +69,7 @@ func (r *BioSentenceStorage) Delete(ctx context.Context, userId string) error {
 }
 
 func (r *BioSentenceStorage) IsExists(ctx context.Context, userId string) (bool, error) {
-	objectName := file_object.NewHeaderObjectName(userId)
+	objectName := file_object.NewBioFileName(userId)
 
 	objectNameStr := objectName.GetObjectName()
 
