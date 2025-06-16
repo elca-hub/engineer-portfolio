@@ -196,27 +196,38 @@ export default function BioSettingTabPresentation({ user }: Props) {
 										isDisabled={isUploadImage}
 										isLoading={isLoading}
 										customInput={
-											<TextArea
-												ref={textareaRef}
-												rows={10}
-												className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
-												placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
-												onKeyDown={(e) => {
-													if (e.key === 'Tab') {
-														e.preventDefault()
-														const textarea = e.currentTarget
-														const start = textarea.selectionStart
-														const end = textarea.selectionEnd
-														const value = textarea.value
-														textarea.value = value.substring(0, start) + '\t' + value.substring(end)
-														textarea.selectionStart = textarea.selectionEnd = start + 1
-														// React Hook Formの値も更新
-														if (typeof field?.onChange === 'function') {
-															field.onChange(textarea.value)
-														}
-													}
+											<DropZone
+												onDrop={(e) => {
+													const targetFile = e.items[0]
+													if (targetFile.kind !== 'file') return
+													targetFile.getFile().then((f) => {
+														setImageFile(f)
+													})
 												}}
-											/>
+												className="w-full"
+											>
+												<TextArea
+													ref={textareaRef}
+													rows={10}
+													className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
+													placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
+													onKeyDown={(e) => {
+														if (e.key === 'Tab') {
+															e.preventDefault()
+															const textarea = e.currentTarget
+															const start = textarea.selectionStart
+															const end = textarea.selectionEnd
+															const value = textarea.value
+															textarea.value = value.substring(0, start) + '\t' + value.substring(end)
+															textarea.selectionStart = textarea.selectionEnd = start + 1
+															// React Hook Formの値も更新
+															if (typeof field?.onChange === 'function') {
+																field.onChange(textarea.value)
+															}
+														}
+													}}
+												/>
+											</DropZone>
 										}
 									></InputField>
 								)}
