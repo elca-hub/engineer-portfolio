@@ -12,7 +12,7 @@ const (
 	MaxBioLen = 6000
 )
 
-func NewBio(userId string, content string) (*Bio, error) {
+func NewBio(content string) (*Bio, error) {
 	if len(content) > MaxBioLen {
 		return nil, errors.New("自己紹介文の内容が長すぎます")
 	}

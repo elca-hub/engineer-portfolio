@@ -55,7 +55,7 @@ func (i getUserInfoInterator) Execute(tx context.Context, input GetUserInfoInput
 		return GetUserInfoOutput{}, err
 	}
 
-	bio, err := model.NewBio(input.UserId, bioString)
+	bio, err := model.NewBio(bioString)
 
 	if err != nil {
 		return GetUserInfoOutput{}, err
