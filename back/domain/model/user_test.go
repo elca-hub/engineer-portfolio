@@ -211,7 +211,7 @@ func TestUser(t *testing.T) {
 				c.email,
 				"",
 				"",
-				"",
+				nil,
 				c.organizationName,
 				c.occupationName,
 				c.place,
