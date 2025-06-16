@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { Button, DropZone, FileTrigger, Tab, TabList, TabPanel, Tabs, TextArea } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiEyeLine, RiImageAddLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
+import { RiCheckboxCircleLine, RiEyeLine, RiImageAddLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
 type Props = {
 	user: UserType
 }
@@ -60,6 +60,8 @@ export default function BioSettingTabPresentation({ user }: Props) {
 		fb()
 	}, [])
 
+	let updatedDate = new Date()
+
 	useEffect(() => {
 		if (isSubmit || debouncedValue !== '') {
 			const bio = watch('bio')
@@ -78,9 +80,12 @@ export default function BioSettingTabPresentation({ user }: Props) {
 					}
 				}
 
-				if (res.data && isSubmit) {
-					router.refresh()
-					setCallout([...callout, { content: '変更しました', type: 'info' }])
+				if (res.data) {
+					updatedDate = new Date()
+					if (isSubmit) {
+						router.refresh()
+						setCallout([...callout, { content: '変更しました', type: 'info' }])
+					}
 				}
 			}
 			updateFlow(isSubmit)
@@ -130,6 +135,10 @@ export default function BioSettingTabPresentation({ user }: Props) {
 
 	return (
 		<>
+			<div className="flex justify-left gap-6 text-green-800 mb-4">
+				<TextWithIcon icon={<RiCheckboxCircleLine />}>最終更新日時</TextWithIcon>
+				<p>{updatedDate.toLocaleString()}</p>
+			</div>
 			<Tabs>
 				<TabList aria-label="自己紹介" className="flex justify-start gap-x-4 mb-4">
 					<Tab id="edit" className={tabItemClassName}>
