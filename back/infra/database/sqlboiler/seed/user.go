@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"devport/infra/database/sqlboiler/models"
+	"fmt"
 	"time"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -33,7 +34,7 @@ func CreateUserSeed(ctx context.Context, db *sql.DB) {
 	for _, user := range mockUsers {
 		exists, err := models.UserExists(ctx, db, user.userId)
 		if err != nil {
-			panic(err)
+			fmt.Errorf("error when checking if user exists: %v", err)
 		}
 		if exists {
 			continue
