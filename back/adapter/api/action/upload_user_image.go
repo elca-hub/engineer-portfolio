@@ -54,12 +54,19 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 		return file, header, nil
 	}
 
-	validateFile := func(fileHeader *multipart.FileHeader, maxFileSize int64) error {
+	validateFile := func(fileHeader *multipart.FileHeader, maxMegaFileSize int64) error {
+		allowedContents := map[string]bool{
+			"image/png":  true,
+			"image/jpeg": true,
+		}
+
+		maxFileSize := maxMegaFileSize * 1024 * 1024 // MB to bytes
+
 		if fileHeader.Size > maxFileSize {
-			return fmt.Errorf("ファイルサイズが%dMBを超えています", maxFileSize/1024/1024)
+			return fmt.Errorf("ファイルサイズが%dMBを超えています", maxMegaFileSize)
 		}
 		contentType := fileHeader.Header.Get("Content-Type")
-		if contentType != "image/png" && contentType != "image/jpeg" {
+		if !allowedContents[contentType] {
 			return fmt.Errorf("不正なファイル形式です。Content-Type: %s", contentType)
 		}
 
@@ -78,7 +85,7 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 	}
 
 	if input.IconHeader != nil {
-		if err := validateFile(input.IconHeader, 3*1024*1024); err != nil {
+		if err := validateFile(input.IconHeader, 3); err != nil {
 			logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when validate icon image.")
 			response.NewError(err, http.StatusBadRequest).Send(w)
 
@@ -98,7 +105,7 @@ func (a *UploadUserImageAction) Execute(w http.ResponseWriter, r *http.Request, 
 	}
 
 	if input.HeaderHeader != nil {
-		if err := validateFile(input.HeaderHeader, 4*1024*1024); err != nil {
+		if err := validateFile(input.HeaderHeader, 4); err != nil {
 			logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("error when validate header image.")
 			response.NewError(err, http.StatusBadRequest).Send(w)
 
