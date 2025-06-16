@@ -152,7 +152,7 @@ function ProfileLinkComponent({ url, serviceType }: { url: string; serviceType: 
 				alt={`icon of ${text}`}
 				width={16}
 				height={16}
-				className="size-[12px]"
+				className="size-[16px]"
 			/>
 			<p>{text}</p>
 		</Link>
