@@ -40,7 +40,6 @@ type (
 
 func NewUploadBioImageInteractor(
 	userRepository db.UserRepository,
-	bioImageRepository db.BioImagesRepository,
 	bioImageStorage file_storage.BioImageStorageRepository,
 	bioImageRepo db.BioImagesRepository,
 	presenter UploadBioImagePresenter,

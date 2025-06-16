@@ -415,7 +415,6 @@ func (e *GinEngine) uploadBioImageAction() gin.HandlerFunc {
 		var (
 			uc = user.NewUploadBioImageInteractor(
 				e.sql.UserRepository(),
-				e.sql.BioImagesRepository(),
 				e.fileUploader.BioImageStorageRepository(),
 				e.sql.BioImagesRepository(),
 				user_presenter.NewUploadBioImagePresenter(),
