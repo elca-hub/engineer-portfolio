@@ -117,6 +117,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 
 		errG := new(errgroup.Group)
 		for _, imageName := range deleteImageTarget {
+			imageName := imageName
 			errG.Go(func() error {
 				return i.bioImageStorage.Delete(tx, user.ID(), imageName)
 			})
@@ -130,6 +131,7 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		deleteImageTargetDB := differenceArray(dbImages, imageIds)
 
 		for _, imageName := range deleteImageTargetDB {
+			imageName := imageName
 			errG.Go(func() error {
 				return i.bioImageRepo.Delete(tx, user, imageName)
 			})
