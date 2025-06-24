@@ -1,35 +1,53 @@
-'use client'
-
-import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
-import { UserType } from '@/action/type/user'
-import ProfileBasicSettingPresentation from '@/app/_containers/account-setting/profile/basic/basicPresentation'
-import ProfileIntroductionSettingPresentation from '@/app/_containers/account-setting/profile/introduction/introductionPresentation'
-import ProfileLinkSettingPresentation from '@/app/_containers/account-setting/profile/link/linkPresentation'
 import SettingPageMainTitle from '@/components/ui/text/setting-page/mainTitle'
-import SettingPageSubTitle from '@/components/ui/text/setting-page/subTitle'
-import { RiLink, RiPencilLine, RiUserLine } from 'react-icons/ri'
-
-type Props = {
-	user: UserType
-	externalServiceUrls: ExternalServiceUrlType[]
-}
+import Link from 'next/link'
+import { RiArrowRightSLine, RiLink, RiPencilLine, RiUserLine } from 'react-icons/ri'
 
 /**
  * @package
  */
-export default function ProfileSettingPresentation({ user, externalServiceUrls }: Props) {
+export default function ProfileSettingPresentation() {
+	const settingItems = [
+		{
+			icon: <RiUserLine />,
+			title: '基本設定',
+			description: 'プロフィール画像、名前、組織などの基本情報を設定',
+			href: '/account/setting/profile/basic'
+		},
+		{
+			icon: <RiPencilLine />,
+			title: '自己紹介',
+			description: 'あなたの自己紹介文を設定',
+			href: '/account/setting/profile/introduction'
+		},
+		{
+			icon: <RiLink />,
+			title: 'リンク設定',
+			description: 'SNSやWebサイトなどの外部リンクを設定',
+			href: '/account/setting/profile/link'
+		}
+	]
+
 	return (
 		<>
 			<SettingPageMainTitle icon={<RiUserLine />}>プロフィール設定</SettingPageMainTitle>
-
-			<SettingPageSubTitle icon={<RiUserLine />}>基本設定</SettingPageSubTitle>
-			<ProfileBasicSettingPresentation user={user}></ProfileBasicSettingPresentation>
-
-			<SettingPageSubTitle icon={<RiPencilLine />}>自己紹介設定</SettingPageSubTitle>
-			<ProfileIntroductionSettingPresentation user={user}></ProfileIntroductionSettingPresentation>
-
-			<SettingPageSubTitle icon={<RiLink />}>リンク設定</SettingPageSubTitle>
-			<ProfileLinkSettingPresentation externalServiceUrls={externalServiceUrls}></ProfileLinkSettingPresentation>
+			<div className="space-y-3">
+				{settingItems.map((item) => (
+					<Link key={item.href} href={item.href}>
+						<div className="bg-white border border-border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="text-primary text-xl">{item.icon}</div>
+									<div>
+										<h3 className="font-medium text-foreground">{item.title}</h3>
+										<p className="text-sm text-subtext">{item.description}</p>
+									</div>
+								</div>
+								<RiArrowRightSLine className="text-subtext text-xl" />
+							</div>
+						</div>
+					</Link>
+				))}
+			</div>
 		</>
 	)
 }
