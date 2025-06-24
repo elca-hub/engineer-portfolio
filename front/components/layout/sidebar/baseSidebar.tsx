@@ -29,7 +29,7 @@ export default function BaseSidebar({ children, isOpen, onClose, side }: BaseSid
 				style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
 			>
 				<CloseButton onClick={onClose} className={`absolute top-3 sm:top-4 ${isLeft ? 'right-3 sm:right-4' : 'left-3 sm:left-4'}`} />
-				<div className="flex flex-col gap-1 sm:gap-2">{children}</div>
+				<div className="flex flex-col gap-1 sm:gap-2 mt-4">{children}</div>
 			</motion.div>
 		</>
 	)
