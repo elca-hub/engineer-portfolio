@@ -48,7 +48,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						<div className="flex flex-col mb-1 bg-white/70 rounded-lg p-2 md:bg-transparent">
 							{isAuthUser && (
 								<p className="text-green-600">
-									<TextWithIcon icon={<RiCheckboxCircleLine />}>あなたのプロフィールです！</TextWithIcon>
+									<TextWithIcon icon={<RiCheckboxCircleLine />}>あなたのアカウントです！</TextWithIcon>
 								</p>
 							)}
 							<h1 className="text-3xl font-bold tracking-wide text-foreground">{user.name}</h1>
