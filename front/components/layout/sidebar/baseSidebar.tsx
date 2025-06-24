@@ -14,7 +14,7 @@ export default function BaseSidebar({ children, isOpen, onClose, side }: BaseSid
 	return (
 		<>
 			<motion.div
-				className="z-10 fixed inset-0 bg-black/50 backdrop-blur-sm"
+				className="z-30 fixed inset-0 bg-black/50 backdrop-blur-sm"
 				initial={{ opacity: 0 }}
 				animate={isOpen ? { opacity: 1 } : { opacity: 0 }}
 				transition={{ type: 'tween', duration: 0.2 }}
@@ -22,7 +22,7 @@ export default function BaseSidebar({ children, isOpen, onClose, side }: BaseSid
 				onClick={onClose}
 			/>
 			<motion.div
-				className={`z-20 fixed top-0 pt-8 sm:pt-10 ${isLeft ? 'left-0 border-r rounded-r-lg' : 'right-0 border-l rounded-l-lg'} w-4/5 sm:w-2/3 md:w-1/2 lg:w-1/3 h-full bg-white border-border p-3 sm:p-4 shadow-lg shadow-black/10`}
+				className={`z-40 fixed top-0 pt-8 sm:pt-10 ${isLeft ? 'left-0 border-r rounded-r-lg' : 'right-0 border-l rounded-l-lg'} w-4/5 sm:w-2/3 md:w-1/2 lg:w-1/3 h-full bg-white border-border p-3 sm:p-4 shadow-lg shadow-black/10`}
 				initial={{ x: isLeft ? '-100%' : '100%' }}
 				animate={isOpen ? { x: 0 } : { x: isLeft ? '-100%' : '100%' }}
 				transition={{ type: 'tween', duration: 0.2 }}
