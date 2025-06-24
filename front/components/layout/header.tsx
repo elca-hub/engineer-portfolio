@@ -2,6 +2,7 @@
 
 import { UserType } from '@/action/type/user'
 import { CalloutContext } from '@/app/state'
+import DBSidebar from '@/components/layout/sidebar/sidebar'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
@@ -12,12 +13,13 @@ import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
 import { Button, Input, Label, Link, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiGoogleFill, RiLockLine, RiProfileLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
+import { RiGoogleFill, RiLockLine, RiMenuLine, RiProfileLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
 type Props = {
 	children?: React.ReactNode
 	user?: UserType
 	isLogin: boolean
+	sidebar?: React.ReactNode
 }
 
 const pacifico = Pacifico({
@@ -29,7 +31,7 @@ export type SearchUserFormContent = {
 	name: string
 }
 
-export default function DPHeader({ children, user, isLogin }: Props) {
+export default function DPHeader({ children, user, isLogin, sidebar }: Props) {
 	const { callout, setCallout } = useContext(CalloutContext)
 	const [isLogout, setIsLogout] = useState(false)
 
@@ -77,17 +79,35 @@ export default function DPHeader({ children, user, isLogin }: Props) {
 		}
 	}, [isSubmit])
 
+	const [isSidebarOpen, setSidebarOpen] = useState(false)
+
 	return (
 		<header className="z-50 flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
-			<Link href="/" className="outline-none">
+			{sidebar ? (
 				<div className="flex items-center gap-4">
-					<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
-					<p className={`${pacifico.className} hidden md:block md:text-2xl`}>
-						<span className="text-primary">Dev</span>
-						<span className="text-secondary">Port</span>
-					</p>
+					<button className="p-2 rounded shadow hover:bg-gray-300 transition-all duration-300 border" onClick={() => setSidebarOpen(true)}>
+						<RiMenuLine className="size-5" />
+					</button>
+					<DBSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)}>
+						{sidebar}
+					</DBSidebar>
+					<Link href="/" className="outline-none">
+						<Image src="/logo.webp" alt="logo" width="40" height="40" priority />
+					</Link>
 				</div>
-			</Link>
+			) : (
+				<>
+					<Link href="/" className="outline-none">
+						<div className="flex items-center gap-4">
+							<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
+							<p className={`${pacifico.className} hidden md:block md:text-2xl`}>
+								<span className="text-primary">Dev</span>
+								<span className="text-secondary">Port</span>
+							</p>
+						</div>
+					</Link>
+				</>
+			)}
 
 			<div className="h-full hidden md:block">
 				<form onSubmit={handleSubmit(() => setIsSubmit(true))} className="h-full">
