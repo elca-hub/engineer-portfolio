@@ -1,3 +1,5 @@
+'use client'
+
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import createExternalServiceUrl from '@/action/usecase/externalServiceUrl/create'
 import deleteExternalServiceUrl from '@/action/usecase/externalServiceUrl/delete'
@@ -33,7 +35,7 @@ type Props = {
 	externalServiceUrls: ExternalServiceUrlType[]
 }
 
-export default function LinksSettingTabPresentation({ externalServiceUrls }: Props) {
+export default function ProfileLinkSettingPresentation({ externalServiceUrls }: Props) {
 	const router = useRouter()
 
 	const { callout, setCallout } = useContext(CalloutContext)

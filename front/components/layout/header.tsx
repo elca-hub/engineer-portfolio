@@ -78,7 +78,7 @@ export default function DPHeader({ children, user, isLogin }: Props) {
 	}, [isSubmit])
 
 	return (
-		<header className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
+		<header className="z-50 flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
 			<Link href="/" className="outline-none">
 				<div className="flex items-center gap-4">
 					<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
@@ -140,9 +140,13 @@ export default function DPHeader({ children, user, isLogin }: Props) {
 							</Button>
 							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
 								<Menu className="outline-none">
-									<MyMenuItem id="user-setting">
-										<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
-									</MyMenuItem>
+									{user && (
+										<MyMenuItem id="user-setting">
+											<Link href="/account/setting">
+												<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
+											</Link>
+										</MyMenuItem>
+									)}
 									<MyMenuItem id="signout" onAction={() => setIsLogout(true)}>
 										<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
 									</MyMenuItem>
