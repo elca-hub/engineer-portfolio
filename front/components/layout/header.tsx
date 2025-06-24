@@ -2,7 +2,8 @@
 
 import { UserType } from '@/action/type/user'
 import { CalloutContext } from '@/app/state'
-import DBSidebar from '@/components/layout/sidebar/sidebar'
+import LeftSidebar from '@/components/layout/sidebar/leftSidebar'
+import RightSidebar from '@/components/layout/sidebar/rightSidebar'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
@@ -11,7 +12,7 @@ import { signIn, signOut } from 'next-auth/react'
 import { Pacifico } from 'next/font/google'
 import Image from 'next/image'
 import { useContext, useEffect, useState } from 'react'
-import { Button, Input, Label, Link, Menu, MenuItem, MenuItemProps, MenuTrigger, Popover, SearchField } from 'react-aria-components'
+import { Input, Label, Link, SearchField } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
 import { RiGoogleFill, RiLockLine, RiMenuLine, RiProfileLine, RiUserLine, RiUserSearchLine } from 'react-icons/ri'
 
@@ -80,27 +81,28 @@ export default function DPHeader({ children, user, isLogin, sidebar }: Props) {
 	}, [isSubmit])
 
 	const [isSidebarOpen, setSidebarOpen] = useState(false)
+	const [isRightSidebarOpen, setRightSidebarOpen] = useState(false)
 
 	return (
-		<header className="z-50 flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
+		<header className="z-50 flex items-center justify-between px-2 sm:px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
 			{sidebar ? (
-				<div className="flex items-center gap-4">
+				<div className="flex items-center gap-2 sm:gap-4">
 					<button className="p-2 rounded shadow hover:bg-gray-300 transition-all duration-300 border" onClick={() => setSidebarOpen(true)}>
-						<RiMenuLine className="size-5" />
+						<RiMenuLine className="size-4 sm:size-5" />
 					</button>
-					<DBSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)}>
+					<LeftSidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)}>
 						{sidebar}
-					</DBSidebar>
+					</LeftSidebar>
 					<Link href="/" className="outline-none">
-						<Image src="/logo.webp" alt="logo" width="40" height="40" priority />
+						<Image src="/logo.webp" alt="logo" width={32} height={32} className="sm:w-10 sm:h-10" priority />
 					</Link>
 				</div>
 			) : (
 				<>
 					<Link href="/" className="outline-none">
-						<div className="flex items-center gap-4">
-							<Image src="/logo.webp" alt="logo" width={40} height={40} priority />
-							<p className={`${pacifico.className} hidden md:block md:text-2xl`}>
+						<div className="flex items-center gap-2 sm:gap-4">
+							<Image src="/logo.webp" alt="logo" width={32} height={32} className="sm:w-10 sm:h-10" priority />
+							<p className={`${pacifico.className} hidden sm:block text-xl sm:text-2xl`}>
 								<span className="text-primary">Dev</span>
 								<span className="text-secondary">Port</span>
 							</p>
@@ -137,46 +139,46 @@ export default function DPHeader({ children, user, isLogin, sidebar }: Props) {
 				</form>
 			</div>
 
-			<div className="flex items-center gap-4">
+			<div className="flex items-center gap-1 sm:gap-2 md:gap-4">
 				{isLogin && user ? (
 					<>
-						{children ? (
-							children
-						) : user ? (
-							<Link href={`/${user.user_id}/profile`} className="outline-none">
-								<DPButton colormode="primary">
-									<TextWithIcon icon={<RiProfileLine />}>プロフィールへ</TextWithIcon>
-								</DPButton>
-							</Link>
-						) : (
-							<></>
-						)}
-						<MenuTrigger>
-							<Button
-								aria-label="menu"
-								className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
-							>
-								<UserImage imageType="icon" fileName={user.icon_name} className="w-12 h-12 rounded-xl object-cover" width={47} height={47} priority />
-							</Button>
-							<Popover className="outline-hidden overflow-auto bg-background p-2 rounded-lg bg-white shadow-lg ring-2 ring-primary entering:animate-in entering:fade-in entering:placement-bottom:slide-in-from-top-1 entering:placement-top:slide-in-from-bottom-1 exiting:animate-out exiting:fade-out exiting:placement-bottom:slide-out-to-top-1 exiting:placement-top:slide-out-to-bottom-1 fill-mode-forwards origin-top-left">
-								<Menu className="outline-none">
-									{user && (
-										<MyMenuItem id="user-setting">
-											<Link href="/account/setting">
-												<TextWithIcon icon={<RiUserLine />}>ユーザ設定</TextWithIcon>
-											</Link>
-										</MyMenuItem>
-									)}
-									<MyMenuItem id="signout" onAction={() => setIsLogout(true)}>
-										<TextWithIcon icon={<RiLockLine />}>ログアウト</TextWithIcon>
-									</MyMenuItem>
-								</Menu>
-							</Popover>
-						</MenuTrigger>
+						<div className="hidden sm:block">
+							{children ? (
+								children
+							) : user ? (
+								<Link href={`/${user.user_id}/profile`} className="outline-none">
+									<DPButton colormode="primary">
+										<TextWithIcon icon={<RiUserLine />}>プロフィールへ</TextWithIcon>
+									</DPButton>
+								</Link>
+							) : (
+								<></>
+							)}
+						</div>
+						<button
+							aria-label="user menu"
+							className="rounded-xl inline-flex items-center justify-center text-white bg-transparent border-none hover:scale-95 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary"
+							onClick={() => setRightSidebarOpen(true)}
+						>
+							<UserImage
+								imageType="icon"
+								fileName={user.icon_name}
+								className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl object-cover"
+								width={40}
+								height={40}
+								priority
+							/>
+						</button>
+						<RightSidebar isOpen={isRightSidebarOpen} onClose={() => setRightSidebarOpen(false)}>
+							<UserSidebarContent user={user} onLogout={() => setIsLogout(true)} />
+						</RightSidebar>
 					</>
 				) : (
 					<DPButton colormode="primary" onPress={() => signIn('google')}>
-						<TextWithIcon icon={<RiGoogleFill />}>ログイン</TextWithIcon>
+						<TextWithIcon icon={<RiGoogleFill />}>
+							<span className="hidden sm:inline">ログイン</span>
+							<span className="sm:hidden">ログイン</span>
+						</TextWithIcon>
 					</DPButton>
 				)}
 			</div>
@@ -184,11 +186,34 @@ export default function DPHeader({ children, user, isLogin, sidebar }: Props) {
 	)
 }
 
-function MyMenuItem(props: MenuItemProps) {
+function UserSidebarContent({ user, onLogout }: { user: UserType; onLogout: () => void }) {
 	return (
-		<MenuItem
-			{...props}
-			className="cursor-pointer group flex w-full items-center rounded-md px-3 py-2 box-border outline-none cursor-default text-foreground focus:bg-primary focus:text-white"
-		/>
+		<>
+			<div className="flex items-center gap-3 p-4 border-b border-gray-200">
+				<UserImage imageType="icon" fileName={user.icon_name} className="w-12 h-12 rounded-xl object-cover" width={48} height={48} priority />
+				<div>
+					<p className="font-medium text-foreground">{user.name}</p>
+					<p className="text-sm text-gray-600">@{user.user_id}</p>
+				</div>
+			</div>
+			<div className="flex flex-col gap-2 p-2">
+				<Link href={`/${user.user_id}/profile`} className="outline-none">
+					<div className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors">
+						<RiProfileLine className="size-5 text-gray-600" />
+						<span className="text-foreground">プロフィール</span>
+					</div>
+				</Link>
+				<Link href="/account/setting" className="outline-none">
+					<div className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors">
+						<RiUserLine className="size-5 text-gray-600" />
+						<span className="text-foreground">ユーザ設定</span>
+					</div>
+				</Link>
+				<button onClick={onLogout} className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-100 transition-colors text-left w-full">
+					<RiLockLine className="size-5 text-gray-600" />
+					<span className="text-foreground">ログアウト</span>
+				</button>
+			</div>
+		</>
 	)
 }
