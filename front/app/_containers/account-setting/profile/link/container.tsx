@@ -1,11 +1,11 @@
 'use server'
 
 import fetchExternalServiceUrlByUserId from '@/action/usecase/externalServiceUrl/fetchByUserId'
-import ProfileLinkSettingPresentation from '@/app/_containers/account-setting/profile/link/linkPreesntation'
-import TextWithIcon from '@/components/ui/text/textWithIcon'
+import ProfileLinkSettingPresentation from '@/app/_containers/account-setting/profile/link/linkPresentation'
+import SettingPageMainTitle from '@/components/ui/text/setting-page/mainTitle'
 import { getAuthUser, handleAuthRedirect } from '@/lib/access'
 import { redirect } from 'next/navigation'
-import { RiPencilLine } from 'react-icons/ri'
+import { RiLink } from 'react-icons/ri'
 
 export default async function ProfileLinkSettingContainer() {
 	const authRedirectPath = await handleAuthRedirect('auth')
@@ -26,9 +26,7 @@ export default async function ProfileLinkSettingContainer() {
 
 	return (
 		<>
-			<h1 className="text-3xl font-bold tracking-wide text-foreground">
-				<TextWithIcon icon={<RiPencilLine />}>プロフィール設定</TextWithIcon>
-			</h1>
+			<SettingPageMainTitle icon={<RiLink />}>リンク設定</SettingPageMainTitle>
 			<ProfileLinkSettingPresentation externalServiceUrls={externalServiceUrls}></ProfileLinkSettingPresentation>
 		</>
 	)
