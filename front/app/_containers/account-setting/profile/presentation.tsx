@@ -11,20 +11,20 @@ export default function ProfileSettingPresentation() {
 			icon: <RiUserLine />,
 			title: '基本設定',
 			description: 'プロフィール画像、名前、組織などの基本情報を設定',
-			href: '/account/setting/profile/basic'
+			href: '/account/setting/profile/basic',
 		},
 		{
 			icon: <RiPencilLine />,
 			title: '自己紹介',
 			description: 'あなたの自己紹介文を設定',
-			href: '/account/setting/profile/introduction'
+			href: '/account/setting/profile/introduction',
 		},
 		{
 			icon: <RiLink />,
 			title: 'リンク設定',
 			description: 'SNSやWebサイトなどの外部リンクを設定',
-			href: '/account/setting/profile/link'
-		}
+			href: '/account/setting/profile/link',
+		},
 	]
 
 	return (

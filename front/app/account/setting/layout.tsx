@@ -31,7 +31,12 @@ export default async function SettingLayout({ children }: Props) {
 			<div className="min-h-screen">
 				<DPHeader isLogin={true} user={user.data.user} sidebar={<SettingSidebarContent />}></DPHeader>
 				<div className="flex flex-row">
-					<main className="w-full bg-white border-r border-border p-4 flex flex-col gap-2" style={{ minHeight: 'calc(100vh - var(--header-height, 64px))' }}>{children}</main>
+					<main
+						className="w-full bg-white border-r border-border p-4 flex flex-col gap-2"
+						style={{ minHeight: 'calc(100vh - var(--header-height, 64px))' }}
+					>
+						{children}
+					</main>
 				</div>
 			</div>
 		</>
