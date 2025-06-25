@@ -75,54 +75,49 @@ func (r *SqlBoilerUserRepository) Update(ctx context.Context, user *model.User) 
 	return err
 }
 
-func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.Email) (*model.User, error) {
+func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.Email, bio *model.Bio) (*model.User, error) {
 	user, err := models.Users(models.UserWhere.Email.EQ(email.Email()), qm.Load("Skills"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
-	return r.convertToDomainModel(user)
+	return r.convertToDomainModel(user, bio)
 }
 
-func (r *SqlBoilerUserRepository) FindById(ctx context.Context, id string) (*model.User, error) {
+func (r *SqlBoilerUserRepository) FindById(ctx context.Context, id string, bio *model.Bio) (*model.User, error) {
 	user, err := models.Users(models.UserWhere.ID.EQ(id), qm.Load("Skills"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
-	return r.convertToDomainModel(user)
+	return r.convertToDomainModel(user, bio)
 }
 
-func (r *SqlBoilerUserRepository) FetchIconNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+func (r *SqlBoilerUserRepository) FetchIconNamesAll(ctx context.Context) ([]string, error) {
 	users, err := models.Users(models.UserWhere.IconPath.IsNotNull()).All(ctx, r.db)
 
 	if err != nil {
 		return nil, err
 	}
 
-	iconNames := make([]*model.FileIconName, len(users))
+	iconNames := make([]string, len(users))
 
+	// 取得時にis not nullをしているのでそのまま取得してok
 	for i, user := range users {
-		iconNames[i], err = model.NewFileIconName(user.IconPath.String, model.ICON_PATH)
-		if err != nil {
-			return nil, err
-		}
+		iconNames[i] = user.IconPath.String
 	}
 
 	return iconNames, nil
 }
 
-func (r *SqlBoilerUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]*model.FileIconName, error) {
+func (r *SqlBoilerUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]string, error) {
 	users, err := models.Users(models.UserWhere.HeaderPath.IsNotNull()).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
 
-	headerNames := make([]*model.FileIconName, len(users))
+	headerNames := make([]string, len(users))
 
 	for i, user := range users {
-		headerNames[i], err = model.NewFileIconName(user.HeaderPath.String, model.HEADER_PATH)
-		if err != nil {
-			return nil, err
-		}
+		headerNames[i] = user.HeaderPath.String
 	}
 
 	return headerNames, nil
@@ -146,14 +141,13 @@ func (r *SqlBoilerUserRepository) convertToSqlBoilerModel(user *model.User) *mod
 		OrganizationName: null.StringFrom(user.OrganizationName()),
 		OccupationName:   null.StringFrom(user.OccupationName()),
 		Place:            null.StringFrom(user.Place()),
-		BioPath:          null.StringFrom(user.BioPath()),
 		Birthday:         user.Birthday(),
 		CreatedAt:        user.CreatedAt(),
 		UpdatedAt:        user.UpdatedAt(),
 	}
 }
 
-func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.User) (*model.User, error) {
+func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.User, bio *model.Bio) (*model.User, error) {
 	userEmail, err := model.NewEmail(sqlboilerUser.Email)
 
 	if err != nil {
@@ -184,7 +178,7 @@ func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.Use
 		userEmail,
 		sqlboilerUser.IconPath.String,
 		sqlboilerUser.HeaderPath.String,
-		sqlboilerUser.BioPath.String,
+		bio,
 		sqlboilerUser.OrganizationName.String,
 		sqlboilerUser.OccupationName.String,
 		sqlboilerUser.Place.String,

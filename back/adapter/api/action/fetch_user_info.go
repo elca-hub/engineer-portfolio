@@ -7,18 +7,19 @@ import (
 	"devport/adapter/validator"
 	"devport/usecase/user"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type FetchUserInfoAction struct {
-	uc user.FetchUserInfoUseCase
+	uc user.GetUserInfoUseCase
 	v  validator.Validator
 	l  logger.Logger
 }
 
-func NewFetchUserInfoAction(uc user.FetchUserInfoUseCase, v validator.Validator, l logger.Logger) *FetchUserInfoAction {
+func NewFetchUserInfoAction(uc user.GetUserInfoUseCase, v validator.Validator, l logger.Logger) *FetchUserInfoAction {
 	return &FetchUserInfoAction{
 		uc: uc,
 		v:  v,
@@ -27,7 +28,7 @@ func NewFetchUserInfoAction(uc user.FetchUserInfoUseCase, v validator.Validator,
 }
 
 func (a *FetchUserInfoAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
-	var input user.FetchUserInfoInput
+	var input user.GetUserInfoInput
 	const logKey = "fetch_user_info"
 
 	input.UserId = c.Param("userId")

@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -27,16 +27,16 @@ type (
 	}
 
 	deleteExternalServiceUrlInteractor struct {
-		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
-		userRepository                sql.UserRepository
+		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
+		userRepository                db.UserRepository
 		presenter                     DeleteExternalServiceUrlPresenter
 		ctxTimeout                    time.Duration
 	}
 )
 
 func NewDeleteExternalServiceUrlInteractor(
-	externalServiceUrlsRepository sql.ExternalServiceUrlsRepository,
-	userRepository sql.UserRepository,
+	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
+	userRepository db.UserRepository,
 	presenter DeleteExternalServiceUrlPresenter,
 	t time.Duration,
 ) DeleteExternalServiceUrlUseCase {
@@ -55,7 +55,7 @@ func (i deleteExternalServiceUrlInteractor) Execute(ctx context.Context, input D
 	var esu *model.ExternalServiceUrl
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		user, err := i.userRepository.FindById(ctx, input.UserId)
+		user, err := i.userRepository.FindById(ctx, input.UserId, nil)
 
 		if err != nil {
 			return err

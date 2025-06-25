@@ -1,5 +1,4 @@
 import { UserType } from '@/action/type/user'
-import userUpdate from '@/action/usecase/user/update'
 import uploadImage from '@/action/usecase/user/uploadImage'
 import { CalloutContext } from '@/app/state'
 import UserImage from '@/components/ui/image/userImage'
@@ -96,23 +95,17 @@ export default function ProfileImageTabPresentation({ user }: Props) {
 
 				const iconUploadRes = type === 'icon' ? await uploadImage(token, { icon: file }) : await uploadImage(token, { headerIcon: file })
 
-				if (iconUploadRes === null) {
-					setCallout([...callout, { content: 'アップロードに失敗しました', type: 'error' }])
+				if (iconUploadRes.errors) {
+					for (const error of iconUploadRes.errors) {
+						setCallout([...callout, { content: error, type: 'error' }])
+					}
 					return
 				}
 
-				const res =
-					type === 'icon'
-						? await userUpdate(token, { userData: { icon_name: iconUploadRes.icon_name } })
-						: await userUpdate(token, { userData: { header_icon_name: iconUploadRes.header_icon_name } })
-
-				if (res === null) {
-					setCallout([...callout, { content: '変更に失敗しました', type: 'error' }])
-					return
+				if (iconUploadRes.data) {
+					setCallout([...callout, { content: '変更しました', type: 'info' }])
+					router.refresh()
 				}
-
-				setCallout([...callout, { content: '変更しました', type: 'info' }])
-				router.refresh()
 			}
 
 			iconUploadFlow()

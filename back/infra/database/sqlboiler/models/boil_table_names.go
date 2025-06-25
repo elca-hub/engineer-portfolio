@@ -8,9 +8,11 @@ var TableNames = struct {
 	ExternalServiceUrls string
 	Skills              string
 	Users               string
+	Works               string
 }{
 	BioImages:           "bio_images",
 	ExternalServiceUrls: "external_service_urls",
 	Skills:              "skills",
 	Users:               "users",
+	Works:               "works",
 }

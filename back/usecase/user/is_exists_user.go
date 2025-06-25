@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -26,14 +26,14 @@ type (
 	}
 
 	isExistsUserInteractor struct {
-		sqlRepository sql.UserRepository
+		sqlRepository db.UserRepository
 		presenter     IsExistsUserPresenter
 		ctxTimeout    time.Duration
 	}
 )
 
 func NewIsExistsUserInteractor(
-	sqlRepository sql.UserRepository,
+	sqlRepository db.UserRepository,
 	presenter IsExistsUserPresenter,
 	t time.Duration,
 ) IsExistsUserUseCase {
@@ -64,7 +64,7 @@ func (i isExistsUserInteractor) Execute(ctx context.Context, input IsExistsUserI
 		return i.presenter.Output(false, ""), nil
 	}
 
-	user, err := i.sqlRepository.FindByEmail(ctx, e)
+	user, err := i.sqlRepository.FindByEmail(ctx, e, nil)
 
 	if err != nil {
 		return i.presenter.Output(false, ""), err

@@ -59,7 +59,7 @@ func (r *SqlBoilerExternalServiceUrlRepository) Delete(ctx context.Context, user
 }
 
 func (r *SqlBoilerExternalServiceUrlRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.ExternalServiceUrl, error) {
-	externalServiceUrls, err := models.ExternalServiceUrls(qm.Where("user_id = ?", user.ID())).All(ctx, r.db)
+	externalServiceUrls, err := models.ExternalServiceUrls(qm.Where("user_id = ?", user.ID()), qm.OrderBy("service_type ASC")).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}

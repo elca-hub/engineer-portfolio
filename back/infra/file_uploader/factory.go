@@ -1,6 +1,7 @@
 package file_uploader
 
 import (
+	"devport/domain/repo/file_storage"
 	"errors"
 )
 
@@ -12,10 +13,17 @@ const (
 	InstanceMinio int = iota
 )
 
-func NewFileUploaderFactory(instance int) (FileUploader, error) {
+type StorageRepositoryInter interface {
+	HeaderImageStorageRepository() file_storage.HeaderImageStorage
+	IconImageStorageRepository() file_storage.IconImageStorage
+	BioImageStorageRepository() file_storage.BioImageStorageRepository
+	BioSentenceStorageRepository() file_storage.BioSentenceStorageRepository
+}
+
+func NewStorageRepositoryFactory(instance int) (StorageRepositoryInter, error) {
 	switch instance {
 	case InstanceMinio:
-		return NewMinio(NewFileUploaderConfig())
+		return NewMinioHandler(NewFileUploaderConfig())
 	default:
 		return nil, errInvalidFileUploaderInstance
 	}

@@ -1,5 +1,4 @@
 import { UserType } from '@/action/type/user'
-import fetchBio from '@/action/usecase/user/fetchBio'
 import uploadBio from '@/action/usecase/user/uploadBio'
 import uploadBioImage from '@/action/usecase/user/uploadBioImage'
 import { CalloutContext } from '@/app/state'
@@ -12,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { Button, DropZone, FileTrigger, Tab, TabList, TabPanel, Tabs, TextArea } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiEyeLine, RiImageAddLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
+import { RiCheckboxCircleLine, RiEyeLine, RiImageAddLine, RiPencilLine, RiUserLine } from 'react-icons/ri'
 type Props = {
 	user: UserType
 }
@@ -53,13 +52,15 @@ export default function BioSettingTabPresentation({ user }: Props) {
 	useEffect(() => {
 		const fb = async () => {
 			setIsLoading(true)
-			const bio = await fetchBio(user)
+			const bio = user.bio
 			setValue('bio', bio === null ? '' : bio)
 			setIsLoading(false)
 		}
 
 		fb()
 	}, [])
+
+	let updatedDate = new Date()
 
 	useEffect(() => {
 		if (isSubmit || debouncedValue !== '') {
@@ -71,26 +72,20 @@ export default function BioSettingTabPresentation({ user }: Props) {
 					return
 				}
 
-				// const beforeVal = await fetchBio(user)
-				// if (beforeVal === bio) {
-				// 	if (isSubmit) {
-				// 		router.refresh()
-				// 		setCallout([...callout, { content: '変更しました', type: 'info' }])
-				// 	}
-				// 	return
-				// }
-
 				const res = await uploadBio(token, bio, isSubmit)
+
 				if (res.errors) {
 					for (const error of res.errors) {
 						setCallout([...callout, { content: error, type: 'error' }])
 					}
-					return
 				}
 
-				if (isSubmit) {
-					router.refresh()
-					setCallout([...callout, { content: '変更しました', type: 'info' }])
+				if (res.data) {
+					updatedDate = new Date()
+					if (isSubmit) {
+						router.refresh()
+						setCallout([...callout, { content: '変更しました', type: 'info' }])
+					}
 				}
 			}
 			updateFlow(isSubmit)
@@ -127,7 +122,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 						const newValue = currentValue.substring(0, start) + `\n![image](${res.data.image_url})\n` + currentValue.substring(end)
 						setValue('bio', newValue)
 					} else {
-						setValue('bio', `${watch('bio')}\n\n![image](${res.data.image_url})`)
+						setValue('bio', `${watch('bio')}\n![image](${res.data.image_url})`)
 					}
 				}
 			}
@@ -140,6 +135,10 @@ export default function BioSettingTabPresentation({ user }: Props) {
 
 	return (
 		<>
+			<div className="flex justify-left gap-6 text-green-800 mb-4">
+				<TextWithIcon icon={<RiCheckboxCircleLine />}>最終更新日時</TextWithIcon>
+				<p>{updatedDate.toLocaleString()}</p>
+			</div>
 			<Tabs>
 				<TabList aria-label="自己紹介" className="flex justify-start gap-x-4 mb-4">
 					<Tab id="edit" className={tabItemClassName}>
@@ -206,27 +205,38 @@ export default function BioSettingTabPresentation({ user }: Props) {
 										isDisabled={isUploadImage}
 										isLoading={isLoading}
 										customInput={
-											<TextArea
-												ref={textareaRef}
-												rows={10}
-												className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
-												placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
-												onKeyDown={(e) => {
-													if (e.key === 'Tab') {
-														e.preventDefault()
-														const textarea = e.currentTarget
-														const start = textarea.selectionStart
-														const end = textarea.selectionEnd
-														const value = textarea.value
-														textarea.value = value.substring(0, start) + '\t' + value.substring(end)
-														textarea.selectionStart = textarea.selectionEnd = start + 1
-														// React Hook Formの値も更新
-														if (typeof field?.onChange === 'function') {
-															field.onChange(textarea.value)
-														}
-													}
+											<DropZone
+												onDrop={(e) => {
+													const targetFile = e.items[0]
+													if (targetFile.kind !== 'file') return
+													targetFile.getFile().then((f) => {
+														setImageFile(f)
+													})
 												}}
-											/>
+												className="w-full"
+											>
+												<TextArea
+													ref={textareaRef}
+													rows={10}
+													className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
+													placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
+													onKeyDown={(e) => {
+														if (e.key === 'Tab') {
+															e.preventDefault()
+															const textarea = e.currentTarget
+															const start = textarea.selectionStart
+															const end = textarea.selectionEnd
+															const value = textarea.value
+															textarea.value = value.substring(0, start) + '\t' + value.substring(end)
+															textarea.selectionStart = textarea.selectionEnd = start + 1
+															// React Hook Formの値も更新
+															if (typeof field?.onChange === 'function') {
+																field.onChange(textarea.value)
+															}
+														}
+													}}
+												/>
+											</DropZone>
 										}
 									></InputField>
 								)}

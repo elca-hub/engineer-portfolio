@@ -1,11 +1,16 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"os"
 
-	sql_inter "devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"devport/infra/database/sqlboiler/repository"
+	"devport/infra/database/sqlboiler/seed"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type SqlBoilerHandler struct {
@@ -32,17 +37,22 @@ func NewSqlBoilerHandler(c *MysqlConfig) (*SqlBoilerHandler, error) {
 		return nil, err
 	}
 
+	if os.Getenv("GO_ENVIRONMENT") == "development" {
+		// seedのデータを作成
+		seed.CreateUserSeed(context.Background(), db)
+	}
+
 	return &SqlBoilerHandler{db: db}, nil
 }
 
-func (h *SqlBoilerHandler) UserRepository() sql_inter.UserRepository {
+func (h *SqlBoilerHandler) UserRepository() db.UserRepository {
 	return repository.NewSqlBoilerUserRepository(h.db)
 }
 
-func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() sql_inter.ExternalServiceUrlsRepository {
+func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() db.ExternalServiceUrlsRepository {
 	return repository.NewSqlBoilerExternalServiceUrlRepository(h.db)
 }
 
-func (h *SqlBoilerHandler) BioImagesRepository() sql_inter.BioImagesRepository {
+func (h *SqlBoilerHandler) BioImagesRepository() db.BioImagesRepository {
 	return repository.NewSqlBoilerBioImagesRepository(h.db)
 }

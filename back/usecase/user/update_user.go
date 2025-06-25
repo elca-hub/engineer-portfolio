@@ -4,7 +4,8 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
+	"devport/domain/repo/file_storage"
 	"time"
 )
 
@@ -26,22 +27,25 @@ type (
 	}
 
 	updateUserInterator struct {
-		userRepository                sql.UserRepository
-		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
+		userRepository                db.UserRepository
+		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
+		bioSentenceStorage            file_storage.BioSentenceStorageRepository
 		presenter                     UpdateUserPresenter
 		ctxTimeout                    time.Duration
 	}
 )
 
 func NewUpdateUserInterator(
-	userRepository sql.UserRepository,
-	externalServiceUrlsRepository sql.ExternalServiceUrlsRepository,
+	userRepository db.UserRepository,
+	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
+	bioSentenceStorage file_storage.BioSentenceStorageRepository,
 	presenter UpdateUserPresenter,
 	t time.Duration,
 ) UpdateUserUseCase {
 	return updateUserInterator{
 		userRepository:                userRepository,
 		externalServiceUrlsRepository: externalServiceUrlsRepository,
+		bioSentenceStorage:            bioSentenceStorage,
 		presenter:                     presenter,
 		ctxTimeout:                    t,
 	}
@@ -51,52 +55,34 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	user, err := i.userRepository.FindById(ctx, input.User.UserId)
+	user, err := i.userRepository.FindById(ctx, input.User.UserId, nil)
 	if err != nil {
 		return UpdateUserOutput{}, err
 	}
 
-	if input.User.Name != "" {
-		if err := user.UpdateName(input.User.Name); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	if err := user.UpdateName(input.User.Name); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.Birthday != "" {
-		jst, _ := time.LoadLocation("Asia/Tokyo")
-		birthday, err := time.ParseInLocation("2006-01-02", input.User.Birthday, jst)
-		if err != nil {
-			return UpdateUserOutput{}, err
-		}
-		if err := user.UpdateBirthday(birthday); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	jst, _ := time.LoadLocation("Asia/Tokyo")
+	birthday, err := time.ParseInLocation("2006-01-02", input.User.Birthday, jst)
+	if err != nil {
+		return UpdateUserOutput{}, err
+	}
+	if err := user.UpdateBirthday(birthday); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.IconName != "" {
-		user.UpdateIconName(input.User.IconName)
+	if err := user.UpdateOrganizationName(input.User.OrganizationName); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.HeaderIconName != "" {
-		user.UpdateHeaderIconName(input.User.HeaderIconName)
+	if err := user.UpdateOccupationName(input.User.OccupationName); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
-	if input.User.OrganizationName != "" {
-		if err := user.UpdateOrganizationName(input.User.OrganizationName); err != nil {
-			return UpdateUserOutput{}, err
-		}
-	}
-
-	if input.User.OccupationName != "" {
-		if err := user.UpdateOccupationName(input.User.OccupationName); err != nil {
-			return UpdateUserOutput{}, err
-		}
-	}
-
-	if input.User.Place != "" {
-		if err := user.UpdatePlace(input.User.Place); err != nil {
-			return UpdateUserOutput{}, err
-		}
+	if err := user.UpdatePlace(input.User.Place); err != nil {
+		return UpdateUserOutput{}, err
 	}
 
 	if err := i.userRepository.Update(tx, user); err != nil {

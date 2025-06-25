@@ -7,3 +7,9 @@ body {
 	background: var(--background);
 	font-family: var(--font-noto-sans-jp), Helvetica, sans-serif;
 }
+
+/* tableのdragdrop時のcssスタイル */
+.react-aria-DropIndicator[data-drop-target] {
+	outline: 1px solid #A8C8D6;
+	transform: translateZ(0);
+}

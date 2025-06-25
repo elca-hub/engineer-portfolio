@@ -22,13 +22,12 @@ type Props = {
 	user: UserType
 	isAuthUser: boolean
 	externalServiceUrls: ExternalServiceUrlType[]
-	bio: string | null
 }
 
 /**
  * @package
  */
-export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls, bio }: Props) {
+export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls }: Props) {
 	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-border outline-primary data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
 
 	return (
@@ -128,10 +127,10 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 				</section>
 
 				<section>
-					{bio ? (
+					{user.bio ? (
 						<div className="mt-4 bg-white rounded-md py-6 px-10">
 							<h2 className="text-2xl font-bold mb-6">自己紹介</h2>
-							<CustomMarkdown>{bio}</CustomMarkdown>
+							<CustomMarkdown>{user.bio}</CustomMarkdown>
 						</div>
 					) : (
 						<p className="text-subtext">自己紹介はありません</p>
@@ -153,7 +152,7 @@ function ProfileLinkComponent({ url, serviceType }: { url: string; serviceType: 
 				alt={`icon of ${text}`}
 				width={16}
 				height={16}
-				className="size-[12px]"
+				className="size-[16px]"
 			/>
 			<p>{text}</p>
 		</Link>

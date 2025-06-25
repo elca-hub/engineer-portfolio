@@ -23,7 +23,7 @@ type HttpServerConfig struct {
 	webServer     router.Server
 	webServerPort router.Port
 	email         email.Email
-	fileUploader  file_uploader.FileUploader
+	fileUploader  file_uploader.StorageRepositoryInter
 }
 
 func NewHttpServerConfig() *HttpServerConfig {
@@ -101,7 +101,7 @@ func (c *HttpServerConfig) Email() *HttpServerConfig {
 }
 
 func (c *HttpServerConfig) FileUploader(instance int) *HttpServerConfig {
-	uploader, err := file_uploader.NewFileUploaderFactory(instance)
+	uploader, err := file_uploader.NewStorageRepositoryFactory(instance)
 
 	if err != nil {
 		panic(err)

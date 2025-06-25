@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"time"
 )
 
@@ -26,16 +26,16 @@ type (
 	}
 
 	findByUserExternalServiceUrlInterator struct {
-		userRepo   sql.UserRepository
-		esuRepo    sql.ExternalServiceUrlsRepository
+		userRepo   db.UserRepository
+		esuRepo    db.ExternalServiceUrlsRepository
 		presenter  FindByUserExternalServiceUrlPresenter
 		ctxTimeout time.Duration
 	}
 )
 
 func NewFindByUserExternalServiceUrlInterator(
-	sqlRepository sql.UserRepository,
-	esuRepository sql.ExternalServiceUrlsRepository,
+	sqlRepository db.UserRepository,
+	esuRepository db.ExternalServiceUrlsRepository,
 	presenter FindByUserExternalServiceUrlPresenter,
 	t time.Duration,
 ) FindByUserExternalServiceUrlUseCase {
@@ -51,7 +51,7 @@ func (i findByUserExternalServiceUrlInterator) Execute(tx context.Context, input
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	userModel, err := i.userRepo.FindById(ctx, input.UserId)
+	userModel, err := i.userRepo.FindById(ctx, input.UserId, nil)
 
 	if err != nil {
 		return FindByUserExternalServiceUrlOutput{}, err

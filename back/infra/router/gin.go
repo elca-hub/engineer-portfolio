@@ -5,6 +5,7 @@ import (
 	"devport/adapter/api/action"
 	"devport/adapter/logger"
 	"devport/adapter/validator"
+	"devport/domain/domain_service"
 	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
@@ -36,10 +37,8 @@ type GinEngine struct {
 	validator    validator.Validator
 	log          logger.Logger
 	email        email.Email
-	fileUploader file_uploader.FileUploader
+	fileUploader file_uploader.StorageRepositoryInter
 }
-
-const csrfTokenName = "dp_csrf_token"
 
 func NewGinServer(
 	port Port,
@@ -49,7 +48,7 @@ func NewGinServer(
 	log logger.Logger,
 	session database.NoSQLInter,
 	email email.Email,
-	fileUploader file_uploader.FileUploader,
+	fileUploader file_uploader.StorageRepositoryInter,
 ) *GinEngine {
 	return &GinEngine{
 		router:       gin.New(),
@@ -131,14 +130,14 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 		{
 			authRouterGroup.Use(e.verifyCookieTokenAction())
 			authRouterGroup.GET("/health_check", e.healthCheckAction()) // 認証状態の確認
-			userAuthRouterGroup := authRouterGroup.Group("/user")
+			userAuthRouterGroup := authRouterGroup.Group("/user")       // ユーザ関連
 			{
 				userAuthRouterGroup.PUT("/", e.updateUserAction())
 				userAuthRouterGroup.PUT("/image", e.uploadUserImageAction())
 				userAuthRouterGroup.POST("/logout", e.logoutUserAction())
 				userAuthRouterGroup.GET("/", e.getUserInfoAction())
 
-				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url")
+				externalServiceUrlAuthRouterGroup := userAuthRouterGroup.Group("/external-service-url") // 外部サービスURL関連
 				{
 					externalServiceUrlAuthRouterGroup.POST("/", e.createExternalServiceUrlAction())
 					externalServiceUrlAuthItemRouterGroup := externalServiceUrlAuthRouterGroup.Group("/:externalServiceUrlId")
@@ -148,7 +147,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 					}
 				}
 
-				bioAuthRouterGroup := userAuthRouterGroup.Group("/bio")
+				bioAuthRouterGroup := userAuthRouterGroup.Group("/bio") // 自己紹介関連
 				{
 					bioAuthRouterGroup.POST("/", e.uploadBioAction())
 					bioAuthRouterGroup.POST("/image", e.uploadBioImageAction())
@@ -227,6 +226,7 @@ func (e *GinEngine) getUserInfoAction() gin.HandlerFunc {
 		var (
 			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
 				user_presenter.NewGetUserInfoPresenter(),
 				e.ctxTimeout,
 			)
@@ -272,9 +272,10 @@ func (e *GinEngine) isExistsUserAction() gin.HandlerFunc {
 func (e *GinEngine) fetchUserInfoAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
-			uc = user.NewFetchUserInfoInterator(
+			uc = user.NewGetUserInfoInterator(
 				e.sql.UserRepository(),
-				user_presenter.NewFetchUserInfoPresenter(),
+				e.fileUploader.BioSentenceStorageRepository(),
+				user_presenter.NewGetUserInfoPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -291,6 +292,7 @@ func (e *GinEngine) updateUserAction() gin.HandlerFunc {
 			uc = user.NewUpdateUserInterator(
 				e.sql.UserRepository(),
 				e.sql.ExternalServiceUrlsRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
 				user_presenter.NewUpdateUserPresenter(),
 				e.ctxTimeout,
 			)
@@ -306,7 +308,9 @@ func (e *GinEngine) uploadUserImageAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadUserImageInterator(
-				e.fileUploader,
+				e.sql.UserRepository(),
+				e.fileUploader.IconImageStorageRepository(),
+				e.fileUploader.HeaderImageStorageRepository(),
 				user_presenter.NewUploadUserImagePresenter(),
 				e.ctxTimeout,
 			)
@@ -390,10 +394,12 @@ func (e *GinEngine) uploadBioAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadBioInteractor(
-				e.fileUploader,
-				user_presenter.NewUploadBioPresenter(),
+				domain_service.NewBioService(e.fileUploader.BioImageStorageRepository()),
 				e.sql.UserRepository(),
 				e.sql.BioImagesRepository(),
+				e.fileUploader.BioSentenceStorageRepository(),
+				e.fileUploader.BioImageStorageRepository(),
+				user_presenter.NewUploadBioPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -408,10 +414,10 @@ func (e *GinEngine) uploadBioImageAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = user.NewUploadBioImageInteractor(
-				e.fileUploader,
-				user_presenter.NewUploadBioImagePresenter(),
 				e.sql.UserRepository(),
+				e.fileUploader.BioImageStorageRepository(),
 				e.sql.BioImagesRepository(),
+				user_presenter.NewUploadBioImagePresenter(),
 				e.ctxTimeout,
 			)
 

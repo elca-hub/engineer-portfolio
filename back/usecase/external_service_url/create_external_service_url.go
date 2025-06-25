@@ -4,7 +4,7 @@ import (
 	"context"
 	"devport/domain/dto"
 	"devport/domain/model"
-	"devport/domain/repo/sql"
+	"devport/domain/repo/db"
 	"fmt"
 	"time"
 
@@ -31,16 +31,16 @@ type (
 	}
 
 	createExternalServiceUrlInteractor struct {
-		externalServiceUrlsRepository sql.ExternalServiceUrlsRepository
-		userRepository                sql.UserRepository
+		externalServiceUrlsRepository db.ExternalServiceUrlsRepository
+		userRepository                db.UserRepository
 		presenter                     CreateExternalServiceUrlPresenter
 		ctxTimeout                    time.Duration
 	}
 )
 
 func NewCreateExternalServiceUrlInteractor(
-	externalServiceUrlsRepository sql.ExternalServiceUrlsRepository,
-	userRepository sql.UserRepository,
+	externalServiceUrlsRepository db.ExternalServiceUrlsRepository,
+	userRepository db.UserRepository,
 	presenter CreateExternalServiceUrlPresenter,
 	t time.Duration,
 ) CreateExternalServiceUrlUseCase {
@@ -71,7 +71,7 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return err
 		}
 
-		user, err := i.userRepository.FindById(ctx, input.UserId)
+		user, err := i.userRepository.FindById(ctx, input.UserId, nil)
 
 		if err != nil {
 			return err

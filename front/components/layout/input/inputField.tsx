@@ -16,6 +16,7 @@ interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivEle
 	rows?: number
 	customInput?: React.ReactNode
 	isLoading?: boolean
+	placeholder?: string
 }
 
 const InputField = ({ ...props }: InputFieldProps) => {
@@ -68,7 +69,10 @@ const InputField = ({ ...props }: InputFieldProps) => {
 				// />
 				props.customInput
 			) : (
-				<Input className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" />
+				<Input
+					placeholder={props.placeholder}
+					className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+				/>
 			)}
 			<Text slot="description" className="text-sm text-subtext">
 				{props.helperText}
