@@ -2,20 +2,13 @@
 
 import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { UserType } from '@/action/type/user'
-import BasicSettingTabPresentation from '@/app/_containers/profile/tabs/BasicSettingTabPresentation'
-import BioSettingTabPresentation from '@/app/_containers/profile/tabs/BioSettingTabPresentation'
-import LinksSettingTabPresentation from '@/app/_containers/profile/tabs/LinksSettingTabPresentation'
-import ProfileImageTabPresentation from '@/app/_containers/profile/tabs/ProfileImageTabPresentation'
 import CustomMarkdown from '@/components/layout/markdown/CustomMarkdown'
-import DPModal from '@/components/layout/modal'
-import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { ImageNameByServiceType, ServiceTypeToServiceName } from '@/lib/externalServiceUrl'
 import Image from 'next/image'
 import Link from 'next/link'
-import { DialogTrigger, Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
-import { RiBriefcaseLine, RiBuilding2Line, RiMapPinLine, RiUserLine } from 'react-icons/ri'
+import { RiBriefcaseLine, RiBuilding2Line, RiCheckboxCircleLine, RiMapPinLine } from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -28,8 +21,6 @@ type Props = {
  * @package
  */
 export default function ProfilePresentation({ header, user, isAuthUser, externalServiceUrls }: Props) {
-	const tabItemClassName = `cursor-pointer text-lg text-subtext outline-border outline-primary data-[selected]:border-b data-[selected]:border-primary data-[selected]:font-medium data-[selected]:text-foreground`
-
 	return (
 		<div className="flex flex-col h-screen">
 			{header}
@@ -56,45 +47,9 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						/>
 						<div className="flex flex-col mb-1 bg-white/70 rounded-lg p-2 md:bg-transparent">
 							{isAuthUser && (
-								<DialogTrigger>
-									<DPButton colormode="primary">
-										<p className="text-sm">
-											<TextWithIcon icon={<RiUserLine />}>プロフィール編集</TextWithIcon>
-										</p>
-									</DPButton>
-									<DPModal header={{ title: 'プロフィール編集', icon: <RiUserLine /> }}>
-										<Tabs>
-											<TabList aria-label="プロフィール編集" className="flex justify-center gap-x-4 mb-4">
-												<Tab id="image" className={tabItemClassName}>
-													画像
-												</Tab>
-												<Tab id="basic" className={tabItemClassName}>
-													基本情報
-												</Tab>
-												<Tab id="links" className={tabItemClassName}>
-													リンク
-												</Tab>
-												<Tab id="bio" className={tabItemClassName}>
-													自己紹介
-												</Tab>
-											</TabList>
-											<TabPanel id="image">
-												<div className="relative mb-14">
-													<ProfileImageTabPresentation user={user} />
-												</div>
-											</TabPanel>
-											<TabPanel id="basic">
-												<BasicSettingTabPresentation user={user} />
-											</TabPanel>
-											<TabPanel id="links">
-												<LinksSettingTabPresentation externalServiceUrls={externalServiceUrls} />
-											</TabPanel>
-											<TabPanel id="bio">
-												<BioSettingTabPresentation user={user} />
-											</TabPanel>
-										</Tabs>
-									</DPModal>
-								</DialogTrigger>
+								<p className="text-green-600">
+									<TextWithIcon icon={<RiCheckboxCircleLine />}>あなたのアカウントです！</TextWithIcon>
+								</p>
 							)}
 							<h1 className="text-3xl font-bold tracking-wide text-foreground">{user.name}</h1>
 							<p className="text-lg font-medium text-gray-600">@{user.user_id}</p>
