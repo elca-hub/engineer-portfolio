@@ -12,9 +12,10 @@ const (
 )
 
 type Certification struct {
-	name      string
-	year      time.Time
-	comment   string
+	name    string
+	year    time.Time
+	comment string
+
 	sortIndex int
 }
 
