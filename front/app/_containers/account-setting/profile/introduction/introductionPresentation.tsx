@@ -1,3 +1,5 @@
+'use client'
+
 import { UserType } from '@/action/type/user'
 import uploadBio from '@/action/usecase/user/uploadBio'
 import uploadBioImage from '@/action/usecase/user/uploadBioImage'
@@ -20,7 +22,7 @@ export type UserUpdateFormType = {
 	bio: string
 }
 
-export default function BioSettingTabPresentation({ user }: Props) {
+export default function ProfileIntroductionSettingPresentation({ user }: Props) {
 	const router = useRouter()
 
 	const { callout, setCallout } = useContext(CalloutContext)
@@ -60,7 +62,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 		fb()
 	}, [])
 
-	let updatedDate = new Date()
+	const [updateDate, setUpdateDate] = useState(new Date())
 
 	useEffect(() => {
 		if (isSubmit || debouncedValue !== '') {
@@ -81,7 +83,7 @@ export default function BioSettingTabPresentation({ user }: Props) {
 				}
 
 				if (res.data) {
-					updatedDate = new Date()
+					setUpdateDate(new Date())
 					if (isSubmit) {
 						router.refresh()
 						setCallout([...callout, { content: '変更しました', type: 'info' }])
@@ -137,7 +139,9 @@ export default function BioSettingTabPresentation({ user }: Props) {
 		<>
 			<div className="flex justify-left gap-6 text-green-800 mb-4">
 				<TextWithIcon icon={<RiCheckboxCircleLine />}>最終更新日時</TextWithIcon>
-				<p>{updatedDate.toLocaleString()}</p>
+				<time dateTime={updateDate.toISOString()} suppressHydrationWarning>
+					{updateDate.toLocaleString()}
+				</time>
 			</div>
 			<Tabs>
 				<TabList aria-label="自己紹介" className="flex justify-start gap-x-4 mb-4">
