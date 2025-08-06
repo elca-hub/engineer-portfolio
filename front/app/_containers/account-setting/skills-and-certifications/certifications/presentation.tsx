@@ -349,15 +349,15 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 			></CardEdit>
 
 			<CardItem
-				items={currentCertifications.map((skill) => {
+				items={currentCertifications.map((certification) => {
 					return {
-						id: skill.id,
-						sort_index: skill.sort_index,
-						title: skill.name,
+						id: certification.id,
+						sort_index: certification.sort_index,
+						title: certification.name,
 						content: (
 							<>
-								<div className="text-sm text-gray-500">取得(合格): {skill.year}</div>
-								<div className="text-sm text-gray-600 mt-1">{skill.comment}</div>
+								<div className="text-sm text-gray-500">取得(合格): {certification.year}</div>
+								<div className="text-sm text-gray-600 mt-1">{certification.comment}</div>
 							</>
 						),
 					}
