@@ -138,47 +138,47 @@ function ProfileLinkComponent({ url, serviceType }: { url: string; serviceType: 
 
 type ProfileCardType = 'skill' | 'certification'
 
-function ProfileSection({isAuthUser, user, profileCardType}: {isAuthUser: boolean, user: UserType, profileCardType: ProfileCardType}) {
+function ProfileSection({ isAuthUser, user, profileCardType }: { isAuthUser: boolean; user: UserType; profileCardType: ProfileCardType }) {
 	const sectionConfig = {
 		skill: {
 			title: 'スキル',
 			editPath: 'skills',
 			item: user.skills,
-			icon: <RiMedalLine />
+			icon: <RiMedalLine />,
 		},
 		certification: {
 			title: '資格',
 			editPath: 'certifications',
 			item: user.certifications,
-			icon: <RiMedal2Line />
-		}
+			icon: <RiMedal2Line />,
+		},
 	}
 
 	const sectionValue = sectionConfig[profileCardType]
 
 	return (
 		<section className="mt-10">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-2xl font-bold">
-							<TextWithIcon icon={sectionValue.icon}>{sectionValue.title}</TextWithIcon>
-						</h2>
-						{isAuthUser && (
-							<Link href={`/account/setting/skills-and-certifications/${sectionValue.editPath}`}>
-								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
-									<RiEditLine className="w-4 h-4" />
-									編集
-								</DPButton>
-							</Link>
-						)}
-					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-						{sectionValue.item.length === 0 ? (
-							<p className="text-subtext">{sectionValue.title}の記載がありません...</p>
-						) : (
-							sectionValue.item.map((item) => <ProfileCard item={item} type={profileCardType} key={item.id} />)
-						)}
-					</div>
-				</section>
+			<div className="flex justify-between items-center mb-6">
+				<h2 className="text-2xl font-bold">
+					<TextWithIcon icon={sectionValue.icon}>{sectionValue.title}</TextWithIcon>
+				</h2>
+				{isAuthUser && (
+					<Link href={`/account/setting/skills-and-certifications/${sectionValue.editPath}`}>
+						<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
+							<RiEditLine className="w-4 h-4" />
+							編集
+						</DPButton>
+					</Link>
+				)}
+			</div>
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+				{sectionValue.item.length === 0 ? (
+					<p className="text-subtext">{sectionValue.title}の記載がありません...</p>
+				) : (
+					sectionValue.item.map((item) => <ProfileCard item={item} type={profileCardType} key={item.id} />)
+				)}
+			</div>
+		</section>
 	)
 }
 
@@ -189,13 +189,13 @@ function ProfileCard({ item, type }: { item: SkillType | CertificationType; type
 		skill: {
 			badgeColor: 'bg-blue-100 text-blue-800',
 			badgeText: 'スキル',
-			dateLabel: '学習開始'
+			dateLabel: '学習開始',
 		},
 		certification: {
 			badgeColor: 'bg-green-100 text-green-800',
 			badgeText: '資格',
-			dateLabel: '取得'
-		}
+			dateLabel: '取得',
+		},
 	}
 
 	const cardValue = cardConfig[type]
