@@ -3,6 +3,7 @@
 import { SkillType } from '@/action/type/skill'
 import { UserType } from '@/action/type/user'
 import createSkill from '@/action/usecase/skills/create'
+import deleteSkill from '@/action/usecase/skills/delete'
 import fetchByUserId from '@/action/usecase/skills/fetchByUserId'
 import updateSkill from '@/action/usecase/skills/update'
 import updateSkillsSort from '@/action/usecase/skills/updateSort'
@@ -169,9 +170,17 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const updatedSkills = currentSkills.filter((skill) => skill.id !== skillId)
-			setCurrentSkills(updatedSkills)
+			const res = await deleteSkill(token, skillId)
+
+			if (res.errors) {
+				for (const error of res.errors) {
+					setCallout([...callout, { content: error, type: 'error' }])
+				}
+				return
+			}
 			setCallout([...callout, { content: 'スキルを削除しました', type: 'success' }])
+
+			updateSkillsList()
 		} catch (error) {
 			console.error(error)
 			setCallout([...callout, { content: 'スキルの削除に失敗しました', type: 'error' }])
