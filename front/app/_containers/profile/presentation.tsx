@@ -8,6 +8,7 @@ import CustomMarkdown from '@/components/layout/markdown/CustomMarkdown'
 import DPButton from '@/components/ui/button/button'
 import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import formatDate from '@/lib/date'
 import { ImageNameByServiceType, ServiceTypeToServiceName } from '@/lib/externalServiceUrl'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -209,7 +210,7 @@ function ProfileCard({ item, type }: { item: SkillType | CertificationType; type
 			<h3 className="text-lg font-bold mb-2 text-gray-900 line-clamp-2">{item.name}</h3>
 
 			<div className="text-sm text-gray-600 mb-4">
-				<span className="font-medium">{cardValue.dateLabel}年月日:</span> {item.year}
+				<span className="font-medium">{cardValue.dateLabel}年月日:</span> {formatDate(item.year)}
 			</div>
 
 			<div className="mt-4">
