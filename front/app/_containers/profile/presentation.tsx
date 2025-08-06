@@ -49,9 +49,9 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 							className="size-[120px] md:size-[170px] border-2 border-white shadow-md rounded-xl object-cover"
 							priority
 						/>
-						<div className="flex flex-col mb-1 bg-white/70 rounded-lg p-2 md:bg-transparent">
+						<div className="flex flex-col mb-1 bg-white/70 rounded-lg p-2 md:bg-transparent mr-2 md:mr-0">
 							{isAuthUser && (
-								<p className="text-green-600">
+								<p className="text-green-600 text-sm md:text-base">
 									<TextWithIcon icon={<RiCheckboxCircleLine />}>あなたのアカウントです！</TextWithIcon>
 								</p>
 							)}
@@ -91,7 +91,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 							<h2 className="text-2xl font-bold mb-6">
 								<TextWithIcon icon={<RiChat1Line />}>自己紹介</TextWithIcon>
 							</h2>
-							<div className="mt-4 bg-white rounded-md py-6 px-10">
+							<div className="mt-4 bg-white rounded-md py-6 px-4 md:px-10">
 								<CustomMarkdown>{user.bio}</CustomMarkdown>
 							</div>
 						</>
