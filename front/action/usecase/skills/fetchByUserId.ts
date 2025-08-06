@@ -14,8 +14,6 @@ export default async function fetchByUserId(userId: string): Promise<
 	const fetchUser = await fetch(`${apiPrefix}/user/${userId}/skills/`, {
 		method: 'GET',
 	})
-
-	console.log(fetchUser)
-
+	
 	return await NewDPResponse<{ skills: SkillType[] }>(fetchUser)
 }
