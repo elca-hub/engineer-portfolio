@@ -3,7 +3,7 @@
 import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import React, { useState } from 'react'
-import { RiCheckLine, RiDeleteBinLine, RiEditLine, RiMenu3Line } from 'react-icons/ri'
+import { RiCheckLine, RiDeleteBinLine, RiEditLine, RiListCheck, RiMenu3Line } from 'react-icons/ri'
 
 type cardItemProps = {
 	items: {
@@ -94,7 +94,9 @@ export default function CardItem(props: cardItemProps) {
 	return (
 		<div className="bg-white p-6 rounded-lg shadow-sm border">
 			<div className="flex justify-between items-center mb-4">
-				<h3 className="text-lg font-semibold">一覧</h3>
+				<h3 className="text-lg font-semibold">
+					<TextWithIcon icon={<RiListCheck></RiListCheck>}>一覧</TextWithIcon>
+				</h3>
 				{isSorting && (
 					<div className="flex gap-2">
 						<DPButton colormode="primary" onPress={handleConfirmSort} isDisabled={props.isSubmitting}>
