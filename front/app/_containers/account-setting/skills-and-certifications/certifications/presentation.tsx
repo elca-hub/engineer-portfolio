@@ -307,7 +307,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 								rules={{
 									maxLength: {
 										value: 500,
-										message: 'コメントは5000文字以内で入力してください',
+										message: 'コメントは500文字以内で入力してください',
 									},
 								}}
 								render={({ field, fieldState }) => (
