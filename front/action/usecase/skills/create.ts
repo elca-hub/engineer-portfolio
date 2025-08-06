@@ -4,7 +4,7 @@ import { SkillType } from '@/action/type/skill'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 
-type CreateExternalServiceUrlParams = {
+type CreateSkillParams = {
 	name: string
 	year: string
 	comment: string
@@ -12,7 +12,7 @@ type CreateExternalServiceUrlParams = {
 
 export default async function createSkill(
 	token: string,
-	params: CreateExternalServiceUrlParams,
+	params: CreateSkillParams,
 ): Promise<
 	DPResponseData<{
 		skill: SkillType
