@@ -36,13 +36,13 @@ type (
 )
 
 func NewUpdateCertificationSortInteractor(
-	skillsRepository db.CertificationsRepository,
+	certificationsRepository db.CertificationsRepository,
 	userRepository db.UserRepository,
 	presenter UpdateCertificationSortPresenter,
 	t time.Duration,
 ) UpdateCertificationsSortUseCase {
 	return updateCertificationSortInteractor{
-		certificationsRepository: skillsRepository,
+		certificationsRepository: certificationsRepository,
 		userRepository:           userRepository,
 		presenter:                presenter,
 		ctxTimeout:               t,
@@ -54,18 +54,18 @@ func (i updateCertificationSortInteractor) Execute(ctx context.Context, input Up
 	defer cancel()
 
 	err := i.certificationsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		for _, skillSort := range input.SortList {
-			skill, err := i.certificationsRepository.FindByID(ctx, input.UserId, skillSort.ID)
+		for _, certificationSort := range input.SortList {
+			certification, err := i.certificationsRepository.FindByID(ctx, input.UserId, certificationSort.ID)
 
 			if err != nil {
 				return err
 			}
 
-			if err := skill.UpdateSortIndex(skillSort.SortIndex); err != nil {
+			if err := certification.UpdateSortIndex(certificationSort.SortIndex); err != nil {
 				return err
 			}
 
-			if err := i.certificationsRepository.Update(ctx, skill, input.UserId); err != nil {
+			if err := i.certificationsRepository.Update(ctx, certification, input.UserId); err != nil {
 				return err
 			}
 		}
