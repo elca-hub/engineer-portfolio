@@ -148,7 +148,7 @@ func updateSkillsLogic(skills []*Skill) ([]*Skill, error) {
 }
 
 func updateCertificationsLogic(certifications []*Certification) ([]*Certification, error) {
-	if len(certifications) > MaxUserSkillsLen {
+	if len(certifications) > MaxUserCertificationsLen {
 		return nil, fmt.Errorf("資格は%d個まで登録できます", MaxUserCertificationsLen)
 	}
 
