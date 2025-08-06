@@ -110,51 +110,9 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 					)}
 				</section>
 
-				<section className="mt-10">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-2xl font-bold">
-							<TextWithIcon icon={<RiMedal2Line />}>スキル</TextWithIcon>
-						</h2>
-						{isAuthUser && (
-							<Link href="/account/setting/skills-and-certifications/skills">
-								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
-									<RiEditLine className="w-4 h-4" />
-									編集
-								</DPButton>
-							</Link>
-						)}
-					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-						{user.skills.length === 0 ? (
-							<p className="text-subtext">スキルの記載がありません...</p>
-						) : (
-							user.skills.map((skill) => <ProfileCard item={skill} type="skill" key={skill.id} />)
-						)}
-					</div>
-				</section>
+				<ProfileSection isAuthUser={isAuthUser} user={user} profileCardType="skill" />
 
-				<section className="mt-10">
-					<div className="flex justify-between items-center mb-6">
-						<h2 className="text-2xl font-bold">
-							<TextWithIcon icon={<RiMedalLine />}>資格</TextWithIcon>
-						</h2>
-						{isAuthUser && (
-							<Link href="/account/setting/skills-and-certifications/certifications">
-								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
-									<RiEditLine className="w-4 h-4" />
-									編集
-								</DPButton>
-							</Link>
-						)}
-					</div>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
-						{user.certifications.length === 0 ? (
-							<p className="text-subtext">資格の記載がありません...</p>
-						) : (
-							user.certifications.map((certification) => <ProfileCard item={certification} type="certification" key={certification.id} />)
-						)}
-					</div>
-				</section>
+				<ProfileSection isAuthUser={isAuthUser} user={user} profileCardType="certification" />
 			</main>
 		</div>
 	)
@@ -178,26 +136,80 @@ function ProfileLinkComponent({ url, serviceType }: { url: string; serviceType: 
 	)
 }
 
-type ProfileCardItem = SkillType | CertificationType
 type ProfileCardType = 'skill' | 'certification'
 
-function ProfileCard({ item, type }: { item: ProfileCardItem; type: ProfileCardType }) {
+function ProfileSection({isAuthUser, user, profileCardType}: {isAuthUser: boolean, user: UserType, profileCardType: ProfileCardType}) {
+	const sectionConfig = {
+		skill: {
+			title: 'スキル',
+			editPath: 'skills',
+			item: user.skills,
+			icon: <RiMedalLine />
+		},
+		certification: {
+			title: '資格',
+			editPath: 'certifications',
+			item: user.certifications,
+			icon: <RiMedal2Line />
+		}
+	}
+
+	const sectionValue = sectionConfig[profileCardType]
+
+	return (
+		<section className="mt-10">
+					<div className="flex justify-between items-center mb-6">
+						<h2 className="text-2xl font-bold">
+							<TextWithIcon icon={sectionValue.icon}>{sectionValue.title}</TextWithIcon>
+						</h2>
+						{isAuthUser && (
+							<Link href={`/account/setting/skills-and-certifications/${sectionValue.editPath}`}>
+								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
+									<RiEditLine className="w-4 h-4" />
+									編集
+								</DPButton>
+							</Link>
+						)}
+					</div>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+						{sectionValue.item.length === 0 ? (
+							<p className="text-subtext">{sectionValue.title}の記載がありません...</p>
+						) : (
+							sectionValue.item.map((item) => <ProfileCard item={item} type={profileCardType} key={item.id} />)
+						)}
+					</div>
+				</section>
+	)
+}
+
+function ProfileCard({ item, type }: { item: SkillType | CertificationType; type: ProfileCardType }) {
 	const [isCommentOpen, setIsCommentOpen] = useState(false)
 
-	const badgeColor = type === 'skill' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-	const badgeText = type === 'skill' ? 'スキル' : '資格'
-	const dateLabel = type === 'skill' ? '学習開始' : '取得'
+	const cardConfig = {
+		skill: {
+			badgeColor: 'bg-blue-100 text-blue-800',
+			badgeText: 'スキル',
+			dateLabel: '学習開始'
+		},
+		certification: {
+			badgeColor: 'bg-green-100 text-green-800',
+			badgeText: '資格',
+			dateLabel: '取得'
+		}
+	}
+
+	const cardValue = cardConfig[type]
 
 	return (
 		<div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
 			<div className="flex justify-between items-start mb-4">
-				<span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${badgeColor}`}>{badgeText}</span>
+				<span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${cardValue.badgeColor}`}>{cardValue.badgeText}</span>
 			</div>
 
 			<h3 className="text-lg font-bold mb-2 text-gray-900 line-clamp-2">{item.name}</h3>
 
 			<div className="text-sm text-gray-600 mb-4">
-				<span className="font-medium">{dateLabel}年月日:</span> {item.year}
+				<span className="font-medium">{cardValue.dateLabel}年月日:</span> {item.year}
 			</div>
 
 			<div className="mt-4">
@@ -206,6 +218,8 @@ function ProfileCard({ item, type }: { item: ProfileCardItem; type: ProfileCardT
 						<button
 							onClick={() => setIsCommentOpen(!isCommentOpen)}
 							className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+							aria-expanded={isCommentOpen}
+							aria-controls={`comment-${item.id}`}
 						>
 							<span className={`transition-transform duration-200 ${isCommentOpen ? 'rotate-180' : ''}`}>
 								<RiArrowDownSLine className="w-4 h-4" />
@@ -214,6 +228,7 @@ function ProfileCard({ item, type }: { item: ProfileCardItem; type: ProfileCardT
 						</button>
 						<div
 							className={`overflow-hidden transition-all duration-300 ease-in-out ${isCommentOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
+							id={`comment-${item.id}`}
 						>
 							<div className="mt-3 p-3 bg-gray-50 rounded-md">
 								<CustomMarkdown>{item.comment}</CustomMarkdown>
