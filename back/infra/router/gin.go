@@ -185,6 +185,9 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 				{
 					certificationAuthRouterGroup.POST("/", e.createCertificationAction())
 					certificationAuthRouterGroup.GET("/", e.findCertificationsByUserAction())
+
+					certificationAuthRouterGroup.PUT("/sort", e.updateCertificationsSortAction())
+
 					certificationAuthItemRouterGroup := certificationAuthRouterGroup.Group("/:certificationId")
 					{
 						certificationAuthItemRouterGroup.PUT("/", e.updateCertificationAction())
@@ -524,6 +527,7 @@ func (e *GinEngine) deleteSkillAction() gin.HandlerFunc {
 			uc = skill.NewDeleteSkillInteractor(
 				e.sql.SkillsRepository(),
 				e.sql.UserRepository(),
+				skill_presenter.NewDeleteSkillPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -602,12 +606,30 @@ func (e *GinEngine) updateCertificationAction() gin.HandlerFunc {
 	}
 }
 
+func (e *GinEngine) updateCertificationsSortAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewUpdateCertificationSortInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewUpdateCertificationsSortPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateCertificationsSortAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
 func (e *GinEngine) deleteCertificationAction() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var (
 			uc = certification.NewDeleteCertificationInteractor(
 				e.sql.CertificationsRepository(),
 				e.sql.UserRepository(),
+				certification_presenter.NewDeleteCertificationPresenter(),
 				e.ctxTimeout,
 			)
 

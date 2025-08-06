@@ -15,7 +15,5 @@ export default async function fetchByUserId(userId: string): Promise<
 		method: 'GET',
 	})
 
-	console.log(fetchUser)
-
 	return await NewDPResponse<{ skills: SkillType[] }>(fetchUser)
 }

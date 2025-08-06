@@ -27,7 +27,6 @@ export function validateUserId(userId: string): boolean {
 		'$',
 		'%',
 		'&',
-		'',
 		'(',
 		')',
 		'+',

@@ -3,12 +3,13 @@ package certification
 import (
 	"context"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
 type (
 	DeleteCertificationUseCase interface {
-		Execute(context.Context, DeleteCertificationInput) error
+		Execute(context.Context, DeleteCertificationInput) (DeleteCertificationOutput, error)
 	}
 
 	DeleteCertificationInput struct {
@@ -16,9 +17,16 @@ type (
 		UserId string `validate:"required"`
 	}
 
+	DeleteCertificationOutput struct{}
+
+	DeleteCertificationPresenter interface {
+		Output() DeleteCertificationOutput
+	}
+
 	deleteCertificationInteractor struct {
 		certificationsRepository db.CertificationsRepository
 		userRepository           db.UserRepository
+		presenter                DeleteCertificationPresenter
 		ctxTimeout               time.Duration
 	}
 )
@@ -26,23 +34,33 @@ type (
 func NewDeleteCertificationInteractor(
 	certificationsRepository db.CertificationsRepository,
 	userRepository db.UserRepository,
+	presenter DeleteCertificationPresenter,
 	t time.Duration,
 ) DeleteCertificationUseCase {
 	return deleteCertificationInteractor{
 		certificationsRepository: certificationsRepository,
 		userRepository:           userRepository,
+		presenter:                presenter,
 		ctxTimeout:               t,
 	}
 }
 
-func (i deleteCertificationInteractor) Execute(ctx context.Context, input DeleteCertificationInput) error {
+func (i deleteCertificationInteractor) Execute(ctx context.Context, input DeleteCertificationInput) (DeleteCertificationOutput, error) {
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	_, err := i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return err
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
+		if err != nil {
+			return DeleteCertificationOutput{}, err
+		}
+		return DeleteCertificationOutput{}, errors.New("user not found")
 	}
 
-	return i.certificationsRepository.Delete(ctx, input.ID)
+	err := i.certificationsRepository.Delete(ctx, input.UserId, input.ID)
+
+	if err != nil {
+		return DeleteCertificationOutput{}, err
+	}
+
+	return i.presenter.Output(), nil
 }

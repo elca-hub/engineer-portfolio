@@ -1,24 +1,24 @@
 'use server'
 
-import { SkillType } from '@/action/type/skill'
+import { CertificationType } from '@/action/type/certification'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 
-type CreateSkillParams = {
+type CreateCertificationParam = {
 	name: string
 	year: string
 	comment: string
 }
 
-export default async function createSkill(
+export default async function createCertification(
 	token: string,
-	params: CreateSkillParams,
+	params: CreateCertificationParam,
 ): Promise<
 	DPResponseData<{
-		skill: SkillType
+		certification: CertificationType
 	}>
 > {
-	const apiRes = await fetch(`${apiPrefix}/auth/user/skills/`, {
+	const apiRes = await fetch(`${apiPrefix}/auth/user/certifications/`, {
 		method: 'POST',
 		body: JSON.stringify(params),
 		headers: {
@@ -27,5 +27,5 @@ export default async function createSkill(
 		},
 	})
 
-	return await NewDPResponse<{ skill: SkillType }>(apiRes)
+	return await NewDPResponse<{ certification: CertificationType }>(apiRes)
 }

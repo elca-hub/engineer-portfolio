@@ -69,11 +69,11 @@ func (r *SqlBoilerCertificationRepository) Update(ctx context.Context, certifica
 	return err
 }
 
-func (r *SqlBoilerCertificationRepository) Delete(ctx context.Context, id string) error {
+func (r *SqlBoilerCertificationRepository) Delete(ctx context.Context, userId string, id string) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
 	if !ok {
-		_, err := models.Certifications(models.CertificationWhere.ID.EQ(id)).DeleteAll(ctx, r.db)
+		_, err := models.Certifications(models.CertificationWhere.ID.EQ(id), models.CertificationWhere.UserID.EQ(userId)).DeleteAll(ctx, r.db)
 		return err
 	}
 
@@ -83,6 +83,7 @@ func (r *SqlBoilerCertificationRepository) Delete(ctx context.Context, id string
 
 func (r *SqlBoilerCertificationRepository) convertToSqlBoilerModel(certification *model.Certification, userID string) *models.Certification {
 	return &models.Certification{
+		ID:        certification.ID(),
 		Name:      certification.Name(),
 		WhenDate:  certification.Year(),
 		Comment:   null.StringFrom(certification.Comment()),
@@ -108,6 +109,40 @@ func (r *SqlBoilerCertificationRepository) GetMaxSortIndex(ctx context.Context, 
 	}
 
 	return certifications[0].SortIndex, nil
+}
+
+func (r *SqlBoilerCertificationRepository) FindByID(ctx context.Context, userId string, certificationId string) (*model.Certification, error) {
+	certification, err := models.Certifications(
+		models.CertificationWhere.UserID.EQ(userId),
+		models.CertificationWhere.ID.EQ(certificationId),
+	).One(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.convertToDomainModel(certification)
+}
+
+func (r *SqlBoilerCertificationRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	committed := false
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
+
+	if err := fn(context.WithValue(ctx, transactionContextKey, tx)); err != nil {
+		return err
+	}
+
+	committed = true
+
+	return tx.Commit()
 }
 
 func (r *SqlBoilerCertificationRepository) convertToDomainModel(sqlboilerCertification *models.Certification) (*model.Certification, error) {

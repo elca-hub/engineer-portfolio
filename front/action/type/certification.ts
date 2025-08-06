@@ -1,4 +1,4 @@
-export type SkillType = {
+export type CertificationType = {
 	name: string
 	year: string
 	comment: string

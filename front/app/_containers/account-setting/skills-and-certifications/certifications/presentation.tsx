@@ -1,12 +1,12 @@
 'use client'
 
-import { SkillType } from '@/action/type/skill'
+import { CertificationType } from '@/action/type/certification'
 import { UserType } from '@/action/type/user'
-import createSkill from '@/action/usecase/skills/create'
-import deleteSkill from '@/action/usecase/skills/delete'
-import fetchByUserId from '@/action/usecase/skills/fetchByUserId'
-import updateSkill from '@/action/usecase/skills/update'
-import updateSkillsSort from '@/action/usecase/skills/updateSort'
+import createCertification from '@/action/usecase/certifications/create'
+import deleteCertification from '@/action/usecase/certifications/delete'
+import fetchCertificationByUserId from '@/action/usecase/certifications/fetchByUserId'
+import updateCertification from '@/action/usecase/certifications/update'
+import updateCertificationSort from '@/action/usecase/certifications/updateSort'
 import { CalloutContext } from '@/app/state'
 import DatePickerField from '@/components/layout/input/datePickerField'
 import InputField from '@/components/layout/input/inputField'
@@ -19,14 +19,14 @@ import { CalendarDate, getLocalTimeZone, parseDate, today } from '@international
 import { useContext, useEffect, useRef, useState } from 'react'
 import { TextArea } from 'react-aria-components'
 import { Controller, useForm } from 'react-hook-form'
-import { RiAddLine, RiCalendarLine, RiEditLine, RiMedal2Line, RiMessage2Line } from 'react-icons/ri'
+import { RiAddLine, RiCalendarLine, RiEditLine, RiMedalLine, RiMessage2Line } from 'react-icons/ri'
 
 type Props = {
 	user: UserType
 }
 
-export type SkillFormType = {
-	skillName: string
+export type CertificationFormType = {
+	certificationName: string
 	comment: string
 	year: CalendarDate
 }
@@ -34,32 +34,32 @@ export type SkillFormType = {
 /**
  * @package
  */
-export default function SkillsSettingPresentation({ user }: Props) {
+export default function CertificationsSettingPresentation({ user }: Props) {
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 
 	const { callout, setCallout } = useContext(CalloutContext)
 
-	const [currentSkills, setCurrentSkills] = useState<SkillType[]>([])
-	const [editingSkill, setEditingSkill] = useState<SkillType | null>(null)
+	const [currentCertifications, setCurrentCertifications] = useState<CertificationType[]>([])
+	const [editingCertification, setEditingCertification] = useState<CertificationType | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [isFetching, setIsFetching] = useState(false) // スキル一覧の取得
+	const [isFetching, setIsFetching] = useState(false)
 
-	const { control, handleSubmit, reset } = useForm<SkillFormType>({
+	const { control, handleSubmit, reset } = useForm<CertificationFormType>({
 		defaultValues: {
-			skillName: '',
+			certificationName: '',
 			comment: '',
 			year: today('Asia/Tokyo'),
 		},
 	})
 
 	useEffect(() => {
-		updateSkillsList()
+		updateCertificationList()
 	}, [])
 
-	const updateSkillsList = async () => {
+	const updateCertificationList = async () => {
 		setIsFetching(true)
 		try {
-			const res = await fetchByUserId(user.user_id)
+			const res = await fetchCertificationByUserId(user.user_id)
 
 			if (res.errors) {
 				for (const error of res.errors) {
@@ -68,17 +68,17 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const skills = res.data?.skills || []
-			setCurrentSkills(skills)
+			const certifications = res.data?.certifications || []
+			setCurrentCertifications(certifications)
 		} catch (error) {
 			console.error(error)
-			setCallout([...callout, { content: 'スキルの取得に失敗しました', type: 'error' }])
+			setCallout([...callout, { content: '資格の取得に失敗しました', type: 'error' }])
 		} finally {
 			setIsFetching(false)
 		}
 	}
 
-	const handleAddSkill = async (data: SkillFormType) => {
+	const handleAddCertification = async (data: CertificationFormType) => {
 		if (isSubmitting) return
 		setIsSubmitting(true)
 
@@ -89,17 +89,17 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const newSkill: {
+			const newCertification: {
 				name: string
 				year: string
 				comment: string
 			} = {
-				name: data.skillName,
+				name: data.certificationName,
 				year: data.year.toString(),
 				comment: data.comment,
 			}
 
-			const res = await createSkill(token, newSkill)
+			const res = await createCertification(token, newCertification)
 
 			if (res.errors) {
 				for (const error of res.errors) {
@@ -108,19 +108,19 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 			reset()
-			setCallout([...callout, { content: 'スキルを追加しました', type: 'success' }])
+			setCallout([...callout, { content: '資格を追加しました', type: 'success' }])
 
-			updateSkillsList()
+			updateCertificationList()
 		} catch (error) {
 			console.error(error)
-			setCallout([...callout, { content: 'スキルの追加に失敗しました', type: 'error' }])
+			setCallout([...callout, { content: '資格の追加に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
 		}
 	}
 
-	const handleUpdateSkill = async (data: SkillFormType) => {
-		if (!editingSkill || isSubmitting) return
+	const handleUpdateCertification = async (data: CertificationFormType) => {
+		if (!editingCertification || isSubmitting) return
 		setIsSubmitting(true)
 
 		try {
@@ -130,14 +130,14 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const updatedSkill: SkillType = {
-				...editingSkill,
-				name: data.skillName,
+			const updateCertificationValue: CertificationType = {
+				...editingCertification,
+				name: data.certificationName,
 				year: data.year.toString(),
 				comment: data.comment,
 			}
 
-			const res = await updateSkill(token, updatedSkill)
+			const res = await updateCertification(token, updateCertificationValue)
 
 			if (res.errors) {
 				for (const error of res.errors) {
@@ -145,24 +145,26 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				}
 				return
 			}
+
 			reset({
-				skillName: '',
+				certificationName: '',
 				comment: '',
 				year: today('Asia/Tokyo'),
 			})
-			setCallout([...callout, { content: 'スキルを更新しました', type: 'success' }])
 
-			setEditingSkill(null)
-			updateSkillsList()
+			setCallout([...callout, { content: '資格を更新しました', type: 'success' }])
+
+			setEditingCertification(null)
+			updateCertificationList()
 		} catch (error) {
 			console.error(error)
-			setCallout([...callout, { content: 'スキルの更新に失敗しました', type: 'error' }])
+			setCallout([...callout, { content: '資格の更新に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
 		}
 	}
 
-	const handleDeleteSkill = async (skillId: string) => {
+	const handleDeleteCertification = async (certificationId: string) => {
 		if (isSubmitting) return
 		setIsSubmitting(true)
 
@@ -173,7 +175,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const res = await deleteSkill(token, skillId)
+			const res = await deleteCertification(token, certificationId)
 
 			if (res.errors) {
 				for (const error of res.errors) {
@@ -181,35 +183,35 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				}
 				return
 			}
-			setCallout([...callout, { content: 'スキルを削除しました', type: 'success' }])
+			setCallout([...callout, { content: '資格を削除しました', type: 'success' }])
 
-			updateSkillsList()
+			updateCertificationList()
 		} catch (error) {
 			console.error(error)
-			setCallout([...callout, { content: 'スキルの削除に失敗しました', type: 'error' }])
+			setCallout([...callout, { content: '資格の削除に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
 		}
 	}
 
-	const handleEditSkill = (id: string) => {
-		const skill = currentSkills.find((skill) => skill.id === id)
+	const handleEditCertification = (id: string) => {
+		const certification = currentCertifications.find((certification) => certification.id === id)
 
-		if (!skill) return
+		if (!certification) return
 
-		setEditingSkill(skill)
+		setEditingCertification(certification)
 
 		reset({
-			skillName: skill.name,
-			comment: skill.comment,
-			year: parseDate(skill.year),
+			certificationName: certification.name,
+			comment: certification.comment,
+			year: parseDate(certification.year),
 		})
 	}
 
 	const handleCancelEdit = () => {
-		setEditingSkill(null)
+		setEditingCertification(null)
 		reset({
-			skillName: '',
+			certificationName: '',
 			comment: '',
 			year: today('Asia/Tokyo'),
 		})
@@ -231,7 +233,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const res = await updateSkillsSort(token, { sort_list: newOrder })
+			const res = await updateCertificationSort(token, { sort_list: newOrder })
 
 			if (res.errors) {
 				for (const error of res.errors) {
@@ -240,8 +242,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			setCallout([...callout, { content: `ソート順の更新が成功しました`, type: 'success' }])
-			updateSkillsList()
+			updateCertificationList()
 		} catch {
 			setCallout([...callout, { content: 'ソート順の更新に失敗しました', type: 'error' }])
 		} finally {
@@ -251,33 +252,32 @@ export default function SkillsSettingPresentation({ user }: Props) {
 
 	return (
 		<div className="space-y-6">
-			{/* スキル追加・編集フォーム */}
 			<CardEdit
-				editing={!!editingSkill}
+				editing={!!editingCertification}
 				formContent={
-					<form onSubmit={handleSubmit(editingSkill ? handleUpdateSkill : handleAddSkill)}>
+					<form onSubmit={handleSubmit(editingCertification ? handleUpdateCertification : handleAddCertification)}>
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 							<Controller
-								name="skillName"
+								name="certificationName"
 								control={control}
 								rules={{
-									required: 'スキル名を入力してください',
+									required: '資格名を入力してください',
 									maxLength: {
 										value: 50,
-										message: 'スキル名は50文字以内で入力してください',
+										message: '資格名は50文字以内で入力してください',
 									},
 								}}
 								render={({ field, fieldState }) => (
 									<InputField
-										title="スキル名"
+										title="資格名"
 										type="text"
 										field={field}
 										fieldState={fieldState}
 										isRequired
-										helperText="スキル名は50文字以内で入力してください"
-										icon={<RiMedal2Line />}
+										helperText="資格名は50文字以内で入力してください"
+										icon={<RiMedalLine />}
 										autoComplete="off"
-										placeholder="例: React, TypeScript, Python"
+										placeholder="例: 応用情報技術者試験"
 									/>
 								)}
 							/>
@@ -286,13 +286,13 @@ export default function SkillsSettingPresentation({ user }: Props) {
 								name="year"
 								control={control}
 								rules={{
-									required: '学習開始年月日を入力してください',
+									required: '資格取得年月日を入力してください',
 									validate: (value) => value.compare(today(getLocalTimeZone())) < 0 || '未来の日付は指定できません',
 								}}
 								render={({ field, fieldState }) => (
 									<DatePickerField
-										helperText="学習を始めた年月日を入力してください"
-										title="学習開始年月日"
+										helperText="資格を取得した年月日を入力してください"
+										title="資格取得年月日"
 										field={field}
 										fieldState={fieldState}
 										isRequired
@@ -307,7 +307,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 								rules={{
 									maxLength: {
 										value: 500,
-										message: 'コメントは5000文字以内で入力してください',
+										message: 'コメントは500文字以内で入力してください',
 									},
 								}}
 								render={({ field, fieldState }) => (
@@ -324,7 +324,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 												ref={textareaRef}
 												rows={10}
 												className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
-												placeholder="なぜそのスキルを保有しているのか、どのように活用しているのか書いてみましょう！"
+												placeholder="なぜその資格を取ったのか、どのような苦労があったのか自由に書いてみましょう！"
 											/>
 										}
 									/>
@@ -334,9 +334,11 @@ export default function SkillsSettingPresentation({ user }: Props) {
 
 						<div className="flex gap-2 mt-4">
 							<DPButton colormode="primary" type="submit" isDisabled={isSubmitting}>
-								<TextWithIcon icon={editingSkill ? <RiEditLine /> : <RiAddLine />}>{editingSkill ? '更新する' : '追加する'}</TextWithIcon>
+								<TextWithIcon icon={editingCertification ? <RiEditLine /> : <RiAddLine />}>
+									{editingCertification ? '更新する' : '追加する'}
+								</TextWithIcon>
 							</DPButton>
-							{editingSkill && (
+							{editingCertification && (
 								<DPButton colormode="secondary" type="button" onPress={handleCancelEdit}>
 									キャンセル
 								</DPButton>
@@ -346,27 +348,26 @@ export default function SkillsSettingPresentation({ user }: Props) {
 				}
 			></CardEdit>
 
-			{/* スキル一覧 */}
 			<CardItem
-				items={currentSkills.map((skill) => {
+				items={currentCertifications.map((certification) => {
 					return {
-						id: skill.id,
-						sort_index: skill.sort_index,
-						title: skill.name,
+						id: certification.id,
+						sort_index: certification.sort_index,
+						title: certification.name,
 						content: (
 							<>
-								<div className="text-sm text-gray-500">学習開始: {skill.year}</div>
-								<div className="text-sm text-gray-600 mt-1">{skill.comment}</div>
+								<div className="text-sm text-gray-500">取得(合格): {certification.year}</div>
+								<div className="text-sm text-gray-600 mt-1">{certification.comment}</div>
 							</>
 						),
 					}
 				})}
 				isFetching={isFetching}
-				emptyItemMessage="スキルが登録されていません。上のフォームから追加しましょう！"
+				emptyItemMessage="資格が登録されていません。上のフォームから追加しましょう！"
 				isSubmitting={isSubmitting}
 				handleSort={(newOrder) => handleConfirmSort(newOrder)}
-				handleDelete={(id) => handleDeleteSkill(id)}
-				handleEdit={(id) => handleEditSkill(id)}
+				handleDelete={(id) => handleDeleteCertification(id)}
+				handleEdit={(id) => handleEditCertification(id)}
 			></CardItem>
 		</div>
 	)

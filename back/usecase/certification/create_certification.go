@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -72,7 +73,13 @@ func (i createCertificationInteractor) Execute(ctx context.Context, input Create
 	}
 	sortIndex := maxSortIndex + 1
 
-	certification, err = model.NewCertification(input.Name, yearTime, input.Comment, sortIndex)
+	id, err := uuid.NewRandom()
+
+	if err != nil {
+		return CreateCertificationOutput{}, err
+	}
+
+	certification, err = model.NewCertificationWithID(id.String(), input.Name, yearTime, input.Comment, sortIndex)
 	if err != nil {
 		return CreateCertificationOutput{}, err
 	}
