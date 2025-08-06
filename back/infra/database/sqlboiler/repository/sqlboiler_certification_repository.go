@@ -129,11 +129,18 @@ func (r *SqlBoilerCertificationRepository) WithTransaction(ctx context.Context, 
 		return err
 	}
 
-	defer tx.Rollback()
+	committed := false
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
 
 	if err := fn(context.WithValue(ctx, transactionContextKey, tx)); err != nil {
 		return err
 	}
+
+	committed = true
 
 	return tx.Commit()
 }

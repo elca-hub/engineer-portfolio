@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"devport/domain/model"
 	"devport/infra/database/sqlboiler/models"
+
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -123,11 +124,25 @@ func (r *SqlBoilerUserRepository) FetchHeaderNamesAll(ctx context.Context) ([]st
 }
 
 func (r *SqlBoilerUserRepository) WithTransaction(ctx context.Context, fn func(context.Context) error) error {
-	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
-	if !ok {
-		return fn(ctx)
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
 	}
-	return fn(context.WithValue(ctx, transactionContextKey, tx))
+
+	committed := false
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
+
+	if err := fn(context.WithValue(ctx, transactionContextKey, tx)); err != nil {
+		return err
+	}
+
+	committed = true
+
+	return tx.Commit()
 }
 
 func (r *SqlBoilerUserRepository) convertToSqlBoilerModel(user *model.User) *models.User {
