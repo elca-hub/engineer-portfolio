@@ -289,7 +289,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 								render={({ field, fieldState }) => (
 									<DatePickerField
 										helperText="学習を始めた年月日を入力してください"
-										title="学習開始年月日を入力してください"
+										title="学習開始年月日"
 										field={field}
 										fieldState={fieldState}
 										isRequired
