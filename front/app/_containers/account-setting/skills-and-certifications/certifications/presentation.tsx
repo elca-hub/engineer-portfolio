@@ -42,7 +42,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 	const [currentCertifications, setCurrentCertifications] = useState<CertificationType[]>([])
 	const [editingCertification, setEditingCertification] = useState<CertificationType | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
-	const [isFetching, setIsFetching] = useState(false) // スキル一覧の取得
+	const [isFetching, setIsFetching] = useState(false)
 
 	const { control, handleSubmit, reset } = useForm<CertificationFormType>({
 		defaultValues: {
@@ -274,7 +274,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 										field={field}
 										fieldState={fieldState}
 										isRequired
-										helperText="スキル名は50文字以内で入力してください"
+										helperText="資格名は50文字以内で入力してください"
 										icon={<RiMedalLine />}
 										autoComplete="off"
 										placeholder="例: 応用情報技術者試験"
