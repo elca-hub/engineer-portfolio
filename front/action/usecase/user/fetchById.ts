@@ -2,9 +2,11 @@
 
 import { UserType } from '@/action/type/user'
 import { apiPrefix } from '@/constants/constant'
-import { NewDPResponse } from '@/lib/api'
+import { NewDPResponse, validateUserId } from '@/lib/api'
 
 export default async function fetchById(userId: string): Promise<UserType | null> {
+	if (!validateUserId(userId)) throw new Error('ユーザIDが異なります。再度ログインしてください')
+
 	const fetchUser = await fetch(`${apiPrefix}/user/${userId}/`, {
 		method: 'GET',
 	})
