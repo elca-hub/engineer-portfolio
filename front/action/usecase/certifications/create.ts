@@ -1,8 +1,8 @@
 'use server'
 
+import { CertificationType } from '@/action/type/certification'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
-import { CertificationType } from '@/action/type/certification'
 
 type CreateCertificationParam = {
 	name: string

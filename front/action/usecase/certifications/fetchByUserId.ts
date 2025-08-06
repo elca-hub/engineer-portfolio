@@ -1,8 +1,8 @@
 'use server'
 
+import { CertificationType } from '@/action/type/certification'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse, validateUserId } from '@/lib/api'
-import { CertificationType } from '@/action/type/certification'
 
 export default async function fetchCertificationByUserId(userId: string): Promise<
 	DPResponseData<{
