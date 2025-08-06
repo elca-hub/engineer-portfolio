@@ -24,14 +24,15 @@ import (
 
 // Skill is an object representing the database table.
 type Skill struct {
-	ID        int       `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Name      string    `boil:"name" json:"name" toml:"name" yaml:"name"`
-	WhenDate  time.Time `boil:"when_date" json:"when_date" toml:"when_date" yaml:"when_date"`
-	SortIndex int       `boil:"sort_index" json:"sort_index" toml:"sort_index" yaml:"sort_index"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	UserID    string    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	ID        string      `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Name      string      `boil:"name" json:"name" toml:"name" yaml:"name"`
+	WhenDate  time.Time   `boil:"when_date" json:"when_date" toml:"when_date" yaml:"when_date"`
+	SortIndex int         `boil:"sort_index" json:"sort_index" toml:"sort_index" yaml:"sort_index"`
+	CreatedAt time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	DeletedAt null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	UserID    string      `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	Comment   null.String `boil:"comment" json:"comment,omitempty" toml:"comment" yaml:"comment,omitempty"`
 
 	R *skillR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L skillL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -46,6 +47,7 @@ var SkillColumns = struct {
 	UpdatedAt string
 	DeletedAt string
 	UserID    string
+	Comment   string
 }{
 	ID:        "id",
 	Name:      "name",
@@ -55,6 +57,7 @@ var SkillColumns = struct {
 	UpdatedAt: "updated_at",
 	DeletedAt: "deleted_at",
 	UserID:    "user_id",
+	Comment:   "comment",
 }
 
 var SkillTableColumns = struct {
@@ -66,6 +69,7 @@ var SkillTableColumns = struct {
 	UpdatedAt string
 	DeletedAt string
 	UserID    string
+	Comment   string
 }{
 	ID:        "skills.id",
 	Name:      "skills.name",
@@ -75,12 +79,13 @@ var SkillTableColumns = struct {
 	UpdatedAt: "skills.updated_at",
 	DeletedAt: "skills.deleted_at",
 	UserID:    "skills.user_id",
+	Comment:   "skills.comment",
 }
 
 // Generated where
 
 var SkillWhere = struct {
-	ID        whereHelperint
+	ID        whereHelperstring
 	Name      whereHelperstring
 	WhenDate  whereHelpertime_Time
 	SortIndex whereHelperint
@@ -88,8 +93,9 @@ var SkillWhere = struct {
 	UpdatedAt whereHelpertime_Time
 	DeletedAt whereHelpernull_Time
 	UserID    whereHelperstring
+	Comment   whereHelpernull_String
 }{
-	ID:        whereHelperint{field: "`skills`.`id`"},
+	ID:        whereHelperstring{field: "`skills`.`id`"},
 	Name:      whereHelperstring{field: "`skills`.`name`"},
 	WhenDate:  whereHelpertime_Time{field: "`skills`.`when_date`"},
 	SortIndex: whereHelperint{field: "`skills`.`sort_index`"},
@@ -97,6 +103,7 @@ var SkillWhere = struct {
 	UpdatedAt: whereHelpertime_Time{field: "`skills`.`updated_at`"},
 	DeletedAt: whereHelpernull_Time{field: "`skills`.`deleted_at`"},
 	UserID:    whereHelperstring{field: "`skills`.`user_id`"},
+	Comment:   whereHelpernull_String{field: "`skills`.`comment`"},
 }
 
 // SkillRels is where relationship names are stored.
@@ -127,9 +134,9 @@ func (r *skillR) GetUser() *User {
 type skillL struct{}
 
 var (
-	skillAllColumns            = []string{"id", "name", "when_date", "sort_index", "created_at", "updated_at", "deleted_at", "user_id"}
-	skillColumnsWithoutDefault = []string{"name", "when_date", "sort_index", "deleted_at", "user_id"}
-	skillColumnsWithDefault    = []string{"id", "created_at", "updated_at"}
+	skillAllColumns            = []string{"id", "name", "when_date", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "comment"}
+	skillColumnsWithoutDefault = []string{"id", "name", "when_date", "sort_index", "deleted_at", "user_id", "comment"}
+	skillColumnsWithDefault    = []string{"created_at", "updated_at"}
 	skillPrimaryKeyColumns     = []string{"id"}
 	skillGeneratedColumns      = []string{}
 )
@@ -630,7 +637,7 @@ func Skills(mods ...qm.QueryMod) skillQuery {
 
 // FindSkill retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindSkill(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Skill, error) {
+func FindSkill(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*Skill, error) {
 	skillObj := &Skill{}
 
 	sel := "*"
@@ -727,26 +734,15 @@ func (o *Skill) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 		fmt.Fprintln(writer, cache.query)
 		fmt.Fprintln(writer, vals)
 	}
-	result, err := exec.ExecContext(ctx, cache.query, vals...)
+	_, err = exec.ExecContext(ctx, cache.query, vals...)
 
 	if err != nil {
 		return errors.Wrap(err, "models: unable to insert into skills")
 	}
 
-	var lastID int64
 	var identifierCols []interface{}
 
 	if len(cache.retMapping) == 0 {
-		goto CacheNoHooks
-	}
-
-	lastID, err = result.LastInsertId()
-	if err != nil {
-		return ErrSyncFail
-	}
-
-	o.ID = int(lastID)
-	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == skillMapping["id"] {
 		goto CacheNoHooks
 	}
 
@@ -1016,27 +1012,16 @@ func (o *Skill) Upsert(ctx context.Context, exec boil.ContextExecutor, updateCol
 		fmt.Fprintln(writer, cache.query)
 		fmt.Fprintln(writer, vals)
 	}
-	result, err := exec.ExecContext(ctx, cache.query, vals...)
+	_, err = exec.ExecContext(ctx, cache.query, vals...)
 
 	if err != nil {
 		return errors.Wrap(err, "models: unable to upsert for skills")
 	}
 
-	var lastID int64
 	var uniqueMap []uint64
 	var nzUniqueCols []interface{}
 
 	if len(cache.retMapping) == 0 {
-		goto CacheNoHooks
-	}
-
-	lastID, err = result.LastInsertId()
-	if err != nil {
-		return ErrSyncFail
-	}
-
-	o.ID = int(lastID)
-	if lastID != 0 && len(cache.retMapping) == 1 && cache.retMapping[0] == skillMapping["id"] {
 		goto CacheNoHooks
 	}
 
@@ -1214,7 +1199,7 @@ func (o *SkillSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 }
 
 // SkillExists checks if the Skill row exists.
-func SkillExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
+func SkillExists(ctx context.Context, exec boil.ContextExecutor, iD string) (bool, error) {
 	var exists bool
 	sql := "select exists(select 1 from `skills` where `id`=? limit 1)"
 

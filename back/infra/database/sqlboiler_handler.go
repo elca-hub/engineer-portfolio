@@ -56,3 +56,11 @@ func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() db.ExternalServiceUrl
 func (h *SqlBoilerHandler) BioImagesRepository() db.BioImagesRepository {
 	return repository.NewSqlBoilerBioImagesRepository(h.db)
 }
+
+func (h *SqlBoilerHandler) SkillsRepository() db.SkillsRepository {
+	return repository.NewSqlBoilerSkillsRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) CertificationsRepository() db.CertificationsRepository {
+	return repository.NewSqlBoilerCertificationRepository(h.db)
+}

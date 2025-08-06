@@ -1,0 +1,65 @@
+package action
+
+import (
+	"devport/adapter/api/logging"
+	"devport/adapter/api/response"
+	"devport/adapter/logger"
+	"devport/adapter/validator"
+	"devport/domain/model"
+	"devport/usecase/skill"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+type DeleteSkillAction struct {
+	uc skill.DeleteSkillUseCase
+	v  validator.Validator
+	l  logger.Logger
+}
+
+func NewDeleteSkillAction(
+	uc skill.DeleteSkillUseCase,
+	v validator.Validator, l logger.Logger,
+) *DeleteSkillAction {
+	return &DeleteSkillAction{
+		uc: uc,
+		v:  v,
+		l:  l,
+	}
+}
+
+func (a *DeleteSkillAction) Execute(w http.ResponseWriter, r *http.Request, c *gin.Context) {
+	var input skill.DeleteSkillInput
+	const logKey = "delete_skill"
+
+	userContext, isExistsUserContext := c.Get("user")
+	if !isExistsUserContext {
+		err := errors.New("not found user")
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log(fmt.Sprintf("error when user: %v", err))
+		response.NewError(err, http.StatusBadRequest).Send(w)
+		return
+	}
+
+	currentUser := userContext.(*model.User)
+	input.UserId = currentUser.ID()
+	input.ID = c.Param("skillId")
+
+	if err := a.v.Validate(input); err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusBadRequest).Log("validation error")
+		response.NewErrorMessages(a.v.Messages(), http.StatusBadRequest).Send(w)
+		return
+	}
+
+	err := a.uc.Execute(r.Context(), input)
+	if err != nil {
+		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when delete skill")
+		response.NewError(err, http.StatusInternalServerError).Send(w)
+		return
+	}
+
+	response.NewSuccess(nil, http.StatusOK).Send(w)
+	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success delete skill")
+}

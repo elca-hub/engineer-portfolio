@@ -104,50 +104,6 @@ var UserTableColumns = struct {
 
 // Generated where
 
-type whereHelpernull_String struct{ field string }
-
-func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, false, x)
-}
-func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
-	return qmhelper.WhereNullEQ(w.field, true, x)
-}
-func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LT, x)
-}
-func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.LTE, x)
-}
-func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GT, x)
-}
-func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
-	return qmhelper.Where(w.field, qmhelper.GTE, x)
-}
-func (w whereHelpernull_String) LIKE(x null.String) qm.QueryMod {
-	return qm.Where(w.field+" LIKE ?", x)
-}
-func (w whereHelpernull_String) NLIKE(x null.String) qm.QueryMod {
-	return qm.Where(w.field+" NOT LIKE ?", x)
-}
-func (w whereHelpernull_String) IN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
-}
-func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
-	values := make([]interface{}, 0, len(slice))
-	for _, value := range slice {
-		values = append(values, value)
-	}
-	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
-}
-
-func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
-func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
-
 var UserWhere = struct {
 	ID               whereHelperstring
 	Name             whereHelperstring
@@ -181,11 +137,13 @@ var UserWhere = struct {
 // UserRels is where relationship names are stored.
 var UserRels = struct {
 	BioImages           string
+	Certifications      string
 	ExternalServiceUrls string
 	Skills              string
 	Works               string
 }{
 	BioImages:           "BioImages",
+	Certifications:      "Certifications",
 	ExternalServiceUrls: "ExternalServiceUrls",
 	Skills:              "Skills",
 	Works:               "Works",
@@ -194,6 +152,7 @@ var UserRels = struct {
 // userR is where relationships are stored.
 type userR struct {
 	BioImages           BioImageSlice           `boil:"BioImages" json:"BioImages" toml:"BioImages" yaml:"BioImages"`
+	Certifications      CertificationSlice      `boil:"Certifications" json:"Certifications" toml:"Certifications" yaml:"Certifications"`
 	ExternalServiceUrls ExternalServiceURLSlice `boil:"ExternalServiceUrls" json:"ExternalServiceUrls" toml:"ExternalServiceUrls" yaml:"ExternalServiceUrls"`
 	Skills              SkillSlice              `boil:"Skills" json:"Skills" toml:"Skills" yaml:"Skills"`
 	Works               WorkSlice               `boil:"Works" json:"Works" toml:"Works" yaml:"Works"`
@@ -209,6 +168,13 @@ func (r *userR) GetBioImages() BioImageSlice {
 		return nil
 	}
 	return r.BioImages
+}
+
+func (r *userR) GetCertifications() CertificationSlice {
+	if r == nil {
+		return nil
+	}
+	return r.Certifications
 }
 
 func (r *userR) GetExternalServiceUrls() ExternalServiceURLSlice {
@@ -562,6 +528,20 @@ func (o *User) BioImages(mods ...qm.QueryMod) bioImageQuery {
 	return BioImages(queryMods...)
 }
 
+// Certifications retrieves all the certification's Certifications with an executor.
+func (o *User) Certifications(mods ...qm.QueryMod) certificationQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("`certifications`.`user_id`=?", o.ID),
+	)
+
+	return Certifications(queryMods...)
+}
+
 // ExternalServiceUrls retrieves all the external_service_url's ExternalServiceUrls with an executor.
 func (o *User) ExternalServiceUrls(mods ...qm.QueryMod) externalServiceURLQuery {
 	var queryMods []qm.QueryMod
@@ -707,6 +687,119 @@ func (userL) LoadBioImages(ctx context.Context, e boil.ContextExecutor, singular
 				local.R.BioImages = append(local.R.BioImages, foreign)
 				if foreign.R == nil {
 					foreign.R = &bioImageR{}
+				}
+				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadCertifications allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadCertifications(ctx context.Context, e boil.ContextExecutor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		var ok bool
+		object, ok = maybeUser.(*User)
+		if !ok {
+			object = new(User)
+			ok = queries.SetFromEmbeddedStruct(&object, &maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", object, maybeUser))
+			}
+		}
+	} else {
+		s, ok := maybeUser.(*[]*User)
+		if ok {
+			slice = *s
+		} else {
+			ok = queries.SetFromEmbeddedStruct(&slice, maybeUser)
+			if !ok {
+				return errors.New(fmt.Sprintf("failed to set %T from embedded struct %T", slice, maybeUser))
+			}
+		}
+	}
+
+	args := make(map[interface{}]struct{})
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args[object.ID] = struct{}{}
+	} else {
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+			args[obj.ID] = struct{}{}
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	argsSlice := make([]interface{}, len(args))
+	i := 0
+	for arg := range args {
+		argsSlice[i] = arg
+		i++
+	}
+
+	query := NewQuery(
+		qm.From(`certifications`),
+		qm.WhereIn(`certifications.user_id in ?`, argsSlice...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.QueryContext(ctx, e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load certifications")
+	}
+
+	var resultSlice []*Certification
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice certifications")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on certifications")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for certifications")
+	}
+
+	if len(certificationAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(ctx, e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Certifications = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &certificationR{}
+			}
+			foreign.R.User = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.UserID {
+				local.R.Certifications = append(local.R.Certifications, foreign)
+				if foreign.R == nil {
+					foreign.R = &certificationR{}
 				}
 				foreign.R.User = local
 				break
@@ -1100,6 +1193,59 @@ func (o *User) AddBioImages(ctx context.Context, exec boil.ContextExecutor, inse
 	for _, rel := range related {
 		if rel.R == nil {
 			rel.R = &bioImageR{
+				User: o,
+			}
+		} else {
+			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddCertifications adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.Certifications.
+// Sets related.R.User appropriately.
+func (o *User) AddCertifications(ctx context.Context, exec boil.ContextExecutor, insert bool, related ...*Certification) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.UserID = o.ID
+			if err = rel.Insert(ctx, exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE `certifications` SET %s WHERE %s",
+				strmangle.SetParamNames("`", "`", 0, []string{"user_id"}),
+				strmangle.WhereClause("`", "`", 0, certificationPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.IsDebug(ctx) {
+				writer := boil.DebugWriterFrom(ctx)
+				fmt.Fprintln(writer, updateQuery)
+				fmt.Fprintln(writer, values)
+			}
+			if _, err = exec.ExecContext(ctx, updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.UserID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			Certifications: related,
+		}
+	} else {
+		o.R.Certifications = append(o.R.Certifications, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &certificationR{
 				User: o,
 			}
 		} else {

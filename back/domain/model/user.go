@@ -10,6 +10,7 @@ import (
 const (
 	MaxUserNameLen                = 50
 	MaxUserSkillsLen              = 50
+	MaxUserCertificationsLen      = 50
 	MaxUserExternalServiceURLsLen = 5
 	MaxOrganizationName           = 50
 	MaxOccupationNameLen          = 50
@@ -17,21 +18,22 @@ const (
 )
 
 type User struct {
-	id                    string
-	name                  string
-	birthday              time.Time
-	age                   int
-	email                 *Email
-	iconName              string
-	headerIconName        string
-	bio                   string
-	organizationName      string
-	occupationName        string
-	place                 string
-	createdAt             time.Time
-	updatedAt             time.Time
-	skillIds              []uint
-	externalServiceUrlIds []string
+	id                  string
+	name                string
+	birthday            time.Time
+	age                 int
+	email               *Email
+	iconName            string
+	headerIconName      string
+	bio                 string
+	organizationName    string
+	occupationName      string
+	place               string
+	createdAt           time.Time
+	updatedAt           time.Time
+	skills              []*Skill
+	certifications      []*Certification
+	externalServiceUrls []*ExternalServiceUrl
 }
 
 func updateBirthdayLogic(birthday time.Time) (time.Time, int, error) {
@@ -127,7 +129,45 @@ func updateSkillsLogic(skills []*Skill) ([]*Skill, error) {
 		return nil, fmt.Errorf("スキルは%d個まで登録できます", MaxUserSkillsLen)
 	}
 
+	// 各スキルのsort_indexが重複していないかチェック
+	sortIndexMap := make(map[int]bool)
+	for _, skill := range skills {
+		if skill == nil {
+			continue
+		}
+		if skill.SortIndex() < 0 {
+			return nil, errors.New("スキルのソートインデックスは0以上である必要があります")
+		}
+		if _, exists := sortIndexMap[skill.SortIndex()]; exists {
+			return nil, fmt.Errorf("スキルのソートインデックス %d が重複しています", skill.SortIndex())
+		}
+		sortIndexMap[skill.SortIndex()] = true
+	}
+
 	return skills, nil
+}
+
+func updateCertificationsLogic(certifications []*Certification) ([]*Certification, error) {
+	if len(certifications) > MaxUserCertificationsLen {
+		return nil, fmt.Errorf("資格は%d個まで登録できます", MaxUserCertificationsLen)
+	}
+
+	// 各資格のsort_indexが重複していないかチェック
+	sortIndexMap := make(map[int]bool)
+	for _, certification := range certifications {
+		if certification == nil {
+			continue
+		}
+		if certification.SortIndex() < 0 {
+			return nil, errors.New("資格のソートインデックスは0以上である必要があります")
+		}
+		if _, exists := sortIndexMap[certification.SortIndex()]; exists {
+			return nil, fmt.Errorf("資格のソートインデックス %d が重複しています", certification.SortIndex())
+		}
+		sortIndexMap[certification.SortIndex()] = true
+	}
+
+	return certifications, nil
 }
 
 func updateExternalServiceURLsLogic(externalServiceURLs []*ExternalServiceUrl) ([]*ExternalServiceUrl, error) {
@@ -159,8 +199,9 @@ func NewUser(
 	place string,
 	createdAt time.Time,
 	updatedAt time.Time,
-	skillIds []uint,
-	externalServiceUrlIds []string,
+	skills []*Skill,
+	certifications []*Certification,
+	externalServiceUrls []*ExternalServiceUrl,
 ) (*User, error) {
 	name, err := updateNameLogic(name)
 
@@ -202,6 +243,21 @@ func NewUser(
 		return nil, err
 	}
 
+	validatedSkills, err := updateSkillsLogic(skills)
+	if err != nil {
+		return nil, err
+	}
+
+	validatedCertifications, err := updateCertificationsLogic(certifications)
+	if err != nil {
+		return nil, err
+	}
+
+	validatedExternalServiceUrls, err := updateExternalServiceURLsLogic(externalServiceUrls)
+	if err != nil {
+		return nil, err
+	}
+
 	sentence := updateBioLogic(bio)
 
 	return &User{
@@ -218,8 +274,9 @@ func NewUser(
 		place,
 		createdAt,
 		updatedAt,
-		skillIds,
-		externalServiceUrlIds,
+		validatedSkills,
+		validatedCertifications,
+		validatedExternalServiceUrls,
 	}, nil
 }
 
@@ -345,4 +402,43 @@ func (u *User) CreatedAt() time.Time {
 
 func (u *User) UpdatedAt() time.Time {
 	return u.updatedAt
+}
+
+func (u *User) Skills() []*Skill {
+	return u.skills
+}
+
+func (u *User) UpdateSkills(skills []*Skill) error {
+	validatedSkills, err := updateSkillsLogic(skills)
+	if err != nil {
+		return err
+	}
+	u.skills = validatedSkills
+	return nil
+}
+
+func (u *User) Certifications() []*Certification {
+	return u.certifications
+}
+
+func (u *User) UpdateCertifications(certifications []*Certification) error {
+	validatedCertifications, err := updateCertificationsLogic(certifications)
+	if err != nil {
+		return err
+	}
+	u.certifications = validatedCertifications
+	return nil
+}
+
+func (u *User) ExternalServiceUrls() []*ExternalServiceUrl {
+	return u.externalServiceUrls
+}
+
+func (u *User) UpdateExternalServiceUrls(externalServiceUrls []*ExternalServiceUrl) error {
+	validatedExternalServiceUrls, err := updateExternalServiceURLsLogic(externalServiceUrls)
+	if err != nil {
+		return err
+	}
+	u.externalServiceUrls = validatedExternalServiceUrls
+	return nil
 }
