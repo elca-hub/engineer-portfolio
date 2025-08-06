@@ -35,7 +35,7 @@ type Certification = {
 export default function CertificationsSettingPresentation({ user }: Props) {
 	const router = useRouter()
 	const { callout, setCallout } = useContext(CalloutContext)
-	
+
 	const [certifications, setCertifications] = useState<Certification[]>([])
 	const [editingCertification, setEditingCertification] = useState<Certification | null>(null)
 	const [sortAscending, setSortAscending] = useState(true)
@@ -95,16 +95,16 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const updatedCertifications = certifications.map(cert =>
+			const updatedCertifications = certifications.map((cert) =>
 				cert.id === editingCertification.id
 					? {
-						...cert,
-						name: data.certificationName,
-						organizationName: data.organizationName,
-						acquiredDate: data.acquiredDate.toString(),
-						expirationDate: data.expirationDate?.toString(),
-					}
-					: cert
+							...cert,
+							name: data.certificationName,
+							organizationName: data.organizationName,
+							acquiredDate: data.acquiredDate.toString(),
+							expirationDate: data.expirationDate?.toString(),
+						}
+					: cert,
 			)
 
 			setCertifications(updatedCertifications)
@@ -134,7 +134,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 				return
 			}
 
-			const updatedCertifications = certifications.filter(cert => cert.id !== certificationId)
+			const updatedCertifications = certifications.filter((cert) => cert.id !== certificationId)
 			setCertifications(updatedCertifications)
 			setCallout([...callout, { content: '資格を削除しました', type: 'success' }])
 		} catch (error) {
@@ -189,7 +189,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 		return date.toLocaleDateString('ja-JP', {
 			year: 'numeric',
 			month: 'long',
-			day: 'numeric'
+			day: 'numeric',
 		})
 	}
 
@@ -202,9 +202,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 		<div className="space-y-6">
 			{/* 資格追加・編集フォーム */}
 			<div className="bg-white p-6 rounded-lg shadow-sm border">
-				<h3 className="text-lg font-semibold mb-4">
-					{editingCertification ? '資格を編集' : '資格を追加'}
-				</h3>
+				<h3 className="text-lg font-semibold mb-4">{editingCertification ? '資格を編集' : '資格を追加'}</h3>
 				<form onSubmit={handleSubmit(editingCertification ? handleUpdateCertification : handleAddCertification)}>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<Controller
@@ -265,13 +263,7 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 								validate: (value) => value.compare(today(getLocalTimeZone())) <= 0 || '未来の日付は指定できません',
 							}}
 							render={({ field, fieldState }) => (
-								<DatePickerField
-									title="取得日"
-									field={field}
-									fieldState={fieldState}
-									isRequired
-									icon={<RiCalendarLine />}
-								/>
+								<DatePickerField title="取得日" field={field} fieldState={fieldState} isRequired icon={<RiCalendarLine />} />
 							)}
 						/>
 
@@ -318,17 +310,13 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 					<h3 className="text-lg font-semibold">資格一覧</h3>
 					{certifications.length > 0 && (
 						<DPButton colormode="secondary" onClick={handleSortCertifications}>
-							<TextWithIcon icon={<RiSortAsc />}>
-								{sortAscending ? '新しい順' : '古い順'}
-							</TextWithIcon>
+							<TextWithIcon icon={<RiSortAsc />}>{sortAscending ? '新しい順' : '古い順'}</TextWithIcon>
 						</DPButton>
 					)}
 				</div>
 
 				{certifications.length === 0 ? (
-					<div className="text-center py-8 text-gray-500">
-						まだ資格が登録されていません。上のフォームから資格を追加してください。
-					</div>
+					<div className="text-center py-8 text-gray-500">まだ資格が登録されていません。上のフォームから資格を追加してください。</div>
 				) : (
 					<div className="space-y-3">
 						{sortedCertifications.map((certification) => (
@@ -340,23 +328,15 @@ export default function CertificationsSettingPresentation({ user }: Props) {
 							>
 								<div className="flex-1">
 									<div className="font-medium">{certification.name}</div>
-									<div className="text-sm text-gray-600 mt-1">
-										発行機関: {certification.organizationName}
-									</div>
-									<div className="text-sm text-gray-500 mt-1">
-										取得日: {formatDate(certification.acquiredDate)}
-									</div>
+									<div className="text-sm text-gray-600 mt-1">発行機関: {certification.organizationName}</div>
+									<div className="text-sm text-gray-500 mt-1">取得日: {formatDate(certification.acquiredDate)}</div>
 									{certification.expirationDate && (
-										<div className={`text-sm mt-1 ${
-											isExpired(certification.expirationDate) ? 'text-red-600 font-medium' : 'text-gray-500'
-										}`}>
+										<div className={`text-sm mt-1 ${isExpired(certification.expirationDate) ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
 											有効期限: {formatDate(certification.expirationDate)}
 											{isExpired(certification.expirationDate) && ' (期限切れ)'}
 										</div>
 									)}
-									{!certification.expirationDate && (
-										<div className="text-sm text-green-600 mt-1">永久資格</div>
-									)}
+									{!certification.expirationDate && <div className="text-sm text-green-600 mt-1">永久資格</div>}
 								</div>
 								<div className="flex gap-2 ml-4">
 									<button
