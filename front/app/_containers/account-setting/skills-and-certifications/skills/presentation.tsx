@@ -39,7 +39,6 @@ export default function SkillsSettingPresentation({ user }: Props) {
 	const [editingSkill, setEditingSkill] = useState<SkillType | null>(null)
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [isFetching, setIsFetching] = useState(false) // スキル一覧の取得
-	const [isSorting, setIsSorting] = useState(false)
 
 	const { control, handleSubmit, reset } = useForm<SkillFormType>({
 		defaultValues: {
@@ -68,6 +67,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 			const skills = res.data?.skills || []
 			setCurrentSkills(skills)
 		} catch (error) {
+			console.error(error)
 			setCallout([...callout, { content: 'スキルの取得に失敗しました', type: 'error' }])
 		} finally {
 			setIsFetching(false)
@@ -108,6 +108,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 
 			updateSkillsList()
 		} catch (error) {
+			console.error(error)
 			setCallout([...callout, { content: 'スキルの追加に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
@@ -150,6 +151,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 			setEditingSkill(null)
 			updateSkillsList()
 		} catch (error) {
+			console.error(error)
 			setCallout([...callout, { content: 'スキルの更新に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
@@ -171,6 +173,7 @@ export default function SkillsSettingPresentation({ user }: Props) {
 			setCurrentSkills(updatedSkills)
 			setCallout([...callout, { content: 'スキルを削除しました', type: 'success' }])
 		} catch (error) {
+			console.error(error)
 			setCallout([...callout, { content: 'スキルの削除に失敗しました', type: 'error' }])
 		} finally {
 			setIsSubmitting(false)
@@ -226,7 +229,6 @@ export default function SkillsSettingPresentation({ user }: Props) {
 			}
 
 			setCallout([...callout, { content: `ソート順の更新が成功しました`, type: 'success' }])
-			setIsSorting(false)
 			updateSkillsList()
 		} catch {
 			setCallout([...callout, { content: 'ソート順の更新に失敗しました', type: 'error' }])
