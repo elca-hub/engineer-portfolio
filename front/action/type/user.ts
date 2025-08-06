@@ -1,5 +1,5 @@
-import { CertificationType } from "./certification"
-import { SkillType } from "./skill"
+import { CertificationType } from './certification'
+import { SkillType } from './skill'
 
 export type UserType = {
 	email: string

@@ -5,14 +5,24 @@ import { ExternalServiceUrlType } from '@/action/type/externalServiceUrl'
 import { SkillType } from '@/action/type/skill'
 import { UserType } from '@/action/type/user'
 import CustomMarkdown from '@/components/layout/markdown/CustomMarkdown'
-import UserImage from '@/components/ui/image/userImage'
 import DPButton from '@/components/ui/button/button'
+import UserImage from '@/components/ui/image/userImage'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { ImageNameByServiceType, ServiceTypeToServiceName } from '@/lib/externalServiceUrl'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { RiBriefcaseLine, RiBuilding2Line, RiCheckboxCircleLine, RiMapPinLine, RiMedal2Line, RiMedalLine, RiArrowDownSLine, RiEditLine, RiChat1Line } from 'react-icons/ri'
+import {
+	RiArrowDownSLine,
+	RiBriefcaseLine,
+	RiBuilding2Line,
+	RiChat1Line,
+	RiCheckboxCircleLine,
+	RiEditLine,
+	RiMapPinLine,
+	RiMedal2Line,
+	RiMedalLine,
+} from 'react-icons/ri'
 
 type Props = {
 	header: React.ReactNode
@@ -107,10 +117,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						</h2>
 						{isAuthUser && (
 							<Link href="/account/setting/skills-and-certifications/skills">
-								<DPButton
-									colormode="primary"
-									className="flex items-center gap-2 px-3 py-2 text-sm"
-								>
+								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
 									<RiEditLine className="w-4 h-4" />
 									編集
 								</DPButton>
@@ -121,9 +128,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						{user.skills.length === 0 ? (
 							<p className="text-subtext">スキルの記載がありません...</p>
 						) : (
-							user.skills.map((skill) => (
-								<ProfileCard item={skill} type="skill" key={skill.id} />
-							))
+							user.skills.map((skill) => <ProfileCard item={skill} type="skill" key={skill.id} />)
 						)}
 					</div>
 				</section>
@@ -135,10 +140,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						</h2>
 						{isAuthUser && (
 							<Link href="/account/setting/skills-and-certifications/certifications">
-								<DPButton
-									colormode="primary"
-									className="flex items-center gap-2 px-3 py-2 text-sm"
-								>
+								<DPButton colormode="primary" className="flex items-center gap-2 px-3 py-2 text-sm">
 									<RiEditLine className="w-4 h-4" />
 									編集
 								</DPButton>
@@ -149,9 +151,7 @@ export default function ProfilePresentation({ header, user, isAuthUser, external
 						{user.certifications.length === 0 ? (
 							<p className="text-subtext">資格の記載がありません...</p>
 						) : (
-							user.certifications.map((certification) => (
-								<ProfileCard item={certification} type="certification" key={certification.id} />
-							))
+							user.certifications.map((certification) => <ProfileCard item={certification} type="certification" key={certification.id} />)
 						)}
 					</div>
 				</section>
@@ -191,9 +191,7 @@ function ProfileCard({ item, type }: { item: ProfileCardItem; type: ProfileCardT
 	return (
 		<div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
 			<div className="flex justify-between items-start mb-4">
-				<span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${badgeColor}`}>
-					{badgeText}
-				</span>
+				<span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${badgeColor}`}>{badgeText}</span>
 			</div>
 
 			<h3 className="text-lg font-bold mb-2 text-gray-900 line-clamp-2">{item.name}</h3>
@@ -215,9 +213,7 @@ function ProfileCard({ item, type }: { item: ProfileCardItem; type: ProfileCardT
 							{isCommentOpen ? 'コメントを閉じる' : 'コメントを表示'}
 						</button>
 						<div
-							className={`overflow-hidden transition-all duration-300 ease-in-out ${
-								isCommentOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-							}`}
+							className={`overflow-hidden transition-all duration-300 ease-in-out ${isCommentOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
 						>
 							<div className="mt-3 p-3 bg-gray-50 rounded-md">
 								<CustomMarkdown>{item.comment}</CustomMarkdown>
