@@ -39,10 +39,5 @@ func (i deleteCertificationInteractor) Execute(ctx context.Context, input Delete
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	_, err := i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return err
-	}
-
 	return i.certificationsRepository.Delete(ctx, input.ID)
 }

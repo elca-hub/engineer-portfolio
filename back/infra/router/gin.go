@@ -185,6 +185,9 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 				{
 					certificationAuthRouterGroup.POST("/", e.createCertificationAction())
 					certificationAuthRouterGroup.GET("/", e.findCertificationsByUserAction())
+
+					certificationAuthRouterGroup.PUT("/sort", e.udpateCertificationsSortAction())
+
 					certificationAuthItemRouterGroup := certificationAuthRouterGroup.Group("/:certificationId")
 					{
 						certificationAuthItemRouterGroup.PUT("/", e.updateCertificationAction())
@@ -596,6 +599,23 @@ func (e *GinEngine) updateCertificationAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUpdateCertificationAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) udpateCertificationsSortAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewUpdateCertificationSortInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewUpdateCertificationsSortPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateCertificationsSortAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

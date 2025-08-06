@@ -56,9 +56,8 @@ func (i updateCertificationInteractor) Execute(ctx context.Context, input Update
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	var certification *model.Certification
+	certification, err := i.certificationsRepository.FindByID(ctx, input.UserId, input.ID)
 
-	_, err := i.userRepository.FindById(ctx, input.UserId, nil)
 	if err != nil {
 		return UpdateCertificationOutput{}, err
 	}
@@ -68,14 +67,23 @@ func (i updateCertificationInteractor) Execute(ctx context.Context, input Update
 		return UpdateCertificationOutput{}, err
 	}
 
-	certification, err = model.NewCertification(input.Name, yearTime, input.Comment, input.SortIndex)
-	if err != nil {
+	if err := certification.UpdateName(input.Name); err != nil {
 		return UpdateCertificationOutput{}, err
 	}
 
-	err = i.certificationsRepository.Update(ctx, certification, input.UserId)
+	if err := certification.UpdateYear(yearTime); err != nil {
+		return UpdateCertificationOutput{}, err
+	}
 
-	if err != nil {
+	if err := certification.UpdateComment(input.Comment); err != nil {
+		return UpdateCertificationOutput{}, err
+	}
+
+	if err := certification.UpdateSortIndex(input.SortIndex); err != nil {
+		return UpdateCertificationOutput{}, err
+	}
+
+	if err := i.certificationsRepository.Update(ctx, certification, input.UserId); err != nil {
 		return UpdateCertificationOutput{}, err
 	}
 
