@@ -53,13 +53,13 @@ func (a *DeleteSkillAction) Execute(w http.ResponseWriter, r *http.Request, c *g
 		return
 	}
 
-	err := a.uc.Execute(r.Context(), input)
+	output, err := a.uc.Execute(r.Context(), input)
 	if err != nil {
 		logging.NewError(a.l, err, logKey, http.StatusInternalServerError).Log("error when delete skill")
 		response.NewError(err, http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	response.NewSuccess(nil, http.StatusOK).Send(w)
+	response.NewSuccess(output, http.StatusOK).Send(w)
 	logging.NewInfo(a.l, logKey, http.StatusOK).Log("success delete skill")
 }

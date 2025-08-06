@@ -69,11 +69,11 @@ func (r *SqlBoilerCertificationRepository) Update(ctx context.Context, certifica
 	return err
 }
 
-func (r *SqlBoilerCertificationRepository) Delete(ctx context.Context, id string) error {
+func (r *SqlBoilerCertificationRepository) Delete(ctx context.Context, userId string, id string) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
 	if !ok {
-		_, err := models.Certifications(models.CertificationWhere.ID.EQ(id)).DeleteAll(ctx, r.db)
+		_, err := models.Certifications(models.CertificationWhere.ID.EQ(id), models.CertificationWhere.UserID.EQ(userId)).DeleteAll(ctx, r.db)
 		return err
 	}
 

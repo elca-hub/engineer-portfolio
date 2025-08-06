@@ -527,6 +527,7 @@ func (e *GinEngine) deleteSkillAction() gin.HandlerFunc {
 			uc = skill.NewDeleteSkillInteractor(
 				e.sql.SkillsRepository(),
 				e.sql.UserRepository(),
+				skill_presenter.NewDeleteSkillPresenter(),
 				e.ctxTimeout,
 			)
 
@@ -628,6 +629,7 @@ func (e *GinEngine) deleteCertificationAction() gin.HandlerFunc {
 			uc = certification.NewDeleteCertificationInteractor(
 				e.sql.CertificationsRepository(),
 				e.sql.UserRepository(),
+				certification_presenter.NewDeleteCertificationPresenter(),
 				e.ctxTimeout,
 			)
 

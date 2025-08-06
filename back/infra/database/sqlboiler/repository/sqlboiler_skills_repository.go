@@ -69,11 +69,11 @@ func (r *SqlBoilerSkillsRepository) Update(ctx context.Context, skill *model.Ski
 	return err
 }
 
-func (r *SqlBoilerSkillsRepository) Delete(ctx context.Context, id string) error {
+func (r *SqlBoilerSkillsRepository) Delete(ctx context.Context, userID string, id string) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
 	if !ok {
-		_, err := models.Skills(models.SkillWhere.ID.EQ(id)).DeleteAll(ctx, r.db)
+		_, err := models.Skills(models.SkillWhere.ID.EQ(id), models.SkillWhere.UserID.EQ(userID)).DeleteAll(ctx, r.db)
 		return err
 	}
 
