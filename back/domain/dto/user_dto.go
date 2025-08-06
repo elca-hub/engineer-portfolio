@@ -5,19 +5,31 @@ import (
 )
 
 type UserDTO struct {
-	Email            string `json:"email"`
-	UserId           string `json:"user_id"`
-	Name             string `json:"name"`
-	IconName         string `json:"icon_name"`
-	HeaderIconName   string `json:"header_icon_name"`
-	Bio              string `json:"bio"`
-	OrganizationName string `json:"organization_name"`
-	OccupationName   string `json:"occupation_name"`
-	Place            string `json:"place"`
-	Birthday         string `json:"birthday"`
+	Email            string            `json:"email"`
+	UserId           string            `json:"user_id"`
+	Name             string            `json:"name"`
+	IconName         string            `json:"icon_name"`
+	HeaderIconName   string            `json:"header_icon_name"`
+	Bio              string            `json:"bio"`
+	OrganizationName string            `json:"organization_name"`
+	OccupationName   string            `json:"occupation_name"`
+	Place            string            `json:"place"`
+	Birthday         string            `json:"birthday"`
+	Skills           []SkillDTO        `json:"skills"`
+	Certifications   []CertificationDTO `json:"certifications"`
 }
 
 func NewUserDTO(userModel *model.User) *UserDTO {
+	skills := make([]SkillDTO, len(userModel.Skills()))
+	for i, skill := range userModel.Skills() {
+		skills[i] = *NewSkillDTO(skill)
+	}
+
+	certifications := make([]CertificationDTO, len(userModel.Certifications()))
+	for i, certification := range userModel.Certifications() {
+		certifications[i] = *NewCertificationDTO(certification)
+	}
+
 	return &UserDTO{
 		UserId:           userModel.ID(),
 		Email:            userModel.Email().Email(),
@@ -29,5 +41,7 @@ func NewUserDTO(userModel *model.User) *UserDTO {
 		OrganizationName: userModel.OrganizationName(),
 		OccupationName:   userModel.OccupationName(),
 		Place:            userModel.Place(),
+		Skills:           skills,
+		Certifications:   certifications,
 	}
 }

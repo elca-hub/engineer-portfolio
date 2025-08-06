@@ -12,23 +12,26 @@ const (
 )
 
 type Certification struct {
-	name    string
-	year    time.Time
-	comment string
-
+	id        string
+	name      string
+	year      time.Time
+	comment   string
 	sortIndex int
 }
 
 func updateCertificationNameLogic(name string) (string, error) {
+	if len(name) == 0 {
+		return "", errors.New("資格名は必須です")
+	}
 	if len(name) > MaxCertificationNameLength {
-		return "", fmt.Errorf("スキル名は%d字を超過しています", MaxCertificationNameLength)
+		return "", fmt.Errorf("資格名は%d字を超過しています", MaxCertificationNameLength)
 	}
 	return name, nil
 }
 
 func updateCertificationYearLogic(year time.Time) (time.Time, error) {
 	if year.IsZero() {
-		return time.Time{}, errors.New("スキルの年は必須です")
+		return time.Time{}, errors.New("資格の年は必須です")
 	}
 	return year, nil
 }
@@ -42,36 +45,50 @@ func updateCertificationSortIndexLogic(sortIndex int) (int, error) {
 
 func updateCertificationCommentLogic(comment string) (string, error) {
 	if len(comment) > MaxCertificationCommentLength {
-		return "", fmt.Errorf("スキルのコメントは%d字を超過しています", MaxCertificationCommentLength)
+		return "", fmt.Errorf("資格のコメントは%d字を超過しています", MaxCertificationCommentLength)
 	}
 	return comment, nil
 }
 
-func NewCertification(name string, year time.Time, comment string, sortIndex int) (*Skill, error) {
-	if _, err := updateSKillNameLogic(name); err != nil {
+func NewCertification(name string, year time.Time, comment string, sortIndex int) (*Certification, error) {
+	if _, err := updateCertificationNameLogic(name); err != nil {
 		return nil, err
 	}
 
-	if year, err := updateSKillYearLogic(year); err != nil {
-		return nil, err
-	} else {
-		year = year.Truncate(24 * time.Hour) // 年の精度を日単位にする
-	}
-
-	if _, err := updateSkillSortIndexLogic(sortIndex); err != nil {
+	validatedYear, err := updateCertificationYearLogic(year)
+	if err != nil {
 		return nil, err
 	}
+	year = validatedYear.Truncate(24 * time.Hour) // 年の精度を日単位にする
 
-	if _, err := updateSkillCommentLogic(comment); err != nil {
+	if _, err := updateCertificationSortIndexLogic(sortIndex); err != nil {
 		return nil, err
 	}
 
-	return &Skill{
+	if _, err := updateCertificationCommentLogic(comment); err != nil {
+		return nil, err
+	}
+
+	return &Certification{
+		id:        "", // IDは作成時には空文字、リポジトリでセット
 		name:      name,
 		year:      year,
 		comment:   comment,
 		sortIndex: sortIndex,
 	}, nil
+}
+
+func NewCertificationWithID(id string, name string, year time.Time, comment string, sortIndex int) (*Certification, error) {
+	certification, err := NewCertification(name, year, comment, sortIndex)
+	if err != nil {
+		return nil, err
+	}
+	certification.id = id
+	return certification, nil
+}
+
+func (s *Certification) ID() string {
+	return s.id
 }
 
 func (s *Certification) Name() string {

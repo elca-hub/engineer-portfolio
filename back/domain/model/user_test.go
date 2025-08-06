@@ -217,8 +217,9 @@ func TestUser(t *testing.T) {
 				c.place,
 				time.Now(),
 				time.Now(),
-				[]uint{},
-				[]string{},
+				[]*Skill{},
+				[]*Certification{},
+				[]*ExternalServiceUrl{},
 			)
 
 			if c.isError {
@@ -234,3 +235,123 @@ func TestUser(t *testing.T) {
 		})
 	}
 }
+
+func TestUser_UpdateSkills(t *testing.T) {
+	user, _ := NewUser(
+		"testuser",
+		"test",
+		makeBirthday("2000-01-01"),
+		fetchEmail(),
+		"",
+		"",
+		nil,
+		"testCompany",
+		"engineer",
+		"tokyo",
+		time.Now(),
+		time.Now(),
+		[]*Skill{},
+		[]*Certification{},
+		[]*ExternalServiceUrl{},
+	)
+
+	skill1, _ := NewSkill("Go", makeSkillYear("2020-01-01"), "Programming language", 1)
+	skill2, _ := NewSkill("Python", makeSkillYear("2019-01-01"), "Programming language", 2)
+
+	cases := map[string]struct {
+		skills  []*Skill
+		isError bool
+	}{
+		"success": {
+			skills:  []*Skill{skill1, skill2},
+			isError: false,
+		},
+		"emptySkills": {
+			skills:  []*Skill{},
+			isError: false,
+		},
+		"tooManySkills": {
+			skills:  make([]*Skill, MaxUserSkillsLen+1),
+			isError: true,
+		},
+	}
+
+	t.Parallel()
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			err := user.UpdateSkills(c.skills)
+
+			if c.isError {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, len(c.skills), len(user.Skills()))
+			for i, skill := range c.skills {
+				assert.Equal(t, skill.Name(), user.Skills()[i].Name())
+			}
+		})
+	}
+}
+
+func TestUser_UpdateCertifications(t *testing.T) {
+	user, _ := NewUser(
+		"testuser",
+		"test",
+		makeBirthday("2000-01-01"),
+		fetchEmail(),
+		"",
+		"",
+		nil,
+		"testCompany",
+		"engineer",
+		"tokyo",
+		time.Now(),
+		time.Now(),
+		[]*Skill{},
+		[]*Certification{},
+		[]*ExternalServiceUrl{},
+	)
+
+	cert1, _ := NewCertification("AWS Solutions Architect", makeCertYear("2021-01-01"), "Cloud certification", 1)
+	cert2, _ := NewCertification("TOEIC 900", makeCertYear("2020-01-01"), "English certification", 2)
+
+	cases := map[string]struct {
+		certifications []*Certification
+		isError        bool
+	}{
+		"success": {
+			certifications: []*Certification{cert1, cert2},
+			isError:        false,
+		},
+		"emptyCertifications": {
+			certifications: []*Certification{},
+			isError:        false,
+		},
+		"tooManyCertifications": {
+			certifications: make([]*Certification, MaxUserSkillsLen+1),
+			isError:        true,
+		},
+	}
+
+	t.Parallel()
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			err := user.UpdateCertifications(c.certifications)
+
+			if c.isError {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, len(c.certifications), len(user.Certifications()))
+			for i, cert := range c.certifications {
+				assert.Equal(t, cert.Name(), user.Certifications()[i].Name())
+			}
+		})
+	}
+}
+
+

@@ -54,9 +54,9 @@ export const authOptions: NextAuthOptions = {
 						return false
 					}
 					return true
-				} else {
-					return '/register'
 				}
+
+				return true
 			} else {
 				if (res.errors) {
 					res.errors.forEach((value) => console.error(value))

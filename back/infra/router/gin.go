@@ -9,9 +9,13 @@ import (
 	"devport/infra/database"
 	"devport/infra/email"
 	"devport/infra/file_uploader"
+	certification_presenter "devport/presenter/certification_presenter"
 	external_presenter "devport/presenter/external_presenter"
+	skill_presenter "devport/presenter/skill_presenter"
 	user_presenter "devport/presenter/user_presenter"
+	"devport/usecase/certification"
 	"devport/usecase/external_service_url"
+	"devport/usecase/skill"
 	"devport/usecase/user"
 	"fmt"
 	"log"
@@ -124,6 +128,16 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			{
 				externalServiceUrlsRouterGroup.GET("/", e.findExternalServiceUrlByUser())
 			}
+
+			skillsRouterGroup := userRouterGroup.Group("/skills")
+			{
+				skillsRouterGroup.GET("/", e.findSkillsByUserIdAction())
+			}
+
+			certificationsRouterGroup := userRouterGroup.Group("/certifications")
+			{
+				certificationsRouterGroup.GET("/", e.findCertificationsByUserIdAction())
+			}
 		}
 
 		authRouterGroup := apiRouterGroup.Group("/auth") // 認証が必要なAPI
@@ -151,6 +165,31 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 				{
 					bioAuthRouterGroup.POST("/", e.uploadBioAction())
 					bioAuthRouterGroup.POST("/image", e.uploadBioImageAction())
+				}
+
+				skillAuthRouterGroup := userAuthRouterGroup.Group("/skills") // スキル関連
+				{
+					skillAuthRouterGroup.POST("/", e.createSkillAction())
+					skillAuthRouterGroup.GET("/", e.findSkillsByUserAction())
+
+					skillAuthRouterGroup.PUT("/sort", e.updateSkillsSortAction())
+
+					skillAuthItemRouterGroup := skillAuthRouterGroup.Group("/:skillId")
+					{
+						skillAuthItemRouterGroup.PUT("/", e.updateSkillAction())
+						skillAuthItemRouterGroup.DELETE("/", e.deleteSkillAction())
+					}
+				}
+
+				certificationAuthRouterGroup := userAuthRouterGroup.Group("/certifications") // 資格関連
+				{
+					certificationAuthRouterGroup.POST("/", e.createCertificationAction())
+					certificationAuthRouterGroup.GET("/", e.findCertificationsByUserAction())
+					certificationAuthItemRouterGroup := certificationAuthRouterGroup.Group("/:certificationId")
+					{
+						certificationAuthItemRouterGroup.PUT("/", e.updateCertificationAction())
+						certificationAuthItemRouterGroup.DELETE("/", e.deleteCertificationAction())
+					}
 				}
 			}
 		}
@@ -422,6 +461,191 @@ func (e *GinEngine) uploadBioImageAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUploadBioImageAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createSkillAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewCreateSkillInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				skill_presenter.NewCreateSkillPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateSkillAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findSkillsByUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewFindByUserSkillInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				skill_presenter.NewFindByUserSkillPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindByUserSkillAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateSkillAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewUpdateSkillInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				skill_presenter.NewUpdateSkillPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateSkillAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) deleteSkillAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewDeleteSkillInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewDeleteSkillAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateSkillsSortAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewUpdateSkillsSortInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				skill_presenter.NewUpdateSkillsSortPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateSkillsSortAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createCertificationAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewCreateCertificationInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewCreateCertificationPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateCertificationAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findCertificationsByUserAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewFindByUserCertificationInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewFindByUserCertificationPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindByUserCertificationAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateCertificationAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewUpdateCertificationInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewUpdateCertificationPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateCertificationAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) deleteCertificationAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewDeleteCertificationInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewDeleteCertificationAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findSkillsByUserIdAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = skill.NewFindByUserSkillInteractor(
+				e.sql.SkillsRepository(),
+				e.sql.UserRepository(),
+				skill_presenter.NewFindByUserSkillPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindSkillByUserIdAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findCertificationsByUserIdAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = certification.NewFindByUserCertificationInteractor(
+				e.sql.CertificationsRepository(),
+				e.sql.UserRepository(),
+				certification_presenter.NewFindByUserCertificationPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindCertificationByUserIdAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

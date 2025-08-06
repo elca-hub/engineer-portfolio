@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 
 export default async function RegisterContainer() {
 	const authRedirectPath = await handleAuthRedirect('register')
+	console.log(authRedirectPath)
 	if (authRedirectPath) redirect(authRedirectPath)
 
 	return (

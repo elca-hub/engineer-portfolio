@@ -36,6 +36,6 @@ func (l *slogLogger) WithFields(keyValues logger.Fields) logger.Logger {
 }
 
 func (l *slogLogger) WithError(err error) logger.Logger {
-	var log = l.logger.With(err.Error())
+	var log = l.logger.With("error", err.Error())
 	return &slogLogger{logger: log}
 }

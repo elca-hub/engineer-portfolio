@@ -51,7 +51,7 @@ const DatePickerField = ({ title, field, fieldState, isRequired, helperText, aut
 			<DatePicker
 				maxValue={today(getLocalTimeZone())}
 				autoFocus={autoFocus}
-				className="group flex flex-col gap-1"
+				className="group flex flex-col gap-2 my-4"
 				{...field}
 				isRequired={isRequired}
 				isInvalid={fieldState.error ? true : false}

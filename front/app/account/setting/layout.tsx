@@ -7,7 +7,7 @@ import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { getAuthUser, handleAuthRedirect } from '@/lib/access'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { RiLink, RiPencilLine, RiSettings4Line, RiUserLine } from 'react-icons/ri'
+import { RiAwardLine, RiLink, RiMedal2Line, RiMedalLine, RiPencilLine, RiSettings4Line, RiUserLine } from 'react-icons/ri'
 
 type Props = {
 	children: React.ReactNode
@@ -51,6 +51,10 @@ function SettingSidebarContent() {
 				<ProfileEditAsideItem icon={<RiUserLine />} text="基本設定" link="/account/setting/profile/basic" />
 				<ProfileEditAsideItem icon={<RiPencilLine />} text="自己紹介" link="/account/setting/profile/introduction" />
 				<ProfileEditAsideItem icon={<RiLink />} text="リンク設定" link="/account/setting/profile/link" />
+			</ProfileEditAsideItem>
+			<ProfileEditAsideItem icon={<RiAwardLine />} text="スキル・資格設定" link="/account/setting/skills-and-certifications">
+				<ProfileEditAsideItem icon={<RiMedal2Line />} text="スキルの管理" link="/account/setting/skills-and-certifications/skills" />
+				<ProfileEditAsideItem icon={<RiMedalLine />} text="資格の管理" link="/account/setting/skills-and-certifications/certifications" />
 			</ProfileEditAsideItem>
 		</>
 	)

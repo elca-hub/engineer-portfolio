@@ -5,7 +5,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { apiPrefix } from '@/constants/constant'
 import { DPResponseData, NewDPResponse } from '@/lib/api'
 import console from 'console'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 import { cookies } from 'next/headers'
 import 'server-only'
 
@@ -90,7 +90,6 @@ export async function isLogin(inputEmail?: string): Promise<{ status: LoginStatu
 		if (!session) return { status: 'not_login' }
 
 		const sessionUser = session.user
-
 		if (!sessionUser) return { status: 'not_login' }
 
 		if (sessionUser.email === '') return { status: 'not_login' }

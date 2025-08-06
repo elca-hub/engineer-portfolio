@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"devport/domain/model"
 	"devport/infra/database/sqlboiler/models"
-
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -76,7 +75,7 @@ func (r *SqlBoilerUserRepository) Update(ctx context.Context, user *model.User) 
 }
 
 func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.Email, bio *model.Bio) (*model.User, error) {
-	user, err := models.Users(models.UserWhere.Email.EQ(email.Email()), qm.Load("Skills"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
+	user, err := models.Users(models.UserWhere.Email.EQ(email.Email()), qm.Load("Skills"), qm.Load("Certifications"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.
 }
 
 func (r *SqlBoilerUserRepository) FindById(ctx context.Context, id string, bio *model.Bio) (*model.User, error) {
-	user, err := models.Users(models.UserWhere.ID.EQ(id), qm.Load("Skills"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
+	user, err := models.Users(models.UserWhere.ID.EQ(id), qm.Load("Skills"), qm.Load("Certifications"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
@@ -149,26 +148,65 @@ func (r *SqlBoilerUserRepository) convertToSqlBoilerModel(user *model.User) *mod
 
 func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.User, bio *model.Bio) (*model.User, error) {
 	userEmail, err := model.NewEmail(sqlboilerUser.Email)
-
 	if err != nil {
 		return nil, err
 	}
 
+	// Skills変換
 	sqlboilerSkills := sqlboilerUser.R.Skills
-
-	skills := make([]uint, len(sqlboilerSkills))
-
-	// idを取得
+	skills := make([]*model.Skill, len(sqlboilerSkills))
 	for i, sqlboilerSkill := range sqlboilerSkills {
-		skills[i] = uint(sqlboilerSkill.ID)
+		comment := ""
+		if sqlboilerSkill.Comment.Valid {
+			comment = sqlboilerSkill.Comment.String
+		}
+		skill, err := model.NewSkillWithID(
+			sqlboilerSkill.ID,
+			sqlboilerSkill.Name,
+			sqlboilerSkill.WhenDate,
+			comment,
+			sqlboilerSkill.SortIndex,
+		)
+		if err != nil {
+			return nil, err
+		}
+		skills[i] = skill
 	}
 
-	sqlboilerExternalServiceUrl := sqlboilerUser.R.ExternalServiceUrls
+	// Certifications変換
+	sqlboilerCertifications := sqlboilerUser.R.Certifications
+	certifications := make([]*model.Certification, len(sqlboilerCertifications))
+	for i, sqlboilerCertification := range sqlboilerCertifications {
+		comment := ""
+		if sqlboilerCertification.Comment.Valid {
+			comment = sqlboilerCertification.Comment.String
+		}
+		certification, err := model.NewCertificationWithID(
+			sqlboilerCertification.ID,
+			sqlboilerCertification.Name,
+			sqlboilerCertification.WhenDate,
+			comment,
+			sqlboilerCertification.SortIndex,
+		)
+		if err != nil {
+			return nil, err
+		}
+		certifications[i] = certification
+	}
 
-	externalServiceUrls := make([]string, len(sqlboilerExternalServiceUrl))
-
-	for i, sqlboilerExternalServiceUrl := range sqlboilerExternalServiceUrl {
-		externalServiceUrls[i] = sqlboilerExternalServiceUrl.ID
+	// ExternalServiceUrls変換
+	sqlboilerExternalServiceUrls := sqlboilerUser.R.ExternalServiceUrls
+	externalServiceUrls := make([]*model.ExternalServiceUrl, len(sqlboilerExternalServiceUrls))
+	for i, sqlboilerExternalServiceUrl := range sqlboilerExternalServiceUrls {
+		externalServiceUrl, err := model.NewExternalServiceUrl(
+			sqlboilerExternalServiceUrl.ID,
+			sqlboilerExternalServiceUrl.ServiceType,
+			sqlboilerExternalServiceUrl.URL,
+		)
+		if err != nil {
+			return nil, err
+		}
+		externalServiceUrls[i] = externalServiceUrl
 	}
 
 	user, err := model.NewUser(
@@ -185,6 +223,7 @@ func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.Use
 		sqlboilerUser.CreatedAt,
 		sqlboilerUser.UpdatedAt,
 		skills,
+		certifications,
 		externalServiceUrls,
 	)
 

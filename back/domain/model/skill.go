@@ -12,6 +12,7 @@ const (
 )
 
 type Skill struct {
+	id        string
 	name      string
 	year      time.Time
 	comment   string
@@ -19,6 +20,9 @@ type Skill struct {
 }
 
 func updateSKillNameLogic(name string) (string, error) {
+	if len(name) == 0 {
+		return "", errors.New("スキル名は必須です")
+	}
 	if len(name) > MaxSkillNameLength {
 		return "", fmt.Errorf("スキル名は%d字を超過しています", MaxSkillNameLength)
 	}
@@ -51,11 +55,11 @@ func NewSkill(name string, year time.Time, comment string, sortIndex int) (*Skil
 		return nil, err
 	}
 
-	if year, err := updateSKillYearLogic(year); err != nil {
+	validatedYear, err := updateSKillYearLogic(year)
+	if err != nil {
 		return nil, err
-	} else {
-		year = year.Truncate(24 * time.Hour) // 年の精度を日単位にする
 	}
+	year = validatedYear.Truncate(24 * time.Hour) // 年の精度を日単位にする
 
 	if _, err := updateSkillSortIndexLogic(sortIndex); err != nil {
 		return nil, err
@@ -66,11 +70,21 @@ func NewSkill(name string, year time.Time, comment string, sortIndex int) (*Skil
 	}
 
 	return &Skill{
+		id:        "",
 		name:      name,
 		year:      year,
 		comment:   comment,
 		sortIndex: sortIndex,
 	}, nil
+}
+
+func NewSkillWithID(id string, name string, year time.Time, comment string, sortIndex int) (*Skill, error) {
+	skill, err := NewSkill(name, year, comment, sortIndex)
+	if err != nil {
+		return nil, err
+	}
+	skill.id = id
+	return skill, nil
 }
 
 func (s *Skill) Name() string {
@@ -83,6 +97,10 @@ func (s *Skill) Year() time.Time {
 
 func (s *Skill) Comment() string {
 	return s.comment
+}
+
+func (s *Skill) ID() string {
+	return s.id
 }
 
 func (s *Skill) SortIndex() int {
