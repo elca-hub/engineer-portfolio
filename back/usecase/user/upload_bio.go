@@ -131,9 +131,9 @@ func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (
 		deleteImageTargetDB := differenceArray(dbImages, imageIds)
 
 		for _, imageName := range deleteImageTargetDB {
-			imageName := imageName
+			in := imageName // 確かこうしないとバグる気がした。多分スコープの問題？
 			errG.Go(func() error {
-				return i.bioImageRepo.Delete(tx, user, imageName)
+				return i.bioImageRepo.Delete(tx, user, in)
 			})
 		}
 

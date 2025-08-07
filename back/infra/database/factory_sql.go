@@ -17,6 +17,11 @@ type SqlInter interface {
 	BioImagesRepository() db.BioImagesRepository
 	SkillsRepository() db.SkillsRepository
 	CertificationsRepository() db.CertificationsRepository
+	WorkHavingTagsRepository() db.WorkHavingTagsRepository
+	WorkTagRepository() db.WorkTagRepository
+	WorkUrlRepository() db.WorkUrlRepository
+	WorkRepository() db.WorkRepository
+	WorkImagesRepository() db.WorkImagesRepository
 }
 
 func NewDatabaseSqlFactory(instance int) (SqlInter, error) {

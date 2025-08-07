@@ -33,3 +33,11 @@ func NewWorkTag(id string, name string) (*WorkTag, error) {
 
 	return &WorkTag{id: id, name: name}, nil
 }
+
+func (t *WorkTag) Name() string {
+	return t.name
+}
+
+func (t *WorkTag) ID() string {
+	return t.id
+}

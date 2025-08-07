@@ -1,0 +1,12 @@
+CREATE TABLE work_urls (
+  id VARCHAR(255) NOT NULL PRIMARY KEY,
+  url VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  work_id VARCHAR(255) NOT NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  deleted_at DATETIME(3) DEFAULT NULL,
+  INDEX idx_work_urls_deleted_at (deleted_at),
+  INDEX idx_work_urls_work_id (work_id),
+  FOREIGN KEY (work_id) REFERENCES works(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

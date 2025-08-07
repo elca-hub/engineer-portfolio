@@ -1,0 +1,3 @@
+ALTER TABLE work_having_tags MODIFY COLUMN id VARCHAR(255) NOT NULL;
+ALTER TABLE work_having_tags DROP PRIMARY KEY;
+ALTER TABLE work_having_tags ADD PRIMARY KEY (id);

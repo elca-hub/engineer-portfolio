@@ -13,10 +13,12 @@ import (
 	external_presenter "devport/presenter/external_presenter"
 	skill_presenter "devport/presenter/skill_presenter"
 	user_presenter "devport/presenter/user_presenter"
+	work_presenter "devport/presenter/work_presenter"
 	"devport/usecase/certification"
 	"devport/usecase/external_service_url"
 	"devport/usecase/skill"
 	"devport/usecase/user"
+	"devport/usecase/work"
 	"fmt"
 	"log"
 	"net/http"
@@ -192,6 +194,17 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 					{
 						certificationAuthItemRouterGroup.PUT("/", e.updateCertificationAction())
 						certificationAuthItemRouterGroup.DELETE("/", e.deleteCertificationAction())
+					}
+				}
+
+				workAuthRouterGroup := userAuthRouterGroup.Group("/works") // 作品関連
+				{
+					workAuthRouterGroup.POST("/", e.createWorkAction())
+
+					workAuthItemRouterGroup := workAuthRouterGroup.Group("/:work_id")
+					{
+						workAuthItemRouterGroup.PUT("/", e.updateWorkAction())
+						workAuthItemRouterGroup.POST("/image", e.uploadWorkImageAction())
 					}
 				}
 			}
@@ -668,6 +681,69 @@ func (e *GinEngine) findCertificationsByUserIdAction() gin.HandlerFunc {
 			)
 
 			act = action.NewFindCertificationByUserIdAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) createWorkAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewCreateWorkInteractor(
+				e.sql.UserRepository(),
+				e.sql.WorkRepository(),
+				e.sql.WorkHavingTagsRepository(),
+				e.fileUploader.WorkSentenceStorageRepository(),
+				work_presenter.NewCreateWorkPresenter(),
+				e.email,
+				e.ctxTimeout,
+			)
+
+			act = action.NewCreateWorkAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) updateWorkAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewUpdateWorkInteractor(
+				domain_service.NewWorkSentenceService(e.fileUploader.WorkImageStorageRepository()),
+				domain_service.NewWorkUrlService(e.fileUploader.WorkImageStorageRepository()),
+				e.sql.UserRepository(),
+				e.sql.WorkRepository(),
+				e.sql.WorkHavingTagsRepository(),
+				e.sql.WorkTagRepository(),
+				e.sql.WorkUrlRepository(),
+				e.fileUploader.WorkSentenceStorageRepository(),
+				e.fileUploader.WorkImageStorageRepository(),
+				e.sql.WorkImagesRepository(),
+				work_presenter.NewUpdateWorkPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUpdateWorkAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) uploadWorkImageAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewUploadWorkImageInteractor(
+				e.sql.UserRepository(),
+				e.fileUploader.WorkImageStorageRepository(),
+				e.sql.WorkImagesRepository(),
+				work_presenter.NewUploadWorkImagePresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUploadWorkImageAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

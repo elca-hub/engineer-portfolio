@@ -63,3 +63,11 @@ func (m *MinioHandler) BioImageStorageRepository() file_storage.BioImageStorageR
 func (m *MinioHandler) BioSentenceStorageRepository() file_storage.BioSentenceStorageRepository {
 	return storage_repository.NewBioSentenceStorage(m.uploader, m.client, m.bucketName)
 }
+
+func (m *MinioHandler) WorkImageStorageRepository() file_storage.WorkImageStorageRepository {
+	return storage_repository.NewWorkImageStorage(m.uploader, m.client, m.bucketName, m.endpoint)
+}
+
+func (m *MinioHandler) WorkSentenceStorageRepository() file_storage.WorkSentenceStorageRepository {
+	return storage_repository.NewWorkSentenceStorage(m.uploader, m.client, m.bucketName)
+}

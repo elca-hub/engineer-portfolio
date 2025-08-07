@@ -25,3 +25,15 @@ func NewWorkUrl(id string, url string, title string) (*WorkUrl, error) {
 
 	return &WorkUrl{id: id, url: url, title: title}, nil
 }
+
+func (w *WorkUrl) ID() string {
+	return w.id
+}
+
+func (w *WorkUrl) Url() string {
+	return w.url
+}
+
+func (w *WorkUrl) Title() string {
+	return w.title
+}

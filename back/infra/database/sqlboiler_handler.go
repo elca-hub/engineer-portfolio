@@ -64,3 +64,23 @@ func (h *SqlBoilerHandler) SkillsRepository() db.SkillsRepository {
 func (h *SqlBoilerHandler) CertificationsRepository() db.CertificationsRepository {
 	return repository.NewSqlBoilerCertificationRepository(h.db)
 }
+
+func (h *SqlBoilerHandler) WorkHavingTagsRepository() db.WorkHavingTagsRepository {
+	return repository.NewSqlboilerWorkHavingTagsRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) WorkTagRepository() db.WorkTagRepository {
+	return repository.NewSqlboilerWorkTagRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) WorkUrlRepository() db.WorkUrlRepository {
+	return repository.NewSqlboilerWorkUrlRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) WorkRepository() db.WorkRepository {
+	return repository.NewSqlboilerWorkRepository(h.db)
+}
+
+func (h *SqlBoilerHandler) WorkImagesRepository() db.WorkImagesRepository {
+	return repository.NewSqlBoilerWorkImagesRepository(h.db)
+}

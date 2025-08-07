@@ -5,4 +5,6 @@ const (
 	HeaderObjectType
 	BioSentenceObjectType
 	BioImageObjectType
+	WorkSentenceObjectType
+	WorkImageObjectType
 )
