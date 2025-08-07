@@ -52,7 +52,7 @@ func (i findByUserSkillInteractor) Execute(ctx context.Context, input FindByUser
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
 		if err != nil {
 			return FindByUserSkillOutput{}, err
 		}

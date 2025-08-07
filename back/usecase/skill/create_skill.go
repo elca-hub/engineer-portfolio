@@ -64,7 +64,7 @@ func (i createSkillInteractor) Execute(ctx context.Context, input CreateSkillInp
 		return CreateSkillOutput{}, err
 	}
 
-	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
 		if err != nil {
 			return CreateSkillOutput{}, err
 		}
