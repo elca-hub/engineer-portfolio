@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"fmt"
 	"time"
 
@@ -56,6 +57,15 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
+		if err != nil {
+			return CreateExternalServiceUrlOutput{}, err
+		}
+		if !isExists {
+			return CreateExternalServiceUrlOutput{}, errors.New("ユーザーが存在しません")
+		}
+	}
+
 	var externalServiceUrl *model.ExternalServiceUrl
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
@@ -71,13 +81,7 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return err
 		}
 
-		user, err := i.userRepository.FindById(ctx, input.UserId)
-
-		if err != nil {
-			return err
-		}
-
-		exists, err := i.externalServiceUrlsRepository.IsExistsByServiceType(ctx, user, input.ServiceType)
+		exists, err := i.externalServiceUrlsRepository.IsExistsByServiceType(ctx, input.UserId, input.ServiceType)
 
 		if err != nil {
 			return err
@@ -87,7 +91,7 @@ func (i createExternalServiceUrlInteractor) Execute(ctx context.Context, input C
 			return fmt.Errorf("既に登録されています: %d", input.ServiceType)
 		}
 
-		return i.externalServiceUrlsRepository.Create(ctx, user, externalServiceUrl)
+		return i.externalServiceUrlsRepository.Create(ctx, input.UserId, externalServiceUrl)
 	})
 
 	if err != nil {

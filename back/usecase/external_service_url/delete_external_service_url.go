@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
@@ -55,18 +56,21 @@ func (i deleteExternalServiceUrlInteractor) Execute(ctx context.Context, input D
 	var esu *model.ExternalServiceUrl
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		user, err := i.userRepository.FindById(ctx, input.UserId)
+		if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
+			if err != nil {
+				return err
+			}
+			if !isExists {
+				return errors.New("ユーザーが存在しません")
+			}
+		}
 
+		esu, err := i.externalServiceUrlsRepository.FindById(ctx, input.ExternalServiceUrlId)
 		if err != nil {
 			return err
 		}
 
-		esu, err = i.externalServiceUrlsRepository.FindById(ctx, input.ExternalServiceUrlId)
-		if err != nil {
-			return err
-		}
-
-		return i.externalServiceUrlsRepository.Delete(ctx, user, esu)
+		return i.externalServiceUrlsRepository.Delete(ctx, input.UserId, esu)
 	})
 
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
@@ -51,13 +52,16 @@ func (i findByUserExternalServiceUrlInterator) Execute(tx context.Context, input
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	userModel, err := i.userRepo.FindById(ctx, input.UserId)
-
-	if err != nil {
-		return FindByUserExternalServiceUrlOutput{}, err
+	if isExists, err := i.userRepo.ExistsById(ctx, input.UserId); err != nil || !isExists {
+		if err != nil {
+			return FindByUserExternalServiceUrlOutput{}, err
+		}
+		if !isExists {
+			return FindByUserExternalServiceUrlOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
-	externalServiceUrls, err := i.esuRepo.FindByUserId(ctx, userModel)
+	externalServiceUrls, err := i.esuRepo.FindByUserId(ctx, input.UserId)
 
 	if err != nil {
 		return FindByUserExternalServiceUrlOutput{}, err

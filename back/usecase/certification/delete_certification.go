@@ -53,7 +53,9 @@ func (i deleteCertificationInteractor) Execute(ctx context.Context, input Delete
 		if err != nil {
 			return DeleteCertificationOutput{}, err
 		}
-		return DeleteCertificationOutput{}, errors.New("user not found")
+		if !isExists {
+			return DeleteCertificationOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
 	err := i.certificationsRepository.Delete(ctx, input.UserId, input.ID)

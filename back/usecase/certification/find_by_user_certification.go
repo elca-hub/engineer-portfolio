@@ -52,7 +52,7 @@ func (i findByUserCertificationInteractor) Execute(ctx context.Context, input Fi
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
 		if err != nil {
 			return FindByUserCertificationOutput{}, err
 		}

@@ -64,7 +64,7 @@ func (i createCertificationInteractor) Execute(ctx context.Context, input Create
 		return CreateCertificationOutput{}, err
 	}
 
-	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
 		if err != nil {
 			return CreateCertificationOutput{}, err
 		}

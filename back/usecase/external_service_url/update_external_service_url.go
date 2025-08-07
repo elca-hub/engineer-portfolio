@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
@@ -53,6 +54,15 @@ func (i updateExternalServiceUrlInteractor) Execute(ctx context.Context, input U
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil || !isExists {
+		if err != nil {
+			return UpdateExternalServiceUrlOutput{}, err
+		}
+		if !isExists {
+			return UpdateExternalServiceUrlOutput{}, errors.New("ユーザーが存在しません")
+		}
+	}
+
 	var externalServiceUrl *model.ExternalServiceUrl
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
@@ -63,17 +73,11 @@ func (i updateExternalServiceUrlInteractor) Execute(ctx context.Context, input U
 			return errTmp
 		}
 
-		user, err := i.userRepository.FindById(ctx, input.UserId)
-
-		if err != nil {
-			return err
-		}
-
 		if err := externalServiceUrl.UpdateUrl(input.Url); err != nil {
 			return err
 		}
 
-		return i.externalServiceUrlsRepository.Update(ctx, user, externalServiceUrl)
+		return i.externalServiceUrlsRepository.Update(ctx, input.UserId, externalServiceUrl)
 	})
 
 	if err != nil {

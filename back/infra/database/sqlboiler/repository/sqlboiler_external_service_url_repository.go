@@ -18,10 +18,10 @@ func NewSqlBoilerExternalServiceUrlRepository(db *sql.DB) *SqlBoilerExternalServ
 	return &SqlBoilerExternalServiceUrlRepository{db: db}
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) Create(ctx context.Context, user *model.User, externalServiceUrl *model.ExternalServiceUrl) error {
+func (r *SqlBoilerExternalServiceUrlRepository) Create(ctx context.Context, userId string, externalServiceUrl *model.ExternalServiceUrl) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
-	model := r.convertToSqlBoilerModel(externalServiceUrl, user.ID())
+	model := r.convertToSqlBoilerModel(externalServiceUrl, userId)
 
 	if !ok {
 		return model.Insert(ctx, r.db, boil.Infer())
@@ -30,10 +30,10 @@ func (r *SqlBoilerExternalServiceUrlRepository) Create(ctx context.Context, user
 	return model.Insert(ctx, tx, boil.Infer())
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) Update(ctx context.Context, user *model.User, externalServiceUrl *model.ExternalServiceUrl) error {
+func (r *SqlBoilerExternalServiceUrlRepository) Update(ctx context.Context, userId string, externalServiceUrl *model.ExternalServiceUrl) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
-	model := r.convertToSqlBoilerModel(externalServiceUrl, user.ID())
+	model := r.convertToSqlBoilerModel(externalServiceUrl, userId)
 
 	if !ok {
 		_, err := model.Update(ctx, r.db, boil.Infer())
@@ -44,10 +44,10 @@ func (r *SqlBoilerExternalServiceUrlRepository) Update(ctx context.Context, user
 	return err
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) Delete(ctx context.Context, user *model.User, externalServiceUrl *model.ExternalServiceUrl) error {
+func (r *SqlBoilerExternalServiceUrlRepository) Delete(ctx context.Context, userId string, externalServiceUrl *model.ExternalServiceUrl) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
-	model := r.convertToSqlBoilerModel(externalServiceUrl, user.ID())
+	model := r.convertToSqlBoilerModel(externalServiceUrl, userId)
 
 	if !ok {
 		_, err := model.Delete(ctx, r.db)
@@ -58,8 +58,8 @@ func (r *SqlBoilerExternalServiceUrlRepository) Delete(ctx context.Context, user
 	return err
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) FindByUserId(ctx context.Context, user *model.User) ([]*model.ExternalServiceUrl, error) {
-	externalServiceUrls, err := models.ExternalServiceUrls(qm.Where("user_id = ?", user.ID()), qm.OrderBy("service_type ASC")).All(ctx, r.db)
+func (r *SqlBoilerExternalServiceUrlRepository) FindByUserId(ctx context.Context, userId string) ([]*model.ExternalServiceUrl, error) {
+	externalServiceUrls, err := models.ExternalServiceUrls(qm.Where("user_id = ?", userId), qm.OrderBy("service_type ASC")).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +76,8 @@ func (r *SqlBoilerExternalServiceUrlRepository) FindByUserId(ctx context.Context
 	return res, nil
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) FindByServiceType(ctx context.Context, user *model.User, serviceType int) (*model.ExternalServiceUrl, error) {
-	externalServiceUrl, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(user.ID()), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).One(ctx, r.db)
+func (r *SqlBoilerExternalServiceUrlRepository) FindByServiceType(ctx context.Context, userId string, serviceType int) (*model.ExternalServiceUrl, error) {
+	externalServiceUrl, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(userId), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).One(ctx, r.db)
 
 	if err != nil {
 		return nil, err
@@ -86,8 +86,8 @@ func (r *SqlBoilerExternalServiceUrlRepository) FindByServiceType(ctx context.Co
 	return r.convertToDomainModel(externalServiceUrl)
 }
 
-func (r *SqlBoilerExternalServiceUrlRepository) IsExistsByServiceType(ctx context.Context, user *model.User, serviceType int) (bool, error) {
-	exists, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(user.ID()), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).Exists(ctx, r.db)
+func (r *SqlBoilerExternalServiceUrlRepository) IsExistsByServiceType(ctx context.Context, userId string, serviceType int) (bool, error) {
+	exists, err := models.ExternalServiceUrls(models.ExternalServiceURLWhere.UserID.EQ(userId), models.ExternalServiceURLWhere.ServiceType.EQ(serviceType)).Exists(ctx, r.db)
 	if err != nil {
 		return false, err
 	}
