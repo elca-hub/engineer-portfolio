@@ -63,7 +63,7 @@ func NewUploadBioInteractor(
 }
 
 func (i uploadBioInteractor) Execute(tx context.Context, input UploadBioInput) (UploadBioOutput, error) {
-	user, err := i.userRepository.FindById(tx, input.UserId, nil) // 結局更新するので、bioはnilで良い
+	user, err := i.userRepository.FindById(tx, input.UserId)
 	if err != nil {
 		return UploadBioOutput{}, err
 	}

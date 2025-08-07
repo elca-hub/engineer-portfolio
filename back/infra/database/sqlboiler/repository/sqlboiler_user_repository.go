@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"devport/domain/model"
+	"devport/domain/repo/file_storage"
 	"devport/infra/database/sqlboiler/models"
 
 	"github.com/volatiletech/null/v8"
@@ -16,12 +17,14 @@ type transactionKey struct{}
 var transactionContextKey = transactionKey{}
 
 type SqlBoilerUserRepository struct {
-	db *sql.DB
+	db                           *sql.DB
+	bioSentenceStorageRepository file_storage.BioSentenceStorageRepository
 }
 
-func NewSqlBoilerUserRepository(db *sql.DB) *SqlBoilerUserRepository {
+func NewSqlBoilerUserRepository(db *sql.DB, bioSentenceStorageRepository file_storage.BioSentenceStorageRepository) *SqlBoilerUserRepository {
 	return &SqlBoilerUserRepository{
-		db: db,
+		db:                           db,
+		bioSentenceStorageRepository: bioSentenceStorageRepository,
 	}
 }
 
@@ -75,20 +78,20 @@ func (r *SqlBoilerUserRepository) Update(ctx context.Context, user *model.User) 
 	return err
 }
 
-func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.Email, bio *model.Bio) (*model.User, error) {
+func (r *SqlBoilerUserRepository) FindByEmail(ctx context.Context, email *model.Email) (*model.User, error) {
 	user, err := models.Users(models.UserWhere.Email.EQ(email.Email()), qm.Load("Skills"), qm.Load("Certifications"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
-	return r.convertToDomainModel(user, bio)
+	return r.convertToDomainModel(ctx, user)
 }
 
-func (r *SqlBoilerUserRepository) FindById(ctx context.Context, id string, bio *model.Bio) (*model.User, error) {
+func (r *SqlBoilerUserRepository) FindById(ctx context.Context, id string) (*model.User, error) {
 	user, err := models.Users(models.UserWhere.ID.EQ(id), qm.Load("Skills"), qm.Load("Certifications"), qm.Load("ExternalServiceUrls")).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
-	return r.convertToDomainModel(user, bio)
+	return r.convertToDomainModel(ctx, user)
 }
 
 func (r *SqlBoilerUserRepository) FetchIconNamesAll(ctx context.Context) ([]string, error) {
@@ -161,7 +164,7 @@ func (r *SqlBoilerUserRepository) convertToSqlBoilerModel(user *model.User) *mod
 	}
 }
 
-func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.User, bio *model.Bio) (*model.User, error) {
+func (r *SqlBoilerUserRepository) convertToDomainModel(ctx context.Context, sqlboilerUser *models.User) (*model.User, error) {
 	userEmail, err := model.NewEmail(sqlboilerUser.Email)
 	if err != nil {
 		return nil, err
@@ -222,6 +225,16 @@ func (r *SqlBoilerUserRepository) convertToDomainModel(sqlboilerUser *models.Use
 			return nil, err
 		}
 		externalServiceUrls[i] = externalServiceUrl
+	}
+
+	bioSentence, err := r.bioSentenceStorageRepository.FindByUserId(ctx, sqlboilerUser.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	bio, err := model.NewBio(bioSentence)
+	if err != nil {
+		return nil, err
 	}
 
 	user, err := model.NewUser(

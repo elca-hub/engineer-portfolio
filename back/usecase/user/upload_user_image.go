@@ -58,7 +58,7 @@ func NewUploadUserImageInterator(
 }
 
 func (i uploadUserImageInterator) Execute(tx context.Context, input UploadUserImageInput) (UploadUserImageOutput, error) {
-	user, err := i.userRepository.FindById(tx, input.UserId, nil)
+	user, err := i.userRepository.FindById(tx, input.UserId)
 
 	if err != nil {
 		return UploadUserImageOutput{}, err

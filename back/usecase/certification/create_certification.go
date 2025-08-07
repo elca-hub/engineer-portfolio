@@ -5,8 +5,10 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
-	"github.com/google/uuid"
+	"errors"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -62,9 +64,13 @@ func (i createCertificationInteractor) Execute(ctx context.Context, input Create
 		return CreateCertificationOutput{}, err
 	}
 
-	_, err = i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return CreateCertificationOutput{}, err
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+		if err != nil {
+			return CreateCertificationOutput{}, err
+		}
+		if !isExists {
+			return CreateCertificationOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
 	maxSortIndex, err := i.certificationsRepository.GetMaxSortIndex(ctx, input.UserId)

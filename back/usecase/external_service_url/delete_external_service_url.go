@@ -55,7 +55,7 @@ func (i deleteExternalServiceUrlInteractor) Execute(ctx context.Context, input D
 	var esu *model.ExternalServiceUrl
 
 	err := i.externalServiceUrlsRepository.WithTransaction(ctx, func(ctx context.Context) error {
-		user, err := i.userRepository.FindById(ctx, input.UserId, nil)
+		user, err := i.userRepository.FindById(ctx, input.UserId)
 
 		if err != nil {
 			return err

@@ -55,7 +55,7 @@ func (i updateUserInterator) Execute(tx context.Context, input UpdateUserInput) 
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	user, err := i.userRepository.FindById(ctx, input.User.UserId, nil)
+	user, err := i.userRepository.FindById(ctx, input.User.UserId)
 	if err != nil {
 		return UpdateUserOutput{}, err
 	}

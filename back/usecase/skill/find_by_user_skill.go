@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
@@ -51,9 +52,13 @@ func (i findByUserSkillInteractor) Execute(ctx context.Context, input FindByUser
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	_, err := i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return FindByUserSkillOutput{}, err
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+		if err != nil {
+			return FindByUserSkillOutput{}, err
+		}
+		if !isExists {
+			return FindByUserSkillOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
 	skills, err := i.skillsRepository.FindByUserID(ctx, input.UserId)

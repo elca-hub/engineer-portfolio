@@ -75,7 +75,7 @@ func (i verifyCookieTokenInterator) Execute(cx context.Context, input VerifyCook
 			return err
 		}
 
-		user, err = i.sqlRepository.FindByEmail(tx, email, nil)
+		user, err = i.sqlRepository.FindByEmail(tx, email)
 
 		if err != nil {
 			return err

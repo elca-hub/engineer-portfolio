@@ -61,7 +61,7 @@ func (i loginUserInterator) Execute(tx context.Context, input LoginUserInput) (L
 		return i.presenter.Output("", ""), err
 	}
 
-	user, err := i.sqlRepository.FindByEmail(ctx, email, nil)
+	user, err := i.sqlRepository.FindByEmail(ctx, email)
 
 	if err != nil {
 		return i.presenter.Output("", ""), err

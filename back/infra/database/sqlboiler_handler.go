@@ -48,7 +48,7 @@ func NewSqlBoilerHandler(c *MysqlConfig, storageRepository file_uploader.Storage
 }
 
 func (h *SqlBoilerHandler) UserRepository() db.UserRepository {
-	return repository.NewSqlBoilerUserRepository(h.db)
+	return repository.NewSqlBoilerUserRepository(h.db, h.storageRepository.BioSentenceStorageRepository())
 }
 
 func (h *SqlBoilerHandler) ExternalServiceUrlsRepository() db.ExternalServiceUrlsRepository {

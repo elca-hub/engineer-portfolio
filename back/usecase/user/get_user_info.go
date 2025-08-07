@@ -49,19 +49,7 @@ func NewGetUserInfoInterator(
 }
 
 func (i getUserInfoInterator) Execute(tx context.Context, input GetUserInfoInput) (GetUserInfoOutput, error) {
-	bioString, err := i.bioSentenceStorage.FindByUserId(tx, input.UserId)
-
-	if err != nil {
-		return GetUserInfoOutput{}, err
-	}
-
-	bio, err := model.NewBio(bioString)
-
-	if err != nil {
-		return GetUserInfoOutput{}, err
-	}
-
-	user, err := i.userRepository.FindById(tx, input.UserId, bio)
+	user, err := i.userRepository.FindById(tx, input.UserId)
 
 	if err != nil {
 		return GetUserInfoOutput{}, err

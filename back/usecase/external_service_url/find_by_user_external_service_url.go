@@ -51,7 +51,7 @@ func (i findByUserExternalServiceUrlInterator) Execute(tx context.Context, input
 	ctx, cancel := context.WithTimeout(tx, i.ctxTimeout)
 	defer cancel()
 
-	userModel, err := i.userRepo.FindById(ctx, input.UserId, nil)
+	userModel, err := i.userRepo.FindById(ctx, input.UserId)
 
 	if err != nil {
 		return FindByUserExternalServiceUrlOutput{}, err

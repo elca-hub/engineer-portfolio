@@ -5,6 +5,7 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
+	"errors"
 	"time"
 )
 
@@ -51,9 +52,13 @@ func (i findByUserCertificationInteractor) Execute(ctx context.Context, input Fi
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	_, err := i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return FindByUserCertificationOutput{}, err
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+		if err != nil {
+			return FindByUserCertificationOutput{}, err
+		}
+		if !isExists {
+			return FindByUserCertificationOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
 	certifications, err := i.certificationsRepository.FindByUserID(ctx, input.UserId)

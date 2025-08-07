@@ -5,8 +5,10 @@ import (
 	"devport/domain/dto"
 	"devport/domain/model"
 	"devport/domain/repo/db"
-	"github.com/google/uuid"
+	"errors"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type (
@@ -62,9 +64,13 @@ func (i createSkillInteractor) Execute(ctx context.Context, input CreateSkillInp
 		return CreateSkillOutput{}, err
 	}
 
-	_, err = i.userRepository.FindById(ctx, input.UserId, nil)
-	if err != nil {
-		return CreateSkillOutput{}, err
+	if isExists, err := i.userRepository.ExistsById(ctx, input.UserId); err != nil {
+		if err != nil {
+			return CreateSkillOutput{}, err
+		}
+		if !isExists {
+			return CreateSkillOutput{}, errors.New("ユーザーが存在しません")
+		}
 	}
 
 	maxSortIndex, err := i.skillsRepository.GetMaxSortIndex(ctx, input.UserId)
