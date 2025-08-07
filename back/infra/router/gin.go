@@ -140,6 +140,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			{
 				certificationsRouterGroup.GET("/", e.findCertificationsByUserIdAction())
 			}
+
+			worksRouterGroup := userRouterGroup.Group("/works")
+			{
+				worksRouterGroup.GET("/", e.fetchWorkAction())
+			}
 		}
 
 		authRouterGroup := apiRouterGroup.Group("/auth") // 認証が必要なAPI
@@ -744,6 +749,23 @@ func (e *GinEngine) uploadWorkImageAction() gin.HandlerFunc {
 			)
 
 			act = action.NewUploadWorkImageAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) fetchWorkAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewFetchWorkInteractor(
+				e.sql.UserRepository(),
+				e.sql.WorkRepository(),
+				work_presenter.NewFetchWorkPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFetchWorkAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)

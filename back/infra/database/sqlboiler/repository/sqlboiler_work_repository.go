@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"devport/domain/model"
+	"devport/domain/model/group"
 	"devport/infra/database/sqlboiler/models"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -71,20 +72,30 @@ func (r *SqlboilerWorkRepository) FindById(ctx context.Context, userId string, i
 	return r.convertToDomainModel(ctx, sqlboilerWork)
 }
 
-func (r *SqlboilerWorkRepository) FindAll(ctx context.Context, userId string) ([]*model.Work, error) {
+func (r *SqlboilerWorkRepository) FindAll(ctx context.Context, userId string) (*group.WorkGroup, error) {
 	sqlboilerWorks, err := models.Works(models.WorkWhere.UserID.EQ(userId)).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
 
-	worksDomain := make([]*model.Work, len(sqlboilerWorks))
-	for i, work := range sqlboilerWorks {
-		worksDomain[i], err = r.convertToDomainModel(ctx, work)
+	wg, err := group.NewWorkGroup([]*model.Work{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, work := range sqlboilerWorks {
+		domain, err := r.convertToDomainModel(ctx, work)
 		if err != nil {
 			return nil, err
 		}
+
+		if err := wg.AddWork(domain); err != nil {
+			return nil, err
+		}
 	}
-	return worksDomain, nil
+
+	return wg, nil
 }
 
 func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlboilerWork *models.Work) (*model.Work, error) {

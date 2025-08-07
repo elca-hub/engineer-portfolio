@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"devport/domain/model"
+	"devport/domain/model/group"
 )
 
 type WorkRepository interface {
@@ -10,4 +11,5 @@ type WorkRepository interface {
 	Update(ctx context.Context, userId string, work *model.Work) error
 	GetMaxSortIndex(ctx context.Context, userId string) (int, error)
 	FindById(ctx context.Context, userId string, id string) (*model.Work, error)
+	FindAll(ctx context.Context, userId string) (*group.WorkGroup, error)
 }

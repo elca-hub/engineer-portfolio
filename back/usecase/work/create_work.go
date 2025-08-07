@@ -84,6 +84,15 @@ func (i createWorkInteractor) Execute(ctx context.Context, input CreateWorkInput
 
 	work := model.NewWorkInit(id.String(), sortIndex)
 
+	wg, err := i.workRepository.FindAll(ctx, input.UserId)
+	if err != nil {
+		return CreateWorkOutput{}, err
+	}
+
+	if err := wg.AddWork(work); err != nil {
+		return CreateWorkOutput{}, err
+	}
+
 	if err := i.workRepository.Create(ctx, input.UserId, work); err != nil {
 		return CreateWorkOutput{}, err
 	}
