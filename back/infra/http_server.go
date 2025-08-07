@@ -43,7 +43,7 @@ func (c *HttpServerConfig) ContextTimeout(timeout time.Duration) *HttpServerConf
 }
 
 func (c *HttpServerConfig) DbSql(instance int) *HttpServerConfig {
-	db, err := database.NewDatabaseSqlFactory(instance)
+	db, err := database.NewDatabaseSqlFactory(instance, c.fileUploader)
 
 	if err != nil {
 		panic(err) // TODO: loggerの追加

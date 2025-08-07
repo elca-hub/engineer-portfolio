@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"devport/domain/model"
 	"devport/domain/model/group"
+	"devport/domain/repo/file_storage"
 	"devport/infra/database/sqlboiler/models"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -12,12 +13,14 @@ import (
 )
 
 type SqlboilerWorkRepository struct {
-	db *sql.DB
+	db                            *sql.DB
+	workSentenceStorageRepository file_storage.WorkSentenceStorageRepository
 }
 
-func NewSqlboilerWorkRepository(db *sql.DB) *SqlboilerWorkRepository {
+func NewSqlboilerWorkRepository(db *sql.DB, workSentenceStorageRepository file_storage.WorkSentenceStorageRepository) *SqlboilerWorkRepository {
 	return &SqlboilerWorkRepository{
-		db: db,
+		db:                            db,
+		workSentenceStorageRepository: workSentenceStorageRepository,
 	}
 }
 
@@ -131,10 +134,16 @@ func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlb
 		workTagsDomain[i] = workTag.Name
 	}
 
+	workSentence, err := r.workSentenceStorageRepository.Find(ctx, sqlboilerWork.UserID, sqlboilerWork.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return model.NewWork(
 		sqlboilerWork.ID,
 		sqlboilerWork.Title,
-		sqlboilerWork.Content,
+		workSentence,
 		sqlboilerWork.GithubRepositoryURL,
 		workUrlsDomain,
 		workTagsDomain,
@@ -147,7 +156,6 @@ func (r *SqlboilerWorkRepository) convertToSqlBoilerModel(work *model.Work, user
 	return &models.Work{
 		ID:                  work.ID(),
 		Title:               work.Title(),
-		Content:             work.Content(),
 		SortIndex:           work.SortIndex(),
 		UserID:              userId,
 		GithubRepositoryURL: work.GithubRepositoryUrl(),

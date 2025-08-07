@@ -32,7 +32,6 @@ type Work struct {
 	UpdatedAt           time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 	DeletedAt           null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 	UserID              string    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	Content             string    `boil:"content" json:"content" toml:"content" yaml:"content"`
 	GithubRepositoryURL string    `boil:"github_repository_url" json:"github_repository_url" toml:"github_repository_url" yaml:"github_repository_url"`
 	IsDraft             bool      `boil:"is_draft" json:"is_draft" toml:"is_draft" yaml:"is_draft"`
 
@@ -48,7 +47,6 @@ var WorkColumns = struct {
 	UpdatedAt           string
 	DeletedAt           string
 	UserID              string
-	Content             string
 	GithubRepositoryURL string
 	IsDraft             string
 }{
@@ -59,7 +57,6 @@ var WorkColumns = struct {
 	UpdatedAt:           "updated_at",
 	DeletedAt:           "deleted_at",
 	UserID:              "user_id",
-	Content:             "content",
 	GithubRepositoryURL: "github_repository_url",
 	IsDraft:             "is_draft",
 }
@@ -72,7 +69,6 @@ var WorkTableColumns = struct {
 	UpdatedAt           string
 	DeletedAt           string
 	UserID              string
-	Content             string
 	GithubRepositoryURL string
 	IsDraft             string
 }{
@@ -83,7 +79,6 @@ var WorkTableColumns = struct {
 	UpdatedAt:           "works.updated_at",
 	DeletedAt:           "works.deleted_at",
 	UserID:              "works.user_id",
-	Content:             "works.content",
 	GithubRepositoryURL: "works.github_repository_url",
 	IsDraft:             "works.is_draft",
 }
@@ -107,7 +102,6 @@ var WorkWhere = struct {
 	UpdatedAt           whereHelpertime_Time
 	DeletedAt           whereHelpernull_Time
 	UserID              whereHelperstring
-	Content             whereHelperstring
 	GithubRepositoryURL whereHelperstring
 	IsDraft             whereHelperbool
 }{
@@ -118,7 +112,6 @@ var WorkWhere = struct {
 	UpdatedAt:           whereHelpertime_Time{field: "`works`.`updated_at`"},
 	DeletedAt:           whereHelpernull_Time{field: "`works`.`deleted_at`"},
 	UserID:              whereHelperstring{field: "`works`.`user_id`"},
-	Content:             whereHelperstring{field: "`works`.`content`"},
 	GithubRepositoryURL: whereHelperstring{field: "`works`.`github_repository_url`"},
 	IsDraft:             whereHelperbool{field: "`works`.`is_draft`"},
 }
@@ -181,8 +174,8 @@ func (r *workR) GetWorkUrls() WorkURLSlice {
 type workL struct{}
 
 var (
-	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "content", "github_repository_url", "is_draft"}
-	workColumnsWithoutDefault = []string{"id", "title", "deleted_at", "user_id", "content", "github_repository_url"}
+	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "github_repository_url", "is_draft"}
+	workColumnsWithoutDefault = []string{"id", "title", "deleted_at", "user_id", "github_repository_url"}
 	workColumnsWithDefault    = []string{"sort_index", "created_at", "updated_at", "is_draft"}
 	workPrimaryKeyColumns     = []string{"id"}
 	workGeneratedColumns      = []string{}

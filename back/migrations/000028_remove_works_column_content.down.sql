@@ -1,0 +1,2 @@
+ALTER TABLE works
+    ADD COLUMN content TEXT NOT NULL;

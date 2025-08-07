@@ -9,15 +9,17 @@ import (
 	"devport/domain/repo/db"
 	"devport/infra/database/sqlboiler/repository"
 	"devport/infra/database/sqlboiler/seed"
+	"devport/infra/file_uploader"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type SqlBoilerHandler struct {
-	db *sql.DB
+	db                *sql.DB
+	storageRepository file_uploader.StorageRepositoryInter
 }
 
-func NewSqlBoilerHandler(c *MysqlConfig) (*SqlBoilerHandler, error) {
+func NewSqlBoilerHandler(c *MysqlConfig, storageRepository file_uploader.StorageRepositoryInter) (*SqlBoilerHandler, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FTokyo",
 		c.user,
@@ -42,7 +44,7 @@ func NewSqlBoilerHandler(c *MysqlConfig) (*SqlBoilerHandler, error) {
 		seed.CreateUserSeed(context.Background(), db)
 	}
 
-	return &SqlBoilerHandler{db: db}, nil
+	return &SqlBoilerHandler{db: db, storageRepository: storageRepository}, nil
 }
 
 func (h *SqlBoilerHandler) UserRepository() db.UserRepository {
@@ -78,7 +80,7 @@ func (h *SqlBoilerHandler) WorkUrlRepository() db.WorkUrlRepository {
 }
 
 func (h *SqlBoilerHandler) WorkRepository() db.WorkRepository {
-	return repository.NewSqlboilerWorkRepository(h.db)
+	return repository.NewSqlboilerWorkRepository(h.db, h.storageRepository.WorkSentenceStorageRepository())
 }
 
 func (h *SqlBoilerHandler) WorkImagesRepository() db.WorkImagesRepository {

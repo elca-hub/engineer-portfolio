@@ -15,12 +15,12 @@ func main() {
 	app := infra.NewHttpServerConfig().
 		Name(os.Getenv("APP_NAME")).
 		ContextTimeout(10 * time.Second).
+		FileUploader(file_uploader.InstanceMinio).
 		DbSql(database.InstanceSqlBoilerMySql).
 		DbNoSql(database.InstanceRedis).
 		Logger(log.InstanceZap).
 		Validator(validation.InstanceGoPlayground).
 		Email().
-		FileUploader(file_uploader.InstanceMinio).
 		WebServerPort(os.Getenv("APP_PORT")).
 		WebServer(router.InstanceGin)
 

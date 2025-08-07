@@ -2,6 +2,7 @@ package database
 
 import (
 	"devport/domain/repo/db"
+	"devport/infra/file_uploader"
 	"errors"
 )
 
@@ -24,10 +25,10 @@ type SqlInter interface {
 	WorkImagesRepository() db.WorkImagesRepository
 }
 
-func NewDatabaseSqlFactory(instance int) (SqlInter, error) {
+func NewDatabaseSqlFactory(instance int, storageRepository file_uploader.StorageRepositoryInter) (SqlInter, error) {
 	switch instance {
 	case InstanceSqlBoilerMySql:
-		return NewSqlBoilerHandler(NewMySQLConfig())
+		return NewSqlBoilerHandler(NewMySQLConfig(), storageRepository)
 	default:
 		return nil, errors.New("invalid instance")
 	}
