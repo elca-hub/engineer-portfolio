@@ -144,6 +144,11 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 			worksRouterGroup := userRouterGroup.Group("/works")
 			{
 				worksRouterGroup.GET("/", e.fetchWorkAction())
+
+				workItemRouterGroup := worksRouterGroup.Group("/:workId")
+				{
+					workItemRouterGroup.GET("/", e.findWorkAction())
+				}
 			}
 		}
 
@@ -766,6 +771,23 @@ func (e *GinEngine) fetchWorkAction() gin.HandlerFunc {
 			)
 
 			act = action.NewFetchWorkAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) findWorkAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewFindWorkInteractor(
+				e.sql.UserRepository(),
+				e.sql.WorkRepository(),
+				work_presenter.NewFindWorkPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewFindWorkAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)
