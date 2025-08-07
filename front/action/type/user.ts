@@ -1,3 +1,6 @@
+import { CertificationType } from './certification'
+import { SkillType } from './skill'
+
 export type UserType = {
 	email: string
 	user_id: string
@@ -9,4 +12,6 @@ export type UserType = {
 	organization_name: string
 	occupation_name: string
 	place: string
+	skills: SkillType[]
+	certifications: CertificationType[]
 }
