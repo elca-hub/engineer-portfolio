@@ -18,9 +18,9 @@ export default function HeaderPresentation({ user, isLogin }: Props) {
 	return (
 		<DPHeader user={user} isLogin={isLogin}>
 			{user && (
-				<Link href={`/account/setting/profile`} className="outline-none">
+				<Link href={`/account/setting/works/add`} className="outline-none">
 					<DPButton colormode="primary">
-						<TextWithIcon icon={<RiPencilLine />}>プロフィール編集</TextWithIcon>
+						<TextWithIcon icon={<RiPencilLine />}>作品を投稿する</TextWithIcon>
 					</DPButton>
 				</Link>
 			)}

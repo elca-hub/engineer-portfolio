@@ -1,6 +1,8 @@
 package dto
 
-import "devport/domain/model"
+import (
+	"devport/domain/model"
+)
 
 type WorkDTO struct {
 	ID                  string        `json:"id"`

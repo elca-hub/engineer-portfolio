@@ -5,8 +5,8 @@ export type WorkType = {
   id: string
   title: string
   content: string
-  githubRepositoryUrl: string
-  externalServiceUrls: WorkUrlType[]
+  github_repository_url: string
+  external_service_urls: WorkUrlType[]
   tags: WorkTagType[]
-  isDraft: boolean
+  is_draft: boolean
 }

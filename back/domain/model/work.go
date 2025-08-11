@@ -24,7 +24,8 @@ type Work struct {
 }
 
 func updateTitleLogic(title string) (string, error) {
-	if len(title) > MaxWorkTitleLength {
+	runeSlice := []rune(title)
+	if len(runeSlice) > MaxWorkTitleLength {
 		return "", fmt.Errorf("タイトルは%d字を超過しています", MaxWorkTitleLength)
 	}
 	return title, nil

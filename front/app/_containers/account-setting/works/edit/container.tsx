@@ -10,7 +10,7 @@ type EditWorkContainerProps = {
 }
 
 export default async function EditWorkContainer({ workId }: EditWorkContainerProps) {
-  const authRedirectPath = await handleAuthRedirect('auth')
+	const authRedirectPath = await handleAuthRedirect('auth')
 	if (authRedirectPath) redirect(authRedirectPath)
 
 	const authUser = await getAuthUser()
@@ -31,7 +31,7 @@ export default async function EditWorkContainer({ workId }: EditWorkContainerPro
 
 	return (
 		<>
-			<EditWorkPresentation work={workData} user={userData}></EditWorkPresentation>
+			<EditWorkPresentation work={workData} user={userData} />
 		</>
 	)
 }

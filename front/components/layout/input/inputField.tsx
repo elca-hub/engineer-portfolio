@@ -63,10 +63,6 @@ const InputField = ({ ...props }: InputFieldProps) => {
 		<TextField {...props.field} {...props} className={`my-4 flex flex-col gap-2 ${props.className}`}>
 			<Label className="text-gray-700">{labelPopOver}</Label>
 			{props.customInput ? (
-				// <TextArea
-				// 	rows={props.rows || 10}
-				// 	className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-				// />
 				props.customInput
 			) : (
 				<Input

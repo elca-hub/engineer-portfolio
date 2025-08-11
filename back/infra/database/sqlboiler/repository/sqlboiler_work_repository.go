@@ -68,7 +68,8 @@ func (r *SqlboilerWorkRepository) GetMaxSortIndex(ctx context.Context, userId st
 }
 
 func (r *SqlboilerWorkRepository) FindById(ctx context.Context, userId string, id string) (*model.Work, error) {
-	sqlboilerWork, err := models.Works(models.WorkWhere.ID.EQ(id), models.WorkWhere.UserID.EQ(userId)).One(ctx, r.db)
+	sqlboilerWork, err := models.Works(
+		models.WorkWhere.ID.EQ(id), models.WorkWhere.UserID.EQ(userId)).One(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +121,10 @@ func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlb
 		}
 	}
 
-	workTags, err := models.WorkHavingTags(models.WorkHavingTagWhere.WorkID.EQ(sqlboilerWork.ID)).All(ctx, r.db)
+	workTags, err := models.WorkHavingTags(
+		models.WorkHavingTagWhere.WorkID.EQ(sqlboilerWork.ID),
+		qm.OrderBy("created_at DESC"),
+	).All(ctx, r.db)
 	if err != nil {
 		return nil, err
 	}

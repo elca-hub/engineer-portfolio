@@ -80,67 +80,49 @@ func (r *SqlboilerWorkTagRepository) Delete(ctx context.Context, id string) erro
 func (r *SqlboilerWorkTagRepository) DeleteNoUsed(ctx context.Context) error {
 	tx, ok := ctx.Value(transactionContextKey).(*sql.Tx)
 
+	var (
+		execContext boil.ContextExecutor
+		workIds     []string
+	)
+
+	if ok {
+		execContext = tx
+	} else {
+		execContext = r.db
+	}
+
 	query := `
-		SELECT t.id
-		FROM work_having_tags w
-		LEFT OUTER JOIN work_tags t ON w.work_tag_id <> t.id
+	SELECT t.id FROM work_tags t
+	WHERE t.id NOT IN (
+    SELECT w.work_tag_id FROM work_having_tags w
+  )
 	`
 
-	var workIds []string
+	rows, err := execContext.QueryContext(ctx, query)
 
-	// SQLを実行
-	if ok {
-		rows, err := tx.QueryContext(ctx, query)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
+	if err != nil {
+		return err
+	}
 
-		for rows.Next() {
-			var workId string
+	defer rows.Close()
 
-			if err := rows.Scan(&workId); err != nil {
-				continue
-			}
-			workIds = append(workIds, workId)
-		}
+	for rows.Next() {
+		var workId string
 
-		if err := rows.Err(); err != nil {
-			return err
+		if err := rows.Scan(&workId); err != nil {
+			continue
 		}
-	} else {
-		rows, err := r.db.QueryContext(ctx, query)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
+		workIds = append(workIds, workId)
+	}
 
-		for rows.Next() {
-			var workId string
-			if err := rows.Scan(&workId); err != nil {
-				return err
-			}
-			workIds = append(workIds, workId)
-		}
-
-		if err := rows.Err(); err != nil {
-			return err
-		}
+	if err := rows.Err(); err != nil {
+		return err
 	}
 
 	// 抽出されたIDに対応するworksを削除
 	if len(workIds) > 0 {
-		if ok {
-			_, err := models.WorkTags(models.WorkTagWhere.ID.IN(workIds)).DeleteAll(ctx, tx)
-
-			if err != nil {
-				return err
-			}
-		} else {
-			_, err := models.WorkTags(models.WorkTagWhere.ID.IN(workIds)).DeleteAll(ctx, r.db)
-			if err != nil {
-				return err
-			}
+		if _, err := models.WorkTags(models.WorkTagWhere.ID.IN(workIds)).DeleteAll(ctx, execContext); err != nil {
+			return err
 		}
 	}
 

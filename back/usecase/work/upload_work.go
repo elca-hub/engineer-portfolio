@@ -213,18 +213,37 @@ func (i updateWorkInteractor) Execute(ctx context.Context, input UpdateWorkInput
 				return err
 			}
 
-			title, err := i.workUrlService.FetchTitle(url.Url)
-			if err != nil {
-				return err
+			var urlModel *model.WorkUrl
+
+			if url.Title != "" {
+				urlModel, err = model.NewWorkUrl(id.String(), url.Url, url.Title)
+				if err != nil {
+					return err
+				}
+			} else {
+				title, err := i.workUrlService.FetchTitle(url.Url)
+
+				if err != nil {
+					return err
+				}
+
+				urlModel, err = model.NewWorkUrl(id.String(), url.Url, title)
+				if err != nil {
+					return err
+				}
 			}
 
-			esuDto[num], err = model.NewWorkUrl(id.String(), url.Url, title)
+			esuDto[num] = urlModel
 			if err != nil {
 				return err
 			}
 		}
 
 		if err := i.workUrlRepository.CreateByWorkId(ctx, work.ID(), esuDto); err != nil {
+			return err
+		}
+
+		if err := work.UpdateExternalServiceUrls(esuDto); err != nil {
 			return err
 		}
 
@@ -336,25 +355,8 @@ func (i updateWorkInteractor) updateModel(work *model.Work, input *dto.WorkDTO) 
 	if err := work.UpdateContent(input.Content); err != nil {
 		return nil, err
 	}
+
 	if err := work.UpdateGithubRepositoryUrl(input.GithubRepositoryUrl); err != nil {
-		return nil, err
-	}
-
-	esuDto := make([]*model.WorkUrl, len(input.ExternalServiceUrls))
-	for num, url := range input.ExternalServiceUrls {
-
-		title, err := i.workUrlService.FetchTitle(url.Url)
-		if err != nil {
-			return nil, err
-		}
-
-		esuDto[num], err = model.NewWorkUrl("", url.Url, title)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if err := work.UpdateExternalServiceUrls(esuDto); err != nil {
 		return nil, err
 	}
 
