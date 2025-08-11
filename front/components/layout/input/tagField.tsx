@@ -6,7 +6,7 @@ import { RiCloseLine } from 'react-icons/ri'
 import { WorkFormType } from '@/app/_containers/account-setting/works/edit/presentation'
 
 interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivElement> {
-	title: string
+	title?: string
   append: (value: { name: string }) => void
   remove: (index: number) => void
 	isRequired?: boolean

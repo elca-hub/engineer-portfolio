@@ -5,7 +5,7 @@ import { RiInfoI } from 'react-icons/ri'
 import TextWithIcon from '../../ui/text/textWithIcon'
 
 interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivElement> {
-	title: string
+	title?: string
 	field: ControllerRenderProps<FieldValue<FieldValues>, FieldPath<FieldValues>>
 	fieldState: ControllerFieldState
 	isRequired?: boolean
@@ -17,6 +17,7 @@ interface InputFieldProps extends TextFieldProps, React.RefAttributes<HTMLDivEle
 	customInput?: React.ReactNode
 	isLoading?: boolean
 	placeholder?: string
+	inputSize?: 'big'
 }
 
 const InputField = ({ ...props }: InputFieldProps) => {
@@ -53,6 +54,14 @@ const InputField = ({ ...props }: InputFieldProps) => {
 		labelNode
 	)
 
+	let normalInputClassName = 'rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+
+	switch (props.inputSize) {
+		case 'big':
+			normalInputClassName += ' text-3xl font-medium'
+			break
+	}
+
 	return props.isLoading ? (
 		<div className="animate-pulse">
 			<div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -67,7 +76,7 @@ const InputField = ({ ...props }: InputFieldProps) => {
 			) : (
 				<Input
 					placeholder={props.placeholder}
-					className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+					className={normalInputClassName}
 				/>
 			)}
 			<Text slot="description" className="text-sm text-subtext">

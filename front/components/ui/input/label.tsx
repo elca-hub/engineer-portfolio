@@ -3,7 +3,7 @@ import { RiInfoI } from "react-icons/ri"
 import TextWithIcon from "../text/textWithIcon"
 
 type LabelProps = {
-  title: string
+  title?: string
   icon?: React.ReactNode
   popoverContent?: string
   isRequired?: boolean
