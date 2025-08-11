@@ -146,6 +146,10 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 		}
 	}, [autoSaveTimeout])
 
+	useEffect(() => {
+		scheduleAutoSave(convertFormTypeToWorkType(watch()))
+	}, [watch('content')])
+
 	const handleUpdateWork = async (data: WorkFormType, isPushSubmit: boolean = false) => {
 		if (isSubmitting || !(formState.isDirty || isPushSubmit)) return
 
@@ -289,9 +293,6 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 												placeholder="作品の紹介やこだわりポイントをアピールしてみましょう！"
 											/>
 										}
-										onKeyDown={() => {
-											scheduleAutoSave(convertFormTypeToWorkType(watch()))
-										}}
 									/>
 								)}
 							/>
