@@ -11,7 +11,7 @@ import { getSessionToken } from '@/lib/access'
 import { useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { TextArea } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { RiEditLine, RiGithubLine, RiPriceTag3Line, RiArticleLine, RiEyeLine, RiFileTextLine, RiCheckboxCircleLine } from 'react-icons/ri'
+import { RiEditLine, RiGithubLine, RiPriceTag3Line, RiArticleLine, RiEyeLine, RiFileTextLine, RiCheckboxCircleLine, RiLink } from 'react-icons/ri'
 import updateWork from '@/action/usecase/works/updateWork'
 import TagField from '@/components/layout/input/tagField'
 import { WorkUrlType } from '@/action/type/workUrl'
@@ -253,12 +253,13 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 
 					<div className="space-y-4">
 						<UrlListField
-							title="外部サービスURL"
+							title="URL"
 							urls={urlFields}
 							append={appendUrl}
 							remove={removeUrl}
 							maxUrls={5}
 							validation={() => null}
+							icon={<RiLink />}
 							helperText={`${urlFields.length}/5 URL - Enterキーで追加、×ボタンで削除`}
 						/>
 					</div>
