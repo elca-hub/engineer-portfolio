@@ -269,13 +269,6 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 							<Controller
 								name="content"
 								control={control}
-								rules={{
-									required: '作品の紹介文を入力してください',
-									maxLength: {
-										value: 2000,
-										message: '本文は2000文字以内で入力してください',
-									},
-								}}
 								render={({ field, fieldState }) => (
 									<InputField
 										title="本文"
