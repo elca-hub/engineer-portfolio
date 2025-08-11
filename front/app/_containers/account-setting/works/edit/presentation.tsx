@@ -9,13 +9,14 @@ import DPButton from '@/components/ui/button/button'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
 import { getSessionToken } from '@/lib/access'
 import { useContext, useEffect, useRef, useState, useCallback } from 'react'
-import { TextArea } from 'react-aria-components'
+import { Button, DropZone, FileTrigger, TextArea } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { RiEditLine, RiGithubLine, RiPriceTag3Line, RiArticleLine, RiEyeLine, RiFileTextLine, RiCheckboxCircleLine, RiLink } from 'react-icons/ri'
+import { RiEditLine, RiGithubLine, RiPriceTag3Line, RiArticleLine, RiEyeLine, RiFileTextLine, RiCheckboxCircleLine, RiLink, RiImageAddLine } from 'react-icons/ri'
 import updateWork from '@/action/usecase/works/updateWork'
 import TagField from '@/components/layout/input/tagField'
 import { WorkUrlType } from '@/action/type/workUrl'
 import UrlListField from '@/components/layout/input/urlListField'
+import uploadWorksImage from '@/action/usecase/works/uploadWorksImage'
 
 type EditWorkPresentationProps = {
 	work: WorkType
@@ -43,7 +44,11 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 	const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
 	const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-	const { control, handleSubmit, watch, formState, reset, trigger } = useForm<WorkFormType>({
+	/* 画像アップロード関連 */
+	const [imageFile, setImageFile] = useState<File | null>(null)
+	const [isUploadImage, setIsUploadImage] = useState(false)
+
+	const { control, handleSubmit, watch, formState, reset, trigger, setValue } = useForm<WorkFormType>({
 		defaultValues: {
 			title: work.title || '',
 			content: work.content || '',
@@ -163,6 +168,44 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 		})
 	}
 
+	/* 画像アップロード関連 */
+	useEffect(() => {
+		if (imageFile) {
+			setIsUploadImage(true)
+			const uploadFlow = async () => {
+				const token = await getSessionToken()
+				if (!token) {
+					setCallout([...callout, { content: 'ログインしてください', type: 'error' }])
+					return
+				}
+
+				const res = await uploadWorksImage(token, work.id, imageFile)
+
+				if (res.errors) {
+					for (const error of res.errors) {
+						setCallout([...callout, { content: error, type: 'error' }])
+					}
+				}
+
+				if (res.data) {
+					const textarea = textareaRef.current
+					if (textarea) {
+						const start = textarea.selectionStart
+						const end = textarea.selectionEnd
+						const currentValue = watch('content')
+						const newValue = currentValue.substring(0, start) + `\n![image](${res.data.image_url})\n` + currentValue.substring(end)
+						setValue('content', newValue)
+					} else {
+						setValue('content', `${watch('content')}\n![image](${res.data.image_url})`)
+					}
+				}
+			}
+			uploadFlow()
+			setImageFile(null)
+			setIsUploadImage(false)
+		}
+	}, [imageFile])
+
 	// 日時フォーマット関数
 	const formatDateTime = (date: Date) => {
 		return new Intl.DateTimeFormat('ja-JP', {
@@ -266,6 +309,30 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 						<div>
+						<DropZone
+							onDrop={(e) => {
+								const targetFile = e.items[0]
+								if (targetFile.kind !== 'file') return
+								targetFile.getFile().then((f) => {
+									setImageFile(f)
+								})
+							}}
+							className={`z-10`}
+						>
+							<FileTrigger
+								onSelect={(e) => {
+									if (!e) return
+									const file = e.item(0)
+									if (file === null) return
+									setImageFile(file)
+								}}
+								acceptedFileTypes={['image/*']}
+							>
+								<Button className="z-10">
+									<TextWithIcon icon={<RiImageAddLine />}>画像</TextWithIcon>
+								</Button>
+							</FileTrigger>
+						</DropZone>
 							<Controller
 								name="content"
 								control={control}
@@ -277,15 +344,42 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 										isMultiline
 										isRequired
 										icon={<RiArticleLine />}
-										rows={20}
 										helperText="作品の紹介やこだわりポイントをアピールしてみましょう！markdownを利用して記述することができます。"
+										isDisabled={isUploadImage}
+										isLoading={isSubmitting}
 										customInput={
-											<TextArea
-												ref={textareaRef}
-												rows={20}
-												className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
-												placeholder="作品の紹介やこだわりポイントをアピールしてみましょう！"
-											/>
+											<DropZone
+												onDrop={(e) => {
+													const targetFile = e.items[0]
+													if (targetFile.kind !== 'file') return
+													targetFile.getFile().then((f) => {
+														setImageFile(f)
+													})
+												}}
+												className="w-full"
+											>
+												<TextArea
+													ref={textareaRef}
+													rows={10}
+													className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext"
+													placeholder="自分の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
+													onKeyDown={(e) => {
+														if (e.key === 'Tab') {
+															e.preventDefault()
+															const textarea = e.currentTarget
+															const start = textarea.selectionStart
+															const end = textarea.selectionEnd
+															const value = textarea.value
+															textarea.value = value.substring(0, start) + '\t' + value.substring(end)
+															textarea.selectionStart = textarea.selectionEnd = start + 1
+															// React Hook Formの値も更新
+															if (typeof field?.onChange === 'function') {
+																field.onChange(textarea.value)
+															}
+														}
+													}}
+												/>
+											</DropZone>
 										}
 									/>
 								)}
