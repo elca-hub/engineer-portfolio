@@ -29,7 +29,7 @@ export default function AddWorkPresentation({ user }: Props) {
 
 				const res = await createWork(token)
 				if (res.data?.work) {
-					router.push(`/account/setting/works/${res.data.work.id}/edit`)
+					router.replace(`/account/setting/works/${res.data.work.id}/edit`)
 				} else {
 					setCallout([...callout, { content: '作品の作成に失敗しました。再度ログインしてください', type: 'error' }])
 				}

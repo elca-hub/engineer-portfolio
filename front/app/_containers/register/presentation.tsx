@@ -67,7 +67,7 @@ export default function RegisterPresentation() {
 				}
 
 				setCallout([...callout, { type: 'success', content: '登録が完了しました' }])
-				router.push(`/${watch().userId}/profile`)
+				router.replace(`/${watch().userId}/profile`)
 				return
 			}
 
