@@ -17,6 +17,7 @@ import TagField from '@/components/layout/input/tagField'
 import { WorkUrlType } from '@/action/type/workUrl'
 import UrlListField from '@/components/layout/input/urlListField'
 import uploadWorksImage from '@/action/usecase/works/uploadWorksImage'
+import HeadContent from '@/components/layout/headContent'
 
 type EditWorkPresentationProps = {
 	work: WorkType
@@ -249,193 +250,196 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 	}
 
 	return (
-		<div className="h-full flex flex-col">
-			{/* 最終更新日時表示 */}
-			{lastUpdatedTime && (
-				<div className="flex justify-left gap-6 text-green-800">
-					<TextWithIcon icon={<RiCheckboxCircleLine />}>最終更新日時</TextWithIcon>
-					{formatDateTime(lastUpdatedTime)}
-				</div>
-			)}
+		<>
+			<HeadContent title={`「${work.title}」の編集`} des={work.content} />
+			<div className="h-full flex flex-col">
+				{/* 最終更新日時表示 */}
+				{lastUpdatedTime && (
+					<div className="flex justify-left gap-6 text-green-800">
+						<TextWithIcon icon={<RiCheckboxCircleLine />}>最終更新日時</TextWithIcon>
+						{formatDateTime(lastUpdatedTime)}
+					</div>
+				)}
 
-			<form className="h-full" onSubmit={handleSubmit((data) => handleUpdateWork(data, true))}>
-				<div className="h-full flex flex-col">
-					<Controller
-						name="title"
-						control={control}
-						rules={{
-							maxLength: {
-								value: 100,
-								message: '作品名は100文字以内で入力してください',
-							},
-						}}
-						render={({ field, fieldState }) => (
-							<InputField
-								type="text"
-								field={field}
-								fieldState={fieldState}
-								helperText={`${field.value.length}/100`}
-								placeholder="作品名を入力してください"
-								autoComplete="on"
-								inputSize="big"
-							/>
-						)}
-					/>
+				<form className="h-full" onSubmit={handleSubmit((data) => handleUpdateWork(data, true))}>
+					<div className="h-full flex flex-col">
+						<Controller
+							name="title"
+							control={control}
+							rules={{
+								maxLength: {
+									value: 100,
+									message: '作品名は100文字以内で入力してください',
+								},
+							}}
+							render={({ field, fieldState }) => (
+								<InputField
+									type="text"
+									field={field}
+									fieldState={fieldState}
+									helperText={`${field.value.length}/100`}
+									placeholder="作品名を入力してください"
+									autoComplete="on"
+									inputSize="big"
+								/>
+							)}
+						/>
 
-					<Tabs className="h-full">
-						<TabList className="flex border-b border-subtext mb-4">
-							<Tab id="content" className="px-4 py-2 cursor-pointer data-[selected]:border-b-2 data-[selected]:border-primary data-[selected]:text-primary hover:text-primary transition-colors">
-								<TextWithIcon icon={<RiArticleLine />}>本文</TextWithIcon>
-							</Tab>
-							<Tab id="option" className="px-4 py-2 cursor-pointer data-[selected]:border-b-2 data-[selected]:border-primary data-[selected]:text-primary hover:text-primary transition-colors">
-								<TextWithIcon icon={<RiMoreLine />}>その他</TextWithIcon>
-							</Tab>
-						</TabList>
+						<Tabs className="h-full">
+							<TabList className="flex border-b border-subtext mb-4">
+								<Tab id="content" className="px-4 py-2 cursor-pointer data-[selected]:border-b-2 data-[selected]:border-primary data-[selected]:text-primary hover:text-primary transition-colors">
+									<TextWithIcon icon={<RiArticleLine />}>本文</TextWithIcon>
+								</Tab>
+								<Tab id="option" className="px-4 py-2 cursor-pointer data-[selected]:border-b-2 data-[selected]:border-primary data-[selected]:text-primary hover:text-primary transition-colors">
+									<TextWithIcon icon={<RiMoreLine />}>その他</TextWithIcon>
+								</Tab>
+							</TabList>
 
-						<TabPanel className="focus:outline-none" id="content">
-							<DropZone
-								onDrop={(e) => {
-									const targetFile = e.items[0]
-									if (targetFile.kind !== 'file') return
-									targetFile.getFile().then((f) => {
-										setImageFile(f)
-									})
-								}}
-								className={`z-10 mb-4`}
-							>
-								<FileTrigger
-									onSelect={(e) => {
-										if (!e) return
-										const file = e.item(0)
-										if (file === null) return
-										setImageFile(file)
+							<TabPanel className="focus:outline-none" id="content">
+								<DropZone
+									onDrop={(e) => {
+										const targetFile = e.items[0]
+										if (targetFile.kind !== 'file') return
+										targetFile.getFile().then((f) => {
+											setImageFile(f)
+										})
 									}}
-									acceptedFileTypes={['image/*']}
+									className={`z-10 mb-4`}
 								>
-									<DPButton colormode="primary" buttonSize="small">
-										<TextWithIcon icon={<RiImageAddLine />}>画像</TextWithIcon>
-									</DPButton>
-								</FileTrigger>
-							</DropZone>
-							<div id="content-container" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-								<div>
+									<FileTrigger
+										onSelect={(e) => {
+											if (!e) return
+											const file = e.item(0)
+											if (file === null) return
+											setImageFile(file)
+										}}
+										acceptedFileTypes={['image/*']}
+									>
+										<DPButton colormode="primary" buttonSize="small">
+											<TextWithIcon icon={<RiImageAddLine />}>画像</TextWithIcon>
+										</DPButton>
+									</FileTrigger>
+								</DropZone>
+								<div id="content-container" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+									<div>
+										<Controller
+											name="content"
+											control={control}
+											render={({ field, fieldState }) => (
+												<InputField
+													title="本文"
+													field={field}
+													fieldState={fieldState}
+													isMultiline
+													icon={<RiArticleLine />}
+													isDisabled={isUploadImage}
+													isLoading={isSubmitting}
+													customInput={
+														<DropZone
+															onDrop={(e) => {
+																const targetFile = e.items[0]
+																if (targetFile.kind !== 'file') return
+																targetFile.getFile().then((f) => {
+																	setImageFile(f)
+																})
+															}}
+															className="w-full"
+														>
+															<TextArea
+																ref={textareaRef}
+																className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext resize-none"
+																style={{ height: `${contentHeight}px` }}
+																placeholder="作品の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
+																onKeyDown={(e) => {
+																	if (e.key === 'Tab') {
+																		e.preventDefault()
+																		const textarea = e.currentTarget
+																		const start = textarea.selectionStart
+																		const end = textarea.selectionEnd
+																		const value = textarea.value
+																		textarea.value = value.substring(0, start) + '\t' + value.substring(end)
+																		textarea.selectionStart = textarea.selectionEnd = start + 1
+																		if (typeof field?.onChange === 'function') {
+																			field.onChange(textarea.value)
+																		}
+																	}
+																}}
+															/>
+														</DropZone>
+													}
+													className="my-0"
+												/>
+											)}
+										/>
+									</div>
+
+									<div>
+										<div className="flex items-center gap-2 mb-2">
+											<TextWithIcon icon={<RiEyeLine />}>プレビュー</TextWithIcon>
+										</div>
+										<div id="preview-content" className="border border-subtext rounded p-4 bg-background overflow-auto" style={{ height: `${contentHeight}px` }}>
+											<CustomMarkdown>{contentValue || ''}</CustomMarkdown>
+										</div>
+									</div>
+								</div>
+							</TabPanel>
+
+							<TabPanel className="focus:outline-none" id="option">
+								<div className="space-y-4">
+									<TagField
+										helperText={`${fields.length}/${MAX_TAGS} タグ - Enterキーで追加、×ボタンで削除`}
+										tags={fields}
+										maxTags={MAX_TAGS}
+										append={append}
+										remove={remove}
+										validation={
+											(tags) => {
+												if (!tags) return null
+												if (tags.length > MAX_TAGS) return `タグは最大${MAX_TAGS}つまでです`
+												if (tags.some(tag => tag.name.length > MAX_TAG_NAME_LENGTH)) return `タグは${MAX_TAG_NAME_LENGTH}文字以内で入力してください`
+												return null
+											}
+										}
+									/>
+
 									<Controller
-										name="content"
+										name="githubRepositoryUrl"
 										control={control}
+										rules={{
+											pattern: {
+												value: /^(https:\/\/github\.com\/.+)?$/,
+												message: 'GitHubのリポジトリURLを入力してください'
+											},
+										}}
 										render={({ field, fieldState }) => (
 											<InputField
-												title="本文"
+												title="Githubリポジトリ（オプション）"
+												type="url"
 												field={field}
 												fieldState={fieldState}
-												isMultiline
-												icon={<RiArticleLine />}
-												isDisabled={isUploadImage}
-												isLoading={isSubmitting}
-												customInput={
-													<DropZone
-														onDrop={(e) => {
-															const targetFile = e.items[0]
-															if (targetFile.kind !== 'file') return
-															targetFile.getFile().then((f) => {
-																setImageFile(f)
-															})
-														}}
-														className="w-full"
-													>
-														<TextArea
-															ref={textareaRef}
-															className="w-full rounded border border-subtext text-foreground p-2 transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary data-[disabled]:text-subtext resize-none"
-															style={{ height: `${contentHeight}px` }}
-															placeholder="作品の魅力を伝えられるように、とびっきりの内容を書きましょう！！"
-															onKeyDown={(e) => {
-																if (e.key === 'Tab') {
-																	e.preventDefault()
-																	const textarea = e.currentTarget
-																	const start = textarea.selectionStart
-																	const end = textarea.selectionEnd
-																	const value = textarea.value
-																	textarea.value = value.substring(0, start) + '\t' + value.substring(end)
-																	textarea.selectionStart = textarea.selectionEnd = start + 1
-																	if (typeof field?.onChange === 'function') {
-																		field.onChange(textarea.value)
-																	}
-																}
-															}}
-														/>
-													</DropZone>
-												}
-												className="my-0"
+												icon={<RiGithubLine />}
+												autoComplete="on"
+												placeholder="https://github.com/username/repository"
 											/>
 										)}
 									/>
+
+									<UrlListField
+										title="URL（オプション）"
+										urls={urlFields}
+										append={appendUrl}
+										remove={removeUrl}
+										maxUrls={5}
+										validation={() => null}
+										icon={<RiLink />}
+										helperText={`${urlFields.length}/5 URL - Enterキーで追加、×ボタンで削除`}
+									/>
 								</div>
-
-								<div>
-									<div className="flex items-center gap-2 mb-2">
-										<TextWithIcon icon={<RiEyeLine />}>プレビュー</TextWithIcon>
-									</div>
-									<div id="preview-content" className="border border-subtext rounded p-4 bg-background overflow-auto" style={{ height: `${contentHeight}px` }}>
-										<CustomMarkdown>{contentValue || ''}</CustomMarkdown>
-									</div>
-								</div>
-							</div>
-						</TabPanel>
-
-						<TabPanel className="focus:outline-none" id="option">
-							<div className="space-y-4">
-								<TagField
-									helperText={`${fields.length}/${MAX_TAGS} タグ - Enterキーで追加、×ボタンで削除`}
-									tags={fields}
-									maxTags={MAX_TAGS}
-									append={append}
-									remove={remove}
-									validation={
-										(tags) => {
-											if (!tags) return null
-											if (tags.length > MAX_TAGS) return `タグは最大${MAX_TAGS}つまでです`
-											if (tags.some(tag => tag.name.length > MAX_TAG_NAME_LENGTH)) return `タグは${MAX_TAG_NAME_LENGTH}文字以内で入力してください`
-											return null
-										}
-									}
-								/>
-
-								<Controller
-									name="githubRepositoryUrl"
-									control={control}
-									rules={{
-										pattern: {
-											value: /^(https:\/\/github\.com\/.+)?$/,
-											message: 'GitHubのリポジトリURLを入力してください'
-										},
-									}}
-									render={({ field, fieldState }) => (
-										<InputField
-											title="Githubリポジトリ（オプション）"
-											type="url"
-											field={field}
-											fieldState={fieldState}
-											icon={<RiGithubLine />}
-											autoComplete="on"
-											placeholder="https://github.com/username/repository"
-										/>
-									)}
-								/>
-
-								<UrlListField
-									title="URL（オプション）"
-									urls={urlFields}
-									append={appendUrl}
-									remove={removeUrl}
-									maxUrls={5}
-									validation={() => null}
-									icon={<RiLink />}
-									helperText={`${urlFields.length}/5 URL - Enterキーで追加、×ボタンで削除`}
-								/>
-							</div>
-						</TabPanel>
-					</Tabs>
-				</div>
-			</form>
-		</div>
+							</TabPanel>
+						</Tabs>
+					</div>
+				</form>
+			</div>
+		</>
 	)
 }
