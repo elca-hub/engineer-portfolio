@@ -5,7 +5,7 @@ const EditWorkPage = async (props: { params: Promise<{ workId: string }> }) => {
 
 	return (
 		<>
-			<EditWorkContainer workId={workId}></EditWorkContainer>
+			<EditWorkContainer workId={workId} />
 		</>
 	)
 }

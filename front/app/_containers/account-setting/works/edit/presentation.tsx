@@ -11,13 +11,15 @@ import { getSessionToken } from '@/lib/access'
 import { useContext, useEffect, useRef, useState, useCallback } from 'react'
 import { DropZone, FileTrigger, TextArea, Tabs, TabList, Tab, TabPanel } from 'react-aria-components'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { RiGithubLine, RiArticleLine, RiEyeLine, RiCheckboxCircleLine, RiLink, RiImageAddLine, RiMoreLine } from 'react-icons/ri'
+import { RiGithubLine, RiArticleLine, RiEyeLine, RiCheckboxCircleLine, RiLink, RiImageAddLine, RiMoreLine, RiUpload2Line, RiSave2Line } from 'react-icons/ri'
 import updateWork from '@/action/usecase/works/updateWork'
 import TagField from '@/components/layout/input/tagField'
 import { WorkUrlType } from '@/action/type/workUrl'
 import UrlListField from '@/components/layout/input/urlListField'
 import uploadWorksImage from '@/action/usecase/works/uploadWorksImage'
 import HeadContent from '@/components/layout/headContent'
+import { HeaderButtonContext } from '@/app/account/setting/state'
+import Link from 'next/link'
 
 type EditWorkPresentationProps = {
 	work: WorkType
@@ -52,6 +54,10 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 
 	/* プレビューの高さ調整関連 */
 	const [contentHeight, setContentHeight] = useState<number>(400)
+
+	/* ヘッダーボタン関連 */
+	const contextObj = useContext(HeaderButtonContext)
+	const setHeaderButton = contextObj === undefined ? null : contextObj.setHeaderButton
 
 	const { control, handleSubmit, watch, formState, reset, trigger, setValue } = useForm<WorkFormType>({
 		defaultValues: {
@@ -248,6 +254,24 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 			second: '2-digit'
 		}).format(date)
 	}
+
+	/* ヘッダーボタン関連 */
+	useEffect(() => {
+		if (setHeaderButton) {
+			setHeaderButton(
+				<div className="flex gap-2">
+					<DPButton colormode="mono">
+						<TextWithIcon icon={<RiSave2Line />}>下書き保存</TextWithIcon>
+					</DPButton>
+					<Link href={`/account/setting/works/${work.id}/publish-range`}>
+						<DPButton colormode="primary">
+							<TextWithIcon icon={<RiUpload2Line />}>公開範囲の設定へ</TextWithIcon>
+						</DPButton>
+					</Link>
+				</div>
+			)
+		}
+	}, [setHeaderButton])
 
 	return (
 		<>

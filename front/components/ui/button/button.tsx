@@ -1,13 +1,20 @@
 import { Button, ButtonProps } from 'react-aria-components'
 
 interface DBButtonProps extends ButtonProps, React.RefAttributes<HTMLButtonElement> {
-	colormode: 'primary' | 'secondary'
+	colormode: 'primary' | 'secondary' | 'mono'
 	buttonSize?: 'small'
 }
 
 const DPButton = ({ ...props }: DBButtonProps) => {
-	const convertColorMode = (colormode: 'primary' | 'secondary') => {
-		return colormode === 'primary' ? 'bg-primary text-foreground' : 'bg-secondary text-white'
+	const convertColorMode = (colormode: 'primary' | 'secondary' | 'mono') => {
+		switch (colormode) {
+			case 'primary':
+				return 'bg-primary text-foreground'
+			case 'secondary':
+				return 'bg-secondary text-white'
+			case 'mono':
+				return 'bg-white text-foreground border border-foreground'
+		}
 	}
 
 	return (
