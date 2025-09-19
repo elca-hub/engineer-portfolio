@@ -35,6 +35,7 @@ type Work struct {
 	GithubRepositoryURL string      `boil:"github_repository_url" json:"github_repository_url" toml:"github_repository_url" yaml:"github_repository_url"`
 	IsDraft             bool        `boil:"is_draft" json:"is_draft" toml:"is_draft" yaml:"is_draft"`
 	ThumbnailImageURL   null.String `boil:"thumbnail_image_url" json:"thumbnail_image_url,omitempty" toml:"thumbnail_image_url" yaml:"thumbnail_image_url,omitempty"`
+	PublishStatus       string      `boil:"publish_status" json:"publish_status" toml:"publish_status" yaml:"publish_status"`
 
 	R *workR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L workL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -51,6 +52,7 @@ var WorkColumns = struct {
 	GithubRepositoryURL string
 	IsDraft             string
 	ThumbnailImageURL   string
+	PublishStatus       string
 }{
 	ID:                  "id",
 	Title:               "title",
@@ -62,6 +64,7 @@ var WorkColumns = struct {
 	GithubRepositoryURL: "github_repository_url",
 	IsDraft:             "is_draft",
 	ThumbnailImageURL:   "thumbnail_image_url",
+	PublishStatus:       "publish_status",
 }
 
 var WorkTableColumns = struct {
@@ -75,6 +78,7 @@ var WorkTableColumns = struct {
 	GithubRepositoryURL string
 	IsDraft             string
 	ThumbnailImageURL   string
+	PublishStatus       string
 }{
 	ID:                  "works.id",
 	Title:               "works.title",
@@ -86,6 +90,7 @@ var WorkTableColumns = struct {
 	GithubRepositoryURL: "works.github_repository_url",
 	IsDraft:             "works.is_draft",
 	ThumbnailImageURL:   "works.thumbnail_image_url",
+	PublishStatus:       "works.publish_status",
 }
 
 // Generated where
@@ -110,6 +115,7 @@ var WorkWhere = struct {
 	GithubRepositoryURL whereHelperstring
 	IsDraft             whereHelperbool
 	ThumbnailImageURL   whereHelpernull_String
+	PublishStatus       whereHelperstring
 }{
 	ID:                  whereHelperstring{field: "`works`.`id`"},
 	Title:               whereHelperstring{field: "`works`.`title`"},
@@ -121,6 +127,7 @@ var WorkWhere = struct {
 	GithubRepositoryURL: whereHelperstring{field: "`works`.`github_repository_url`"},
 	IsDraft:             whereHelperbool{field: "`works`.`is_draft`"},
 	ThumbnailImageURL:   whereHelpernull_String{field: "`works`.`thumbnail_image_url`"},
+	PublishStatus:       whereHelperstring{field: "`works`.`publish_status`"},
 }
 
 // WorkRels is where relationship names are stored.
@@ -181,9 +188,9 @@ func (r *workR) GetWorkUrls() WorkURLSlice {
 type workL struct{}
 
 var (
-	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "github_repository_url", "is_draft", "thumbnail_image_url"}
+	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "github_repository_url", "is_draft", "thumbnail_image_url", "publish_status"}
 	workColumnsWithoutDefault = []string{"id", "title", "deleted_at", "user_id", "github_repository_url", "thumbnail_image_url"}
-	workColumnsWithDefault    = []string{"sort_index", "created_at", "updated_at", "is_draft"}
+	workColumnsWithDefault    = []string{"sort_index", "created_at", "updated_at", "is_draft", "publish_status"}
 	workPrimaryKeyColumns     = []string{"id"}
 	workGeneratedColumns      = []string{}
 )

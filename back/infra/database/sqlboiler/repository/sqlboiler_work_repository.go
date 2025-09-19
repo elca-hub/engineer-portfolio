@@ -155,6 +155,7 @@ func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlb
 		sqlboilerWork.IsDraft,
 		sqlboilerWork.SortIndex,
 		sqlboilerWork.ThumbnailImageURL.Ptr(),
+		model.PublishStatus(sqlboilerWork.PublishStatus),
 	)
 }
 
@@ -166,6 +167,7 @@ func (r *SqlboilerWorkRepository) convertToSqlBoilerModel(work *model.Work, user
 		UserID:              userId,
 		GithubRepositoryURL: work.GithubRepositoryUrl(),
 		ThumbnailImageURL:   null.StringFrom(*work.ThumbnailImageUrl()),
+		PublishStatus:       string(work.PublishStatus()),
 	}
 }
 
