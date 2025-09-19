@@ -154,7 +154,7 @@ func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlb
 		workTagsDomain,
 		sqlboilerWork.IsDraft,
 		sqlboilerWork.SortIndex,
-		&sqlboilerWork.ThumbnailImageURL.String,
+		sqlboilerWork.ThumbnailImageURL.Ptr(),
 	)
 }
 
