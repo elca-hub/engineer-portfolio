@@ -12,6 +12,7 @@ type WorkDTO struct {
 	ExternalServiceUrls []*WorkUrlDTO `json:"external_service_urls"`
 	Tags                []*WorkTagDTO `json:"tags"`
 	IsDraft             bool          `json:"is_draft"`
+	ThumbnailImageUrl   *string       `json:"thumbnail_image_url"`
 }
 
 func NewWorkDTO(work *model.Work) *WorkDTO {
@@ -33,5 +34,6 @@ func NewWorkDTO(work *model.Work) *WorkDTO {
 		ExternalServiceUrls: esuDto,
 		Tags:                tagDto,
 		IsDraft:             work.IsDraft(),
+		ThumbnailImageUrl:   work.ThumbnailImageUrl(),
 	}
 }
