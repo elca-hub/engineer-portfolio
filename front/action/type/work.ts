@@ -10,4 +10,7 @@ export type WorkType = {
   tags: WorkTagType[]
   is_draft: boolean
   thumbnail_image_url: string | null
+  publish_status: PublishStatus
 }
+
+export type PublishStatus = 'draft' | 'private' | 'limited' | 'public'

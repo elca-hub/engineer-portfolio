@@ -91,6 +91,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 			external_service_urls: data.externalServiceUrls,
 			is_draft: work.is_draft,
 			thumbnail_image_url: work.thumbnail_image_url,
+			publish_status: work.publish_status,
 		}
 	}
 

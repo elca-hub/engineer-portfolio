@@ -4,7 +4,7 @@ import { WorkType } from '@/action/type/work'
 import { UserType } from '@/action/type/user'
 import HeadContent from '@/components/layout/headContent'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
-import { RiEyeLine, RiFile4Line, RiFocus3Line, RiImageLine, RiUploadLine } from 'react-icons/ri'
+import { RiEyeLine, RiFile4Line, RiFocus3Line, RiImageLine, RiLink, RiLockLine, RiMedal2Line, RiUploadLine } from 'react-icons/ri'
 import { DropZone } from 'react-aria-components'
 import { FileTrigger } from 'react-aria-components'
 import Image from 'next/image'
@@ -14,18 +14,29 @@ import { useContext } from 'react'
 import { getSessionToken } from '@/lib/access'
 import uploadWorkThumbnail from '@/action/usecase/works/uploadWorkThumbnail'
 import { useRouter } from 'next/navigation'
+import SelectField from '@/components/layout/input/selectField'
+import { PublishStatus } from '@/action/type/work'
+import { Controller, useForm } from 'react-hook-form'
 
 type PublishWorkPresentationProps = {
 	work: WorkType
 	user: UserType
 }
 
-
+type PublishWorkFormType = {
+	publishStatus: PublishStatus
+}
 
 export default function PublishWorkPresentation({ work, user }: PublishWorkPresentationProps) {
 	const { callout, setCallout } = useContext(CalloutContext)
 
 	const router = useRouter()
+
+	const { control } = useForm<PublishWorkFormType>({
+		defaultValues: {
+			publishStatus: work.publish_status,
+		},
+	})
 
 	const host = process.env.NEXT_PUBLIC_S3_IMAGE_HOST
 	let imagePath: string
@@ -34,6 +45,8 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 	} else {
 		imagePath = `/work_default_thumbnail.png`
 	}
+
+	const defaultSelectedKey = work.publish_status === 'draft' ? 'private' : work.publish_status
 
 	const handleUploadThumbnail = (file: File) => {
 		if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
@@ -78,6 +91,34 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 					<SectionComponent
 					icon={<RiFocus3Line />}
 					title="公開範囲の設定" />
+					<form>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<Controller
+								name="publishStatus"
+								control={control}
+								rules={{
+									required: '公開範囲の設定をしてください',
+								}}
+								render={({ field, fieldState }) => (
+									<SelectField
+										title="公開範囲の設定"
+										field={field}
+										fieldState={fieldState}
+										isRequired
+										helperText="公開範囲の設定をしてください"
+										icon={<RiMedal2Line />}
+										options={[
+											{ label: '非公開', value: 'private', icon: <RiLockLine /> },
+											{ label: '限定公開', value: 'limited', icon: <RiLink /> },
+											{ label: '全体公開', value: 'public', icon: <RiEyeLine /> }
+										]}
+										defaultSelectedKey={defaultSelectedKey}
+									/>
+								)}
+							/>
+
+						</div>
+					</form>
 				</div>
 
 				<div className="flex flex-row gap-4 justify-between">
