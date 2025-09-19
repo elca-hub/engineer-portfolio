@@ -32,6 +32,4 @@ func (e *Error) Send(w http.ResponseWriter) {
 	if err != nil {
 		panic(err)
 	}
-
-	return
 }
