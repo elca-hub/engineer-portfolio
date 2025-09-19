@@ -7,7 +7,7 @@ type OriginalErrorResponseObj struct {
 
 type OriginalResponse struct {
 	Error      *OriginalErrorResponseObj `json:"error"`
-	Data       interface{}               `json:"data"`
+	Data       any                       `json:"data"`
 	StatusCode int                       `json:"-"`
 }
 
