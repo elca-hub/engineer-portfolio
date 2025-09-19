@@ -224,7 +224,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 			const screenHeight = window.innerHeight
 			const containerPosition = contentContainer.getBoundingClientRect()
 			// 下部のマージンを考慮して少し余裕を持たせる
-			const calculatedHeight = screenHeight - containerPosition.top - 100
+			const calculatedHeight = screenHeight - containerPosition.top - 140
 			setContentHeight(Math.max(calculatedHeight, 300)) // 最小高さを300pxに設定
 		}
 	}, [])
@@ -397,7 +397,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 										/>
 									</div>
 
-									<div>
+									<div className="my-4">
 										<div className="flex items-center gap-2 mb-2">
 											<TextWithIcon icon={<RiEyeLine />}>プレビュー</TextWithIcon>
 										</div>
