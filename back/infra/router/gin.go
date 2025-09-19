@@ -215,6 +215,7 @@ func (e *GinEngine) setupRouter(router *gin.Engine) {
 					{
 						workAuthItemRouterGroup.PUT("/", e.updateWorkAction())
 						workAuthItemRouterGroup.POST("/image", e.uploadWorkImageAction())
+						workAuthItemRouterGroup.POST("/thumbnail", e.uploadWorkThumbnailAction())
 					}
 				}
 			}
@@ -788,6 +789,23 @@ func (e *GinEngine) findWorkAction() gin.HandlerFunc {
 			)
 
 			act = action.NewFindWorkAction(uc, e.validator, e.log)
+		)
+
+		act.Execute(c.Writer, c.Request, c)
+	}
+}
+
+func (e *GinEngine) uploadWorkThumbnailAction() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			uc = work.NewUploadWorkThumbnailInteractor(
+				e.fileUploader.WorkThumbnailStorageRepository(),
+				e.sql.WorkRepository(),
+				work_presenter.NewUploadWorkThumbnailPresenter(),
+				e.ctxTimeout,
+			)
+
+			act = action.NewUploadWorkThumbnailAction(uc, e.validator, e.log)
 		)
 
 		act.Execute(c.Writer, c.Request, c)
