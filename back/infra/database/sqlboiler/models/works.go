@@ -27,13 +27,14 @@ type Work struct {
 	ID    string `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Title string `boil:"title" json:"title" toml:"title" yaml:"title"`
 	// 作品の表示順序を管理するインデックス。デフォルトは-1
-	SortIndex           int       `boil:"sort_index" json:"sort_index" toml:"sort_index" yaml:"sort_index"`
-	CreatedAt           time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt           time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt           null.Time `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
-	UserID              string    `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
-	GithubRepositoryURL string    `boil:"github_repository_url" json:"github_repository_url" toml:"github_repository_url" yaml:"github_repository_url"`
-	IsDraft             bool      `boil:"is_draft" json:"is_draft" toml:"is_draft" yaml:"is_draft"`
+	SortIndex           int         `boil:"sort_index" json:"sort_index" toml:"sort_index" yaml:"sort_index"`
+	CreatedAt           time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt           time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	DeletedAt           null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
+	UserID              string      `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
+	GithubRepositoryURL string      `boil:"github_repository_url" json:"github_repository_url" toml:"github_repository_url" yaml:"github_repository_url"`
+	IsDraft             bool        `boil:"is_draft" json:"is_draft" toml:"is_draft" yaml:"is_draft"`
+	ThumbnailImageURL   null.String `boil:"thumbnail_image_url" json:"thumbnail_image_url,omitempty" toml:"thumbnail_image_url" yaml:"thumbnail_image_url,omitempty"`
 
 	R *workR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L workL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -49,6 +50,7 @@ var WorkColumns = struct {
 	UserID              string
 	GithubRepositoryURL string
 	IsDraft             string
+	ThumbnailImageURL   string
 }{
 	ID:                  "id",
 	Title:               "title",
@@ -59,6 +61,7 @@ var WorkColumns = struct {
 	UserID:              "user_id",
 	GithubRepositoryURL: "github_repository_url",
 	IsDraft:             "is_draft",
+	ThumbnailImageURL:   "thumbnail_image_url",
 }
 
 var WorkTableColumns = struct {
@@ -71,6 +74,7 @@ var WorkTableColumns = struct {
 	UserID              string
 	GithubRepositoryURL string
 	IsDraft             string
+	ThumbnailImageURL   string
 }{
 	ID:                  "works.id",
 	Title:               "works.title",
@@ -81,6 +85,7 @@ var WorkTableColumns = struct {
 	UserID:              "works.user_id",
 	GithubRepositoryURL: "works.github_repository_url",
 	IsDraft:             "works.is_draft",
+	ThumbnailImageURL:   "works.thumbnail_image_url",
 }
 
 // Generated where
@@ -104,6 +109,7 @@ var WorkWhere = struct {
 	UserID              whereHelperstring
 	GithubRepositoryURL whereHelperstring
 	IsDraft             whereHelperbool
+	ThumbnailImageURL   whereHelpernull_String
 }{
 	ID:                  whereHelperstring{field: "`works`.`id`"},
 	Title:               whereHelperstring{field: "`works`.`title`"},
@@ -114,6 +120,7 @@ var WorkWhere = struct {
 	UserID:              whereHelperstring{field: "`works`.`user_id`"},
 	GithubRepositoryURL: whereHelperstring{field: "`works`.`github_repository_url`"},
 	IsDraft:             whereHelperbool{field: "`works`.`is_draft`"},
+	ThumbnailImageURL:   whereHelpernull_String{field: "`works`.`thumbnail_image_url`"},
 }
 
 // WorkRels is where relationship names are stored.
@@ -174,8 +181,8 @@ func (r *workR) GetWorkUrls() WorkURLSlice {
 type workL struct{}
 
 var (
-	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "github_repository_url", "is_draft"}
-	workColumnsWithoutDefault = []string{"id", "title", "deleted_at", "user_id", "github_repository_url"}
+	workAllColumns            = []string{"id", "title", "sort_index", "created_at", "updated_at", "deleted_at", "user_id", "github_repository_url", "is_draft", "thumbnail_image_url"}
+	workColumnsWithoutDefault = []string{"id", "title", "deleted_at", "user_id", "github_repository_url", "thumbnail_image_url"}
 	workColumnsWithDefault    = []string{"sort_index", "created_at", "updated_at", "is_draft"}
 	workPrimaryKeyColumns     = []string{"id"}
 	workGeneratedColumns      = []string{}

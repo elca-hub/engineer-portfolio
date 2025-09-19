@@ -8,6 +8,7 @@ import (
 	"devport/domain/repo/file_storage"
 	"devport/infra/database/sqlboiler/models"
 
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -153,6 +154,7 @@ func (r *SqlboilerWorkRepository) convertToDomainModel(ctx context.Context, sqlb
 		workTagsDomain,
 		sqlboilerWork.IsDraft,
 		sqlboilerWork.SortIndex,
+		&sqlboilerWork.ThumbnailImageURL.String,
 	)
 }
 
@@ -163,6 +165,7 @@ func (r *SqlboilerWorkRepository) convertToSqlBoilerModel(work *model.Work, user
 		SortIndex:           work.SortIndex(),
 		UserID:              userId,
 		GithubRepositoryURL: work.GithubRepositoryUrl(),
+		ThumbnailImageURL:   null.StringFrom(*work.ThumbnailImageUrl()),
 	}
 }
 
