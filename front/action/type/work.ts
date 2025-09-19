@@ -9,4 +9,5 @@ export type WorkType = {
   external_service_urls: WorkUrlType[]
   tags: WorkTagType[]
   is_draft: boolean
+  thumbnail_image_url: string | null
 }
