@@ -1,0 +1,2 @@
+ALTER TABLE works
+    ADD COLUMN thumbnail_image_url VARCHAR(255) DEFAULT NULL;
