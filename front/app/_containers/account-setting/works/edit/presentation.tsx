@@ -263,7 +263,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 					<DPButton colormode="mono" onPress={() => handleUpdateWork(watch(), false)}>
 						<TextWithIcon icon={<RiSave2Line />}>下書き保存</TextWithIcon>
 					</DPButton>
-					<Link href={`/account/setting/works/${work.id}/publish-range`}>
+					<Link href={`/account/setting/works/${work.id}/publish`}>
 						<DPButton colormode="primary">
 							<TextWithIcon icon={<RiUpload2Line />}>公開範囲の設定へ</TextWithIcon>
 						</DPButton>
