@@ -20,6 +20,7 @@ type StorageRepositoryInter interface {
 	BioSentenceStorageRepository() file_storage.BioSentenceStorageRepository
 	WorkImageStorageRepository() file_storage.WorkImageStorageRepository
 	WorkSentenceStorageRepository() file_storage.WorkSentenceStorageRepository
+	WorkThumbnailStorageRepository() file_storage.WorkThumbnailStorageRepository
 }
 
 func NewStorageRepositoryFactory(instance int) (StorageRepositoryInter, error) {

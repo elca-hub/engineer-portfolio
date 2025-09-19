@@ -7,4 +7,5 @@ const (
 	BioImageObjectType
 	WorkSentenceObjectType
 	WorkImageObjectType
+	WorkThumbnailObjectType
 )

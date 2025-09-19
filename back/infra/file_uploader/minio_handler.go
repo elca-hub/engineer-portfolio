@@ -71,3 +71,7 @@ func (m *MinioHandler) WorkImageStorageRepository() file_storage.WorkImageStorag
 func (m *MinioHandler) WorkSentenceStorageRepository() file_storage.WorkSentenceStorageRepository {
 	return storage_repository.NewWorkSentenceStorage(m.uploader, m.client, m.bucketName)
 }
+
+func (m *MinioHandler) WorkThumbnailStorageRepository() file_storage.WorkThumbnailStorageRepository {
+	return storage_repository.NewWorkThumbnailStorage(m.uploader, m.client, m.bucketName, m.endpoint)
+}
