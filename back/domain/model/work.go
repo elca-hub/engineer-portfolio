@@ -12,6 +12,15 @@ const (
 	MaxTagsLen                = 5
 )
 
+type PublishStatus string
+
+const (
+	PublishStatusDraft   PublishStatus = "draft"
+	PublishStatusPrivate PublishStatus = "private"
+	PublishStatusLimited PublishStatus = "limited"
+	PublishStatusPublic  PublishStatus = "public"
+)
+
 type Work struct {
 	id                  string
 	title               string
@@ -22,6 +31,7 @@ type Work struct {
 	isDraft             bool
 	sortIndex           int
 	thumbnailImageUrl   *string // サムネイル画像がnilの場合はデフォルトの画像を使用
+	publishStatus       PublishStatus
 }
 
 func updateTitleLogic(title string) (string, error) {
@@ -80,6 +90,7 @@ func NewWorkInit(
 		tags:                []string{},
 		isDraft:             true,
 		sortIndex:           sortIndex,
+		publishStatus:       PublishStatusDraft,
 	}
 }
 
@@ -93,6 +104,7 @@ func NewWork(
 	isDraft bool,
 	sortIndex int,
 	thumbnailImageUrl *string,
+	publishStatus PublishStatus,
 ) (*Work, error) {
 	if _, err := updateTitleLogic(title); err != nil {
 		return nil, err
@@ -124,6 +136,7 @@ func NewWork(
 		isDraft:             isDraft,
 		sortIndex:           sortIndex,
 		thumbnailImageUrl:   thumbnailImageUrl,
+		publishStatus:       publishStatus,
 	}, nil
 }
 
@@ -206,4 +219,8 @@ func (w *Work) SortIndex() int {
 
 func (w *Work) ThumbnailImageUrl() *string {
 	return w.thumbnailImageUrl
+}
+
+func (w *Work) PublishStatus() PublishStatus {
+	return w.publishStatus
 }
