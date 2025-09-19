@@ -90,6 +90,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 			github_repository_url: data.githubRepositoryUrl,
 			external_service_urls: data.externalServiceUrls,
 			is_draft: work.is_draft,
+			thumbnail_image_url: work.thumbnail_image_url,
 		}
 	}
 
