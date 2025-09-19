@@ -260,7 +260,7 @@ export default function EditWorkPresentation({ work, user }: EditWorkPresentatio
 		if (setHeaderButton) {
 			setHeaderButton(
 				<div className="flex gap-2">
-					<DPButton colormode="mono">
+					<DPButton colormode="mono" onPress={() => handleUpdateWork(watch(), false)}>
 						<TextWithIcon icon={<RiSave2Line />}>下書き保存</TextWithIcon>
 					</DPButton>
 					<Link href={`/account/setting/works/${work.id}/publish-range`}>
