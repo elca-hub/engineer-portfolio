@@ -21,6 +21,7 @@ type Work struct {
 	tags                []string
 	isDraft             bool
 	sortIndex           int
+	thumbnailImageUrl   *string // サムネイル画像がnilの場合はデフォルトの画像を使用
 }
 
 func updateTitleLogic(title string) (string, error) {
@@ -91,6 +92,7 @@ func NewWork(
 	tags []string,
 	isDraft bool,
 	sortIndex int,
+	thumbnailImageUrl *string,
 ) (*Work, error) {
 	if _, err := updateTitleLogic(title); err != nil {
 		return nil, err
@@ -121,6 +123,7 @@ func NewWork(
 		tags:                tags,
 		isDraft:             isDraft,
 		sortIndex:           sortIndex,
+		thumbnailImageUrl:   thumbnailImageUrl,
 	}, nil
 }
 
@@ -164,6 +167,11 @@ func (w *Work) UpdateTags(tags []string) error {
 	return nil
 }
 
+func (w *Work) UpdateThumbnailImageUrl(thumbnailImageUrl *string) error {
+	w.thumbnailImageUrl = thumbnailImageUrl
+	return nil
+}
+
 func (w *Work) IsDraft() bool {
 	return w.isDraft
 }
@@ -194,4 +202,8 @@ func (w *Work) ExternalServiceUrls() []*WorkUrl {
 
 func (w *Work) SortIndex() int {
 	return w.sortIndex
+}
+
+func (w *Work) ThumbnailImageUrl() *string {
+	return w.thumbnailImageUrl
 }
