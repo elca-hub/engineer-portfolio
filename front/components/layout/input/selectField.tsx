@@ -8,7 +8,6 @@ interface SelectFieldProps extends SelectProps, React.RefAttributes<HTMLDivEleme
 	title?: string
 	field: ControllerRenderProps<FieldValue<FieldValues>, FieldPath<FieldValues>>
 	fieldState: ControllerFieldState
-	isRequired?: boolean
 	helperText?: string
 	icon?: React.ReactNode
 	popoverContent?: string
@@ -52,8 +51,6 @@ const SelectField = ({ ...props }: SelectFieldProps) => {
 		labelNode
 	)
 
-  const normalInputClassName = 'rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
-
 	return props.isLoading ? (
 		<div className="animate-pulse">
 			<div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -61,9 +58,14 @@ const SelectField = ({ ...props }: SelectFieldProps) => {
 			<div className="h-4 bg-gray-200 rounded w-2/3"></div>
 		</div>
 	) : (
-		<Select {...props.field} {...props} className={`flex flex-col gap-2 ${props.className}`}>
+		<Select
+			selectedKey={props.field.value}
+			onSelectionChange={props.field.onChange}
+			{...props}
+			className={`flex flex-col gap-2 ${props.className}`}
+		>
 			<Label className="text-gray-700">{labelPopOver}</Label>
-      <Button className={normalInputClassName}>
+      <Button className="rounded border border-subtext p-2 text-foreground transition duration-200 ease-in-out focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
         <div className="flex flex-row items-center justify-between w-full">
           <SelectValue />
           <RiArrowDownSLine className="text-subtext" />
