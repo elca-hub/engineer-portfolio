@@ -4,10 +4,10 @@ import { WorkType } from '@/action/type/work'
 import { UserType } from '@/action/type/user'
 import HeadContent from '@/components/layout/headContent'
 import TextWithIcon from '@/components/ui/text/textWithIcon'
+import WorkCardItem from '@/components/layout/work/workCardItem'
 import { RiEyeLine, RiFile4Line, RiFocus3Line, RiImageLine, RiLink, RiLockLine, RiMedal2Line, RiUploadLine } from 'react-icons/ri'
 import { DropZone } from 'react-aria-components'
 import { FileTrigger } from 'react-aria-components'
-import Image from 'next/image'
 import DPButton from '@/components/ui/button/button'
 import { CalloutContext } from '@/app/state'
 import { useContext, useEffect } from 'react'
@@ -222,10 +222,18 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 				<div>
 					<SectionComponent
 					icon={<RiEyeLine />}
-					title="サムネイルのプレビュー" />
+					title="プレビュー" />
 
 					<div className="flex justify-center">
-						<Image src={imagePath} alt="サムネイル" width={300} height={300} />
+						<div className="max-w-sm">
+							<WorkCardItem
+								work={{
+									...work,
+									thumbnail_image_url: imagePath
+								}}
+								buttonText="プレビュー"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
