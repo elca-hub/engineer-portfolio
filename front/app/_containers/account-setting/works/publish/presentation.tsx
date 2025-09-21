@@ -10,13 +10,15 @@ import { FileTrigger } from 'react-aria-components'
 import Image from 'next/image'
 import DPButton from '@/components/ui/button/button'
 import { CalloutContext } from '@/app/state'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { getSessionToken } from '@/lib/access'
 import uploadWorkThumbnail from '@/action/usecase/works/uploadWorkThumbnail'
 import { useRouter } from 'next/navigation'
 import SelectField from '@/components/layout/input/selectField'
 import { PublishStatus } from '@/action/type/work'
 import { Controller, useForm } from 'react-hook-form'
+import updateWork from '@/action/usecase/works/updateWork'
+import { HeaderButtonContext } from '@/app/account/setting/state'
 
 type PublishWorkPresentationProps = {
 	work: WorkType
@@ -30,9 +32,13 @@ type PublishWorkFormType = {
 export default function PublishWorkPresentation({ work, user }: PublishWorkPresentationProps) {
 	const { callout, setCallout } = useContext(CalloutContext)
 
+	const contextObj = useContext(HeaderButtonContext)
+	const setHeaderButton = contextObj === undefined ? null : contextObj.setHeaderButton
+
+
 	const router = useRouter()
 
-	const { control } = useForm<PublishWorkFormType>({
+	const { control, watch } = useForm<PublishWorkFormType>({
 		defaultValues: {
 			publishStatus: work.publish_status,
 		},
@@ -45,8 +51,6 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 	} else {
 		imagePath = `/work_default_thumbnail.png`
 	}
-
-	const defaultSelectedKey = work.publish_status === 'draft' ? 'private' : work.publish_status
 
 	const handleUploadThumbnail = (file: File) => {
 		if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
@@ -83,6 +87,47 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 		uploadFlow()
 	}
 
+	const handleUpdatePublishStatus = async (data: PublishWorkFormType) => {
+		const token = await getSessionToken()
+		if (!token) {
+			setCallout([...callout, { content: 'ログインしてください', type: 'error' }])
+			return
+		}
+
+		const uploadFlow = async () => {
+			const response = await updateWork(token, user.user_id, {
+				...work,
+				publish_status: data.publishStatus,
+			}, true)
+			if (response.errors) {
+				for (const error of response.errors) {
+					setCallout([...callout, { content: error, type: 'error' }])
+				}
+			}
+
+			if (response.data) {
+				setCallout([...callout, { content: '公開範囲の設定に成功しました', type: 'success' }])
+
+				router.push(`/account/setting/works/edit/${work.id}`)
+			}
+		}
+
+		uploadFlow()
+	}
+
+	/* ヘッダーボタン関連 */
+	useEffect(() => {
+		if (setHeaderButton) {
+			setHeaderButton(
+				<div className="flex gap-2">
+					<DPButton colormode="primary" onPress={() => handleUpdatePublishStatus(watch())}>
+						<TextWithIcon icon={<RiUploadLine />}>投稿！</TextWithIcon>
+					</DPButton>
+				</div>
+			)
+		}
+	}, [setHeaderButton])
+
 	return (
 		<>
 			<HeadContent title="公開範囲の設定" des="公開範囲の設定" />
@@ -112,7 +157,7 @@ export default function PublishWorkPresentation({ work, user }: PublishWorkPrese
 											{ label: '限定公開', value: 'limited', icon: <RiLink /> },
 											{ label: '全体公開', value: 'public', icon: <RiEyeLine /> }
 										]}
-										defaultSelectedKey={defaultSelectedKey}
+										defaultSelectedKey={work.publish_status === 'draft' ? 'private' : work.publish_status}
 									/>
 								)}
 							/>
