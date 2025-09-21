@@ -360,6 +360,10 @@ func (i updateWorkInteractor) updateModel(work *model.Work, input *dto.WorkDTO) 
 		return nil, err
 	}
 
+	if err := work.UpdatePublishStatus(model.PublishStatus(input.PublishStatus)); err != nil {
+		return nil, err
+	}
+
 	tagNames := make([]string, len(input.Tags))
 	for i, tag := range input.Tags {
 		tagNames[i] = tag.Name

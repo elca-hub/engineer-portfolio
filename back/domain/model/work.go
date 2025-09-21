@@ -74,6 +74,10 @@ func updateTagsLogic(tags []string) ([]string, error) {
 	return tags, nil
 }
 
+func updatePublishStatusLogic(publishStatus PublishStatus) (PublishStatus, error) {
+	return publishStatus, nil
+}
+
 /**
 * workを作成する際に使用
  */
@@ -169,6 +173,14 @@ func (w *Work) UpdateExternalServiceUrls(externalServiceUrls []*WorkUrl) error {
 		return err
 	}
 	w.externalServiceUrls = externalServiceUrls
+	return nil
+}
+
+func (w *Work) UpdatePublishStatus(publishStatus PublishStatus) error {
+	if _, err := updatePublishStatusLogic(publishStatus); err != nil {
+		return err
+	}
+	w.publishStatus = publishStatus
 	return nil
 }
 
